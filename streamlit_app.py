@@ -230,6 +230,41 @@ st.markdown(
         border-radius: 12px;
         overflow: hidden;
     }
+
+
+    .section-divider {
+        height: 1px;
+        background: linear-gradient(90deg, rgba(124,77,255,0.0), rgba(124,77,255,0.55), rgba(0,212,255,0.35), rgba(124,77,255,0.0));
+        margin: 22px 0 18px 0;
+    }
+
+    .explain-box {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 14px 16px;
+        color: #d8deed;
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .guide-box {
+        background: rgba(124,77,255,0.10);
+        border: 1px solid rgba(124,77,255,0.24);
+        border-radius: 14px;
+        padding: 13px 15px;
+        color: #d8deed;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+    .chart-caption {
+        color: #aeb7cc;
+        font-size: 12px;
+        line-height: 1.55;
+        margin-top: -4px;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -612,6 +647,14 @@ def color_by_segment(seg):
     if "검증" in s:
         return "#ffae42"
     return "#6b7280"
+
+
+def add_section_divider():
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+
+
+def clean_display_text(series: pd.Series) -> pd.Series:
+    return series.replace(["None", "nan", "NaN", "", None], pd.NA).fillna("미분류")
 
 
 # =========================================================
@@ -1399,6 +1442,34 @@ with k4:
         delta_suffix="명",
     )
 
+with st.expander("KPI 해석 방법", expanded=False):
+    st.markdown(
+        """
+        <div class="explain-box">
+        <b>전체 후보군</b>: 선택한 비교 대상 시점의 전체 후보 수입니다. 후보군 규모가 충분히 확보되었는지 확인합니다.<br><br>
+        <b>핵심 검토 대상</b>: shortlist 또는 주요 액션버킷에 해당하는 후보 수입니다. 사람이 실제로 검토할 후보 pool의 크기를 의미합니다.<br><br>
+        <b>평균 영입 점수</b>: 현재 필터 조건에 남은 후보들의 평균 영입 적합도 점수입니다. 특정 세그먼트나 검토 단계를 선택했을 때 후보군의 평균 품질을 비교할 수 있습니다.<br><br>
+        <b>고우선 후보 수</b>: 즉시검토 또는 이에 준하는 우선순위 후보 수입니다. 우선 컨택/검증 대상의 규모를 빠르게 확인하는 지표입니다.<br><br>
+        <b>증감 표시</b>: 기준 시점 대비 비교 대상 시점의 변화량입니다. ▲는 증가, ▼는 감소, —는 변화 없음을 의미합니다.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with st.expander("스코어링 방식 설명: 휴리스틱 기반 운영 점수", expanded=False):
+    st.markdown(
+        """
+        <div class="explain-box">
+        현재 점수는 실제 영입 성공 데이터를 학습한 머신러닝 모델이 아니라, CIME의 초기 영입 전략을 반영한 <b>휴리스틱 기반 운영 점수</b>입니다.<br><br>
+        단순 조회수/구독자 수만 보는 것이 아니라, <b>채널력, 성장성, 팬밀도, 라이브친화도, 실전성</b>을 함께 반영합니다.<br><br>
+        <code>최종점수_raw = 0.22×채널력점수 + 0.28×성장성점수 + 0.22×팬밀도점수 + 0.15×라이브친화점수 + 0.13×실전성점수</code><br><br>
+        이후 <code>수기제외채널</code>, <code>운영제외리스크</code>, <code>검증필요리스크</code>를 감점합니다. 따라서 최종점수는 후보 정렬용 기준이고, 실제 판단은 <b>검토 단계, 추천사유, 주의사유</b>와 함께 봐야 합니다.<br><br>
+        이 가중치는 확정된 정답이 아니라 1차 운영 기준입니다. 향후 사람 검토 라벨이나 실제 컨택 결과가 쌓이면 가중치 민감도 분석 또는 지도학습으로 보정할 수 있습니다.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 st.markdown("<br>", unsafe_allow_html=True)
 
 
@@ -1406,6 +1477,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # 9. TOP 후보 카드
 # =========================================================
 
+add_section_divider()
 st.markdown("### TOP 영입 후보")
 
 top_candidates = filtered.head(5).copy()
@@ -1447,6 +1519,7 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
 st.markdown("<br>", unsafe_allow_html=True)
 
 
+add_section_divider()
 # =========================================================
 # 10. 본문 레이아웃
 # =========================================================
@@ -1461,6 +1534,7 @@ main_left, main_right = st.columns([0.68, 0.32])
 with main_left:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
     st.markdown("### 영입 우선순위 TOP")
+    st.caption("현재 필터 조건에서 검토 우선순위가 높은 후보를 보여줍니다. 표의 순위는 전체 원본 순위가 아니라 현재 필터 결과 기준입니다.")
 
     display_cols = [
         "표시순위",
@@ -1482,13 +1556,26 @@ with main_left:
 
     table_df = filtered[display_cols].head(top_n).copy()
 
-    table_df = table_df.rename(columns={
-        "표시순위": "순위",
-        "최종점수_100점": "최종점수",
-    })
+    display_rename_map = {
+        "표시순위": "현재 필터 기준 순위",
+        score_display_col: "영입 적합도 점수",
+        channel_name_col: "채널명",
+        segment_col: "주요 콘텐츠군",
+        lower_segment_col: "세부 콘텐츠 유형",
+        subs_col: "구독자 수",
+        view_col: "최근 영상 평균 조회수",
+        eng_col: "평균 참여율",
+        action_col: "검토 단계",
+        shortlist_type_col: "shortlist 유형",
+        recommend_col: "추천 사유",
+        caution_col: "주의 사유",
+        change_col: "변화 요약",
+    }
+    display_rename_map = {k: v for k, v in display_rename_map.items() if k and k in table_df.columns}
+    table_df = table_df.rename(columns=display_rename_map)
 
-    if "최종점수" in table_df.columns:
-        table_df["최종점수"] = pd.to_numeric(table_df["최종점수"], errors="coerce").round(1)
+    if "영입 적합도 점수" in table_df.columns:
+        table_df["영입 적합도 점수"] = pd.to_numeric(table_df["영입 적합도 점수"], errors="coerce").round(1)
 
     st.dataframe(
         table_df,
@@ -1515,7 +1602,8 @@ with main_left:
     # =====================================================
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 세그먼트별 스코어 분포")
+    st.markdown("### 세그먼트별 영입 후보 점수 분포")
+    st.caption("각 점은 후보 채널 1개를 의미합니다. x축은 주요 콘텐츠군, y축은 영입 적합도 점수입니다.")
 
     if segment_col and score_col:
         plot_all = df.copy()
@@ -1668,8 +1756,9 @@ with main_left:
         st.plotly_chart(fig, use_container_width=True)
 
         st.caption(
-            "현재 필터 조건에 포함된 후보는 세그먼트별 색상으로 표시되고, "
-            "필터에서 제외된 후보는 회색으로 표시됩니다."
+            "해석 포인트: 어느 콘텐츠군에 고득점 후보가 많은지, 특정 콘텐츠군이 낮은 점수대에 몰려 있는지, "
+            "현재 필터에서 제외된 후보가 얼마나 많은지 확인할 수 있습니다. "
+            "색상 점은 현재 필터에 포함된 후보, 회색 점은 필터에서 제외된 후보입니다."
         )
 
     else:
@@ -1761,7 +1850,8 @@ with main_right:
 # =========================================================
 
 st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("### 후보 구성 요약")
+st.markdown("### 후보군 운영 현황 요약")
+st.caption("현재 필터 조건에서 후보군이 어떤 검토 단계와 콘텐츠군으로 구성되어 있는지 요약합니다.")
 
 chart_col1, chart_col2, chart_col3 = st.columns(3)
 
@@ -1770,7 +1860,7 @@ chart_col1, chart_col2, chart_col3 = st.columns(3)
 # ---------------------------------------------------------
 with chart_col1:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 액션버킷별 후보 수")
+    st.markdown("### 검토 단계별 후보 수")
 
     if action_col and action_col in filtered.columns:
         bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
@@ -1830,6 +1920,7 @@ with chart_col1:
         )
 
         st.plotly_chart(fig_bucket, use_container_width=True)
+        st.caption("즉시검토, 성장관찰, 검증필요, 보류, 제외 중 후보가 어디에 몰려 있는지 확인합니다.")
     else:
         st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
 
@@ -1840,7 +1931,7 @@ with chart_col1:
 # ---------------------------------------------------------
 with chart_col2:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 세그먼트별 평균 점수")
+    st.markdown("### 콘텐츠군별 평균 영입 점수")
 
     if segment_col and score_display_col and segment_col in filtered.columns and score_display_col in filtered.columns:
         seg_score_df = filtered.copy()
@@ -1901,7 +1992,7 @@ with chart_col2:
 # ---------------------------------------------------------
 with chart_col3:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 세그먼트 분포")
+    st.markdown("### 콘텐츠군 구성 비율")
 
     pie_col = action_col if action_col else segment_col
 
@@ -1938,18 +2029,88 @@ with chart_col3:
         )
 
         st.plotly_chart(fig_pie, use_container_width=True)
+        st.caption("현재 후보군이 어떤 콘텐츠군 또는 검토 단계에 많이 분포하는지 확인합니다. 특정 영역 쏠림 여부를 점검하는 용도입니다.")
     else:
         st.info("세그먼트 분포를 만들 컬럼이 없습니다.")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+
+# =========================================================
+# 10-4. 후보 포지셔닝 맵
+# - 팬 반응 밀도와 라이브 전환 가능성 기준으로 후보군 위치를 확인
+# =========================================================
+
+add_section_divider()
+st.markdown("### 후보 포지셔닝 맵")
+st.caption("엄밀한 알고리즘 클러스터링이 아니라, 팬 반응 밀도와 라이브 전환 가능성을 기준으로 후보군의 위치를 보는 운영형 포지셔닝 맵입니다.")
+
+if fan_col and live_col and fan_col in filtered.columns and live_col in filtered.columns:
+    position_df = filtered.copy()
+    position_df["__fan__"] = pd.to_numeric(position_df[fan_col], errors="coerce")
+    position_df["__live__"] = pd.to_numeric(position_df[live_col], errors="coerce")
+    position_df["__score__"] = pd.to_numeric(position_df[score_display_col], errors="coerce") if score_display_col in position_df.columns else np.nan
+    position_df["__segment__"] = position_df[segment_col].fillna("미분류").astype(str) if segment_col else "미분류"
+    position_df["__name__"] = position_df[channel_name_col].astype(str) if channel_name_col else "-"
+    position_df["__action__"] = position_df[action_col].fillna("미분류").astype(str) if action_col else "미분류"
+    position_df = position_df.dropna(subset=["__fan__", "__live__"])
+
+    if not position_df.empty:
+        fig_position = px.scatter(
+            position_df,
+            x="__fan__",
+            y="__live__",
+            color="__segment__",
+            size="__score__",
+            size_max=18,
+            hover_name="__name__",
+            hover_data={
+                "__segment__": True,
+                "__action__": True,
+                "__score__": ":.1f",
+                "__fan__": ":.3f",
+                "__live__": ":.3f",
+            },
+            template="plotly_dark",
+            height=430,
+        )
+        fig_position.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=10, r=10, t=20, b=40),
+            xaxis_title="팬 반응 밀도",
+            yaxis_title="라이브 전환 가능성",
+            legend_title_text="주요 콘텐츠군",
+        )
+        fig_position.update_xaxes(gridcolor="rgba(255,255,255,0.12)", zeroline=False)
+        fig_position.update_yaxes(gridcolor="rgba(255,255,255,0.12)", zeroline=False)
+        st.plotly_chart(fig_position, use_container_width=True)
+        st.caption("오른쪽 위에 가까울수록 팬 반응도 강하고 라이브 전환 가능성도 높은 후보로 해석할 수 있습니다. 점 크기는 영입 적합도 점수 기준입니다.")
+    else:
+        st.info("포지셔닝 맵을 만들 수 있는 후보 데이터가 부족합니다.")
+else:
+    st.info("후보 포지셔닝 맵을 만들기 위해서는 팬밀도점수와 라이브친화점수 컬럼이 필요합니다.")
+
 # =========================================================
 # 11. 하단: Snapshot 기반 변화 추적
 # =========================================================
 
 st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("### 후보 변화 추적")
+add_section_divider()
+st.markdown("### 최근 주목 후보 변화")
+st.markdown(
+    """
+    <div class="guide-box">
+    <b>표 해석법</b><br>
+    - <b>운영우선순위변동</b>이 양수이면 기준 시점보다 순위가 상승한 후보입니다.<br>
+    - <b>최종점수변동</b>이 양수이면 영입 적합도 점수가 상승한 후보입니다.<br>
+    - <b>검토 단계</b>가 보류 → 성장관찰, 검증필요 → 즉시검토처럼 개선되면 우선 확인 대상입니다.<br>
+    - <b>신규진입</b>은 기준 시점에는 없었지만 비교 시점에 새로 등장한 후보입니다.
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 if not tracking_base_df.empty and not tracking_target_df.empty:
     dynamic_tracking_df = build_tracking_between(
@@ -2009,11 +2170,10 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
             if c in tracking_view.columns:
                 tracking_view[c] = pd.to_numeric(tracking_view[c], errors="coerce").round(1)
 
+        # 기본 표는 제3자가 바로 해석할 수 있도록 핵심 컬럼만 간략 표시
         display_cols_tracking = [
-            "기준시점",
-            "비교시점",
             "채널명",
-            "채널ID",
+            "대표상위세그먼트",
             "기준순위",
             "비교순위",
             "운영우선순위변동",
@@ -2022,21 +2182,58 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
             "최종점수변동",
             "기준액션버킷",
             "비교액션버킷",
-            "버킷변경여부",
-            "신규진입여부",
-            "대표상위세그먼트",
-            "대표하위세그먼트",
             "변화요약",
         ]
         display_cols_tracking = [c for c in display_cols_tracking if c in tracking_view.columns]
 
+        tracking_display = tracking_view[display_cols_tracking].head(int(max_tracking_rows)).copy()
+        tracking_display = tracking_display.rename(columns={
+            "대표상위세그먼트": "주요 콘텐츠군",
+            "기준순위": "기준 순위",
+            "비교순위": "비교 순위",
+            "운영우선순위변동": "순위 변동",
+            "기준점수": "기준 점수",
+            "비교점수": "비교 점수",
+            "최종점수변동": "점수 변동",
+            "기준액션버킷": "기준 검토 단계",
+            "비교액션버킷": "비교 검토 단계",
+            "변화요약": "변화 요약",
+        })
+
         st.dataframe(
-            tracking_view[display_cols_tracking].head(int(max_tracking_rows)),
+            tracking_display,
             use_container_width=True,
             hide_index=True,
         )
 
-        tracking_csv = tracking_view[display_cols_tracking].to_csv(index=False, encoding="utf-8-sig")
+        with st.expander("변화 추적 상세 컬럼 보기", expanded=False):
+            detail_cols_tracking = [
+                "기준시점",
+                "비교시점",
+                "채널명",
+                "채널ID",
+                "기준순위",
+                "비교순위",
+                "운영우선순위변동",
+                "기준점수",
+                "비교점수",
+                "최종점수변동",
+                "기준액션버킷",
+                "비교액션버킷",
+                "버킷변경여부",
+                "신규진입여부",
+                "대표상위세그먼트",
+                "대표하위세그먼트",
+                "변화요약",
+            ]
+            detail_cols_tracking = [c for c in detail_cols_tracking if c in tracking_view.columns]
+            st.dataframe(
+                tracking_view[detail_cols_tracking].head(int(max_tracking_rows)),
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        tracking_csv = tracking_view.to_csv(index=False, encoding="utf-8-sig")
         st.download_button(
             "현재 변화 추적 CSV 다운로드",
             data=tracking_csv,
