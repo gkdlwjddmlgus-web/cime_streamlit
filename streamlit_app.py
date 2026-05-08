@@ -256,19 +256,59 @@ def find_project_root() -> Path:
 
 PROJECT_ROOT = find_project_root()
 
-CANDIDATE_DASHBOARD_PATH = PROJECT_ROOT / "10_dashboard" / "data" / "dashboard_candidate_table.csv"
-SEGMENT_DASHBOARD_PATH = PROJECT_ROOT / "10_dashboard" / "data" / "dashboard_segment_table.csv"
-SUMMARY_DASHBOARD_PATH = PROJECT_ROOT / "10_dashboard" / "data" / "dashboard_summary.csv"
-REFERENCE_DASHBOARD_PATH = PROJECT_ROOT / "10_dashboard" / "data" / "dashboard_reference_table.csv"
 
-CANDIDATE_SCORED_FINAL_PATH = PROJECT_ROOT / "11_final" / "core_output" / "candidate_scored_final.csv"
-SHORTLIST_TRACKING_PATH = PROJECT_ROOT / "11_final" / "core_output" / "candidate_shortlist_tracking.csv"
+def resolve_existing_path(relative_path: str) -> Path:
+    """
+    Streamlit Cloud / 로컬 환경 모두에서 CSV 경로를 안정적으로 찾기 위한 함수.
+    1순위: PROJECT_ROOT / relative_path
+    2순위: 현재 작업 폴더 / relative_path
+    3순위: streamlit_app.py 위치 / relative_path
+    4순위: 파일명 기준 재귀 탐색
+    """
+    rel = Path(relative_path)
 
-# snapshot append 결과 파일
-# 이 파일이 있어야 "과거 시점 vs 과거 시점" 변화 추적이 가능함
-CANDIDATE_SCORED_SNAPSHOT_PATH = (
-    PROJECT_ROOT / "09_intermediate" / "snapshots" / "candidate_scored_snapshot.csv"
-)
+    candidates = [
+        PROJECT_ROOT / rel,
+        Path.cwd() / rel,
+        Path(__file__).resolve().parent / rel,
+        Path(__file__).resolve().parent.parent / rel,
+    ]
+
+    for p in candidates:
+        if p.exists():
+            return p.resolve()
+
+    # 마지막 fallback: 파일명으로 전체 repo 안에서 검색
+    search_roots = [
+        PROJECT_ROOT,
+        Path.cwd(),
+        Path(__file__).resolve().parent,
+    ]
+
+    for root in search_roots:
+        try:
+            matches = list(root.rglob(rel.name))
+            for m in matches:
+                # 경로 끝부분이 최대한 일치하는 파일 우선
+                if str(m).replace("\\", "/").endswith(str(rel).replace("\\", "/")):
+                    return m.resolve()
+            if matches:
+                return matches[0].resolve()
+        except Exception:
+            pass
+
+    return PROJECT_ROOT / rel
+
+
+CANDIDATE_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_candidate_table.csv")
+SEGMENT_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_segment_table.csv")
+SUMMARY_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_summary.csv")
+REFERENCE_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_reference_table.csv")
+
+CANDIDATE_SCORED_FINAL_PATH = resolve_existing_path("11_final/core_output/candidate_scored_final.csv")
+SHORTLIST_TRACKING_PATH = resolve_existing_path("11_final/core_output/candidate_shortlist_tracking.csv")
+
+CANDIDATE_SCORED_SNAPSHOT_PATH = resolve_existing_path("09_intermediate/snapshots/candidate_scored_snapshot.csv")
 
 
 def read_csv_safe(path: Path) -> pd.DataFrame:
