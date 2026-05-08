@@ -1556,147 +1556,10 @@ with main_left:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # =====================================================
-    # 좌측 빈 공간 보완용 미니 시각화
-    # - main_left 내부에 배치해서 우측 세그먼트 분포 도넛과 높이 균형을 맞춘다.
-    # - 기존처럼 main_left/main_right 바깥에 두면 우측 컬럼 높이 때문에 좌측에 큰 빈 공간이 생길 수 있다.
-    # =====================================================
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    mini_col1, mini_col2 = st.columns(2)
-
-    # -----------------------------------------------------
-    # 미니 차트 1: 액션버킷별 후보 수
-    # -----------------------------------------------------
-    with mini_col1:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.markdown("### 액션버킷별 후보 수")
-
-        if action_col and action_col in filtered.columns:
-            bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
-
-            bucket_df = (
-                filtered[action_col]
-                .fillna("미분류")
-                .astype(str)
-                .value_counts()
-                .rename_axis("액션버킷")
-                .reset_index(name="후보수")
-            )
-
-            bucket_df["정렬순서"] = bucket_df["액션버킷"].apply(
-                lambda x: bucket_order.index(x) if x in bucket_order else 999
-            )
-            bucket_df = bucket_df.sort_values(["정렬순서", "후보수"], ascending=[True, False])
-
-            color_map_bucket = {
-                "즉시검토": "#19d3a2",
-                "성장관찰": "#636efa",
-                "검증필요": "#ef553b",
-                "보류": "#a0a7b8",
-                "제외": "#5b657a",
-                "미분류": "#8892a6",
-            }
-
-            fig_bucket = px.bar(
-                bucket_df,
-                x="후보수",
-                y="액션버킷",
-                orientation="h",
-                text="후보수",
-                template="plotly_dark",
-                height=300,
-                color="액션버킷",
-                color_discrete_map=color_map_bucket,
-            )
-
-            fig_bucket.update_traces(
-                textposition="outside",
-                hovertemplate="액션버킷=%{y}<br>후보수=%{x}명<extra></extra>",
-            )
-
-            fig_bucket.update_layout(
-                showlegend=False,
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=5, r=20, t=10, b=10),
-                xaxis_title="후보 수",
-                yaxis_title="",
-                yaxis=dict(
-                    categoryorder="array",
-                    categoryarray=list(reversed(bucket_df["액션버킷"].tolist())),
-                ),
-            )
-
-            st.plotly_chart(fig_bucket, use_container_width=True)
-        else:
-            st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # -----------------------------------------------------
-    # 미니 차트 2: 대표상위세그먼트별 평균 최종점수
-    # -----------------------------------------------------
-    with mini_col2:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.markdown("### 세그먼트별 평균 점수")
-
-        if segment_col and score_display_col and segment_col in filtered.columns and score_display_col in filtered.columns:
-            seg_score_df = filtered.copy()
-            seg_score_df["__score__"] = pd.to_numeric(seg_score_df[score_display_col], errors="coerce")
-            seg_score_df["__segment__"] = seg_score_df[segment_col].fillna("미분류").astype(str)
-
-            seg_summary = (
-                seg_score_df.groupby("__segment__", dropna=False)
-                .agg(
-                    평균최종점수=("__score__", "mean"),
-                    후보수=("__score__", "size"),
-                )
-                .reset_index()
-                .sort_values(["평균최종점수", "후보수"], ascending=[False, False])
-            )
-
-            fig_seg_score = px.bar(
-                seg_summary,
-                x="__segment__",
-                y="평균최종점수",
-                text="평균최종점수",
-                custom_data=["후보수"],
-                template="plotly_dark",
-                height=300,
-                color="__segment__",
-            )
-
-            fig_seg_score.update_traces(
-                texttemplate="%{y:.1f}",
-                textposition="outside",
-                hovertemplate=(
-                    "대표상위세그먼트=%{x}<br>"
-                    "평균최종점수=%{y:.1f}<br>"
-                    "후보수=%{customdata[0]}명<extra></extra>"
-                ),
-            )
-
-            fig_seg_score.update_layout(
-                showlegend=False,
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=5, r=5, t=10, b=60),
-                xaxis_title="",
-                yaxis_title="평균 점수",
-                xaxis=dict(tickangle=-25),
-            )
-
-            st.plotly_chart(fig_seg_score, use_container_width=True)
-        else:
-            st.info("세그먼트 컬럼 또는 점수 컬럼이 없어 시각화를 만들 수 없습니다.")
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # =========================================================
-# 10-2. 우측: 후보 상세 + 세그먼트 분포
+# 10-2. 우측: 후보 상세
 # =========================================================
 
 with main_right:
@@ -1769,8 +1632,153 @@ with main_right:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
 
+# =========================================================
+# 10-3. 후보 구성 요약: 3칸 정렬 그래프
+# - 액션버킷별 후보 수 / 세그먼트별 평균 점수 / 세그먼트 분포를
+#   같은 라인에 3개 카드로 배치해 경계와 높이를 맞춘다.
+# =========================================================
+
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("### 후보 구성 요약")
+
+chart_col1, chart_col2, chart_col3 = st.columns(3)
+
+# ---------------------------------------------------------
+# 1) 액션버킷별 후보 수
+# ---------------------------------------------------------
+with chart_col1:
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.markdown("### 액션버킷별 후보 수")
+
+    if action_col and action_col in filtered.columns:
+        bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
+
+        bucket_df = (
+            filtered[action_col]
+            .fillna("미분류")
+            .astype(str)
+            .value_counts()
+            .rename_axis("액션버킷")
+            .reset_index(name="후보수")
+        )
+
+        bucket_df["정렬순서"] = bucket_df["액션버킷"].apply(
+            lambda x: bucket_order.index(x) if x in bucket_order else 999
+        )
+        bucket_df = bucket_df.sort_values(["정렬순서", "후보수"], ascending=[True, False])
+
+        color_map_bucket = {
+            "즉시검토": "#19d3a2",
+            "성장관찰": "#636efa",
+            "검증필요": "#ef553b",
+            "보류": "#a0a7b8",
+            "제외": "#5b657a",
+            "미분류": "#8892a6",
+        }
+
+        fig_bucket = px.bar(
+            bucket_df,
+            x="후보수",
+            y="액션버킷",
+            orientation="h",
+            text="후보수",
+            template="plotly_dark",
+            height=360,
+            color="액션버킷",
+            color_discrete_map=color_map_bucket,
+        )
+
+        fig_bucket.update_traces(
+            textposition="outside",
+            cliponaxis=False,
+            hovertemplate="액션버킷=%{y}<br>후보수=%{x}명<extra></extra>",
+        )
+
+        fig_bucket.update_layout(
+            showlegend=False,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=5, r=35, t=10, b=30),
+            xaxis_title="후보 수",
+            yaxis_title="",
+            yaxis=dict(
+                categoryorder="array",
+                categoryarray=list(reversed(bucket_df["액션버킷"].tolist())),
+            ),
+        )
+
+        st.plotly_chart(fig_bucket, use_container_width=True)
+    else:
+        st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# 2) 대표상위세그먼트별 평균 최종점수
+# ---------------------------------------------------------
+with chart_col2:
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.markdown("### 세그먼트별 평균 점수")
+
+    if segment_col and score_display_col and segment_col in filtered.columns and score_display_col in filtered.columns:
+        seg_score_df = filtered.copy()
+        seg_score_df["__score__"] = pd.to_numeric(seg_score_df[score_display_col], errors="coerce")
+        seg_score_df["__segment__"] = seg_score_df[segment_col].fillna("미분류").astype(str)
+
+        seg_summary = (
+            seg_score_df.groupby("__segment__", dropna=False)
+            .agg(
+                평균최종점수=("__score__", "mean"),
+                후보수=("__score__", "size"),
+            )
+            .reset_index()
+            .sort_values(["평균최종점수", "후보수"], ascending=[False, False])
+        )
+
+        fig_seg_score = px.bar(
+            seg_summary,
+            x="__segment__",
+            y="평균최종점수",
+            text="평균최종점수",
+            custom_data=["후보수"],
+            template="plotly_dark",
+            height=360,
+            color="__segment__",
+        )
+
+        fig_seg_score.update_traces(
+            texttemplate="%{y:.1f}",
+            textposition="outside",
+            cliponaxis=False,
+            hovertemplate=(
+                "대표상위세그먼트=%{x}<br>"
+                "평균최종점수=%{y:.1f}<br>"
+                "후보수=%{customdata[0]}명<extra></extra>"
+            ),
+        )
+
+        fig_seg_score.update_layout(
+            showlegend=False,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=5, r=5, t=10, b=80),
+            xaxis_title="",
+            yaxis_title="평균 점수",
+            xaxis=dict(tickangle=-35),
+            yaxis=dict(range=[0, max(100, float(seg_summary["평균최종점수"].max(skipna=True) or 0) * 1.15)]),
+        )
+
+        st.plotly_chart(fig_seg_score, use_container_width=True)
+    else:
+        st.info("세그먼트 컬럼 또는 점수 컬럼이 없어 시각화를 만들 수 없습니다.")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# 3) 세그먼트/액션버킷 분포 도넛
+# ---------------------------------------------------------
+with chart_col3:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
     st.markdown("### 세그먼트 분포")
 
@@ -1795,11 +1803,17 @@ with main_right:
             height=360,
         )
 
+        fig_pie.update_traces(
+            textposition="inside",
+            textinfo="percent",
+            hovertemplate="구분=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>",
+        )
+
         fig_pie.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=10, r=10, t=20, b=10),
-            legend=dict(orientation="v"),
+            margin=dict(l=5, r=5, t=10, b=20),
+            legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.02),
         )
 
         st.plotly_chart(fig_pie, use_container_width=True)
