@@ -2620,18 +2620,35 @@ with chart_col3:
 
 
 # =========================================================
-# 10-4. 후보 포지셔닝 맵
-# - 팬 반응 밀도와 라이브 전환 가능성 기준으로 후보군 위치를 확인
+# 10-4. 후보 클러스터 포지셔닝 맵
+# - 팬 반응 밀도와 라이브 전환 가능성을 기준으로 후보군을 운영형 클러스터로 해석
+# - 별도 머신러닝 의존성 없이 중앙값 기준 사분면 클러스터를 생성한다.
 # =========================================================
 
 add_section_divider()
-st.markdown("### 🗺️ 후보 포지셔닝 맵")
-st.caption("엄밀한 알고리즘 클러스터링이 아니라, 팬 반응 밀도와 라이브 전환 가능성을 기준으로 후보군의 위치를 보는 운영형 포지셔닝 맵입니다.")
+st.markdown("### 🗺️ 후보 클러스터 포지셔닝 맵")
+st.caption(
+    "팬 반응 밀도와 라이브 전환 가능성을 기준으로 후보를 4개 운영형 클러스터로 나눠 봅니다. "
+    "엄밀한 머신러닝 군집화라기보다는, 영입 검토 액션을 쉽게 정하기 위한 해석형 클러스터링입니다."
+)
+
+with st.expander("클러스터 해석 방법", expanded=False):
+    st.markdown(
+        """
+        - **코어 라이브 팬덤형**: 팬 반응과 라이브 전환 가능성이 모두 높은 후보입니다. 우선 컨택 또는 상세 검토 대상입니다.
+        - **팬덤 수익화형**: 팬 반응은 강하지만 라이브 신호는 상대적으로 약한 후보입니다. 굿즈, 후원, 커뮤니티형 수익화 제안에 적합합니다.
+        - **라이브 전환 실험형**: 라이브 신호는 있으나 팬 반응 밀도는 아직 낮은 후보입니다. 파일럿 방송 또는 성장관찰 대상으로 볼 수 있습니다.
+        - **관찰/저신호형**: 두 신호가 모두 낮은 후보입니다. 현재는 우선순위를 낮추고 추후 성장 여부를 관찰합니다.
+
+        기준선은 현재 필터 결과의 **팬 반응 밀도 중앙값**과 **라이브 전환 가능성 중앙값**입니다. 필터를 바꾸면 클러스터 기준도 함께 바뀝니다.
+        """
+    )
 
 if fan_col and live_col and fan_col in filtered.columns and live_col in filtered.columns:
     position_df = filtered.copy()
     position_df["__fan__"] = pd.to_numeric(position_df[fan_col], errors="coerce")
     position_df["__live__"] = pd.to_numeric(position_df[live_col], errors="coerce")
+    position_df["__growth__"] = pd.to_numeric(position_df[growth_col], errors="coerce") if growth_col in position_df.columns else np.nan
     position_df["__score__"] = pd.to_numeric(position_df[score_display_col], errors="coerce") if score_display_col in position_df.columns else np.nan
     position_df["__segment__"] = position_df[segment_col].fillna("미분류").astype(str) if segment_col else "미분류"
     position_df["__name__"] = position_df[channel_name_col].astype(str) if channel_name_col else "-"
@@ -2639,40 +2656,147 @@ if fan_col and live_col and fan_col in filtered.columns and live_col in filtered
     position_df = position_df.dropna(subset=["__fan__", "__live__"])
 
     if not position_df.empty:
+        fan_cut = float(position_df["__fan__"].median())
+        live_cut = float(position_df["__live__"].median())
+
+        def assign_cluster(row):
+            fan_high = row["__fan__"] >= fan_cut
+            live_high = row["__live__"] >= live_cut
+            if fan_high and live_high:
+                return "🚀 코어 라이브 팬덤형"
+            if fan_high and not live_high:
+                return "💎 팬덤 수익화형"
+            if (not fan_high) and live_high:
+                return "🛰️ 라이브 전환 실험형"
+            return "🌑 관찰/저신호형"
+
+        position_df["__cluster__"] = position_df.apply(assign_cluster, axis=1)
+        position_df["__score_size__"] = position_df["__score__"].fillna(position_df["__score__"].median())
+        if position_df["__score_size__"].dropna().empty:
+            position_df["__score_size__"] = 1
+
+        cluster_order = [
+            "🚀 코어 라이브 팬덤형",
+            "💎 팬덤 수익화형",
+            "🛰️ 라이브 전환 실험형",
+            "🌑 관찰/저신호형",
+        ]
+
+        color_mode = st.radio(
+            "포지셔닝 맵 색상 기준",
+            options=["클러스터", "주요 콘텐츠군", "검토 단계"],
+            horizontal=True,
+            index=0,
+        )
+
+        if color_mode == "클러스터":
+            color_col = "__cluster__"
+            legend_title = "후보 클러스터"
+            color_map = {
+                "🚀 코어 라이브 팬덤형": "#2fffd3",
+                "💎 팬덤 수익화형": "#b66cff",
+                "🛰️ 라이브 전환 실험형": "#4da3ff",
+                "🌑 관찰/저신호형": "#6b7280",
+            }
+        elif color_mode == "검토 단계":
+            color_col = "__action__"
+            legend_title = "검토 단계"
+            color_map = None
+        else:
+            color_col = "__segment__"
+            legend_title = "주요 콘텐츠군"
+            color_map = None
+
         fig_position = px.scatter(
             position_df,
             x="__fan__",
             y="__live__",
-            color="__segment__",
-            size="__score__",
-            size_max=18,
+            color=color_col,
+            size="__score_size__",
+            size_max=20,
             hover_name="__name__",
             hover_data={
+                "__cluster__": True,
                 "__segment__": True,
                 "__action__": True,
                 "__score__": ":.1f",
+                "__growth__": ":.3f",
                 "__fan__": ":.3f",
                 "__live__": ":.3f",
             },
             template="plotly_dark",
-            height=430,
+            height=470,
+            color_discrete_map=color_map,
+            category_orders={"__cluster__": cluster_order},
         )
+
+        # 중앙값 기준선: 클러스터의 기준을 눈에 보이게 표시
+        fig_position.add_vline(
+            x=fan_cut,
+            line_width=1,
+            line_dash="dash",
+            line_color="rgba(255,255,255,0.35)",
+        )
+        fig_position.add_hline(
+            y=live_cut,
+            line_width=1,
+            line_dash="dash",
+            line_color="rgba(255,255,255,0.35)",
+        )
+
         fig_position.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=20, b=40),
             xaxis_title="팬 반응 밀도",
             yaxis_title="라이브 전환 가능성",
-            legend_title_text="주요 콘텐츠군",
+            legend_title_text=legend_title,
         )
         fig_position.update_xaxes(gridcolor="rgba(255,255,255,0.12)", zeroline=False)
         fig_position.update_yaxes(gridcolor="rgba(255,255,255,0.12)", zeroline=False)
         st.plotly_chart(fig_position, use_container_width=True)
-        st.caption("오른쪽 위에 가까울수록 팬 반응도 강하고 라이브 전환 가능성도 높은 후보로 해석할 수 있습니다. 점 크기는 영입 적합도 점수 기준입니다.")
+
+        st.caption(
+            "오른쪽 위는 팬 반응과 라이브 전환 가능성이 모두 높은 영역입니다. "
+            "점 크기는 영입 적합도 점수이며, 점을 클릭/호버하면 후보명과 검토 단계, 콘텐츠군을 확인할 수 있습니다."
+        )
+
+        cluster_summary = (
+            position_df.groupby("__cluster__", dropna=False)
+            .agg(
+                후보수=("__name__", "count"),
+                평균점수=("__score__", "mean"),
+                평균성장성=("__growth__", "mean"),
+                즉시검토수=("__action__", lambda x: x.astype(str).str.contains("즉시검토", na=False).sum()),
+                검증필요수=("__action__", lambda x: x.astype(str).str.contains("검증필요", na=False).sum()),
+            )
+            .reset_index()
+            .rename(columns={
+                "__cluster__": "후보 클러스터",
+                "후보수": "후보 수",
+                "평균점수": "평균 영입 적합도",
+                "평균성장성": "평균 성장성",
+                "즉시검토수": "즉시검토 수",
+                "검증필요수": "검증필요 수",
+            })
+        )
+        cluster_summary["정렬순서"] = cluster_summary["후보 클러스터"].apply(
+            lambda x: cluster_order.index(x) if x in cluster_order else 999
+        )
+        cluster_summary = cluster_summary.sort_values("정렬순서").drop(columns=["정렬순서"])
+        for c in ["평균 영입 적합도", "평균 성장성"]:
+            if c in cluster_summary.columns:
+                cluster_summary[c] = pd.to_numeric(cluster_summary[c], errors="coerce").round(2)
+
+        st.markdown("#### 클러스터별 운영 요약")
+        st.dataframe(cluster_summary, use_container_width=True, hide_index=True)
+        st.caption(
+            "클러스터 요약은 어떤 유형의 후보가 현재 필터 결과에서 많은지, 그리고 어떤 클러스터에 즉시검토 후보가 몰려 있는지 확인하는 용도입니다."
+        )
     else:
         st.info("포지셔닝 맵을 만들 수 있는 후보 데이터가 부족합니다.")
 else:
-    st.info("후보 포지셔닝 맵을 만들기 위해서는 팬밀도점수와 라이브친화점수 컬럼이 필요합니다.")
+    st.info("후보 클러스터 포지셔닝 맵을 만들기 위해서는 팬밀도점수와 라이브친화점수 컬럼이 필요합니다.")
 
 # =========================================================
 # 11. 하단: Snapshot 기반 변화 추적
@@ -2685,8 +2809,8 @@ st.markdown(
     """
     <div class="guide-box">
     <b>표 해석법</b><br>
-    - <b>운영우선순위변동</b>이 양수이면 기준 시점보다 순위가 상승한 후보입니다.<br>
-    - <b>최종점수변동</b>이 양수이면 영입 적합도 점수가 상승한 후보입니다.<br>
+    - <b>순위 변동</b>이 양수이면 이전 시점보다 순위가 상승한 후보입니다.<br>
+    - <b>점수 변동</b>이 양수이면 영입 적합도 점수가 상승한 후보입니다.<br>
     - <b>검토 단계</b>가 보류 → 성장관찰, 검증필요 → 즉시검토처럼 개선되면 우선 확인 대상입니다.<br>
     - <b>신규진입</b>은 기준 시점에는 없었지만 비교 시점에 새로 등장한 후보입니다.
     </div>
@@ -2753,9 +2877,9 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
                 tracking_view[c] = pd.to_numeric(tracking_view[c], errors="coerce").round(1)
 
         # 기본 표는 제3자가 바로 해석할 수 있도록 핵심 컬럼만 간략 표시
+        # 요청 반영: 주요 콘텐츠군 컬럼은 기본 변화 추적 표에서 제외
         display_cols_tracking = [
             "채널명",
-            "대표상위세그먼트",
             "기준순위",
             "비교순위",
             "운영우선순위변동",
@@ -2769,16 +2893,16 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
         display_cols_tracking = [c for c in display_cols_tracking if c in tracking_view.columns]
 
         tracking_display = tracking_view[display_cols_tracking].head(int(max_tracking_rows)).copy()
+        target_name_for_table = "현재" if tracking_target_label == "현재" else "비교 시점"
         tracking_display = tracking_display.rename(columns={
-            "대표상위세그먼트": "주요 콘텐츠군",
-            "기준순위": "기준 순위",
-            "비교순위": "비교 순위",
+            "기준순위": "이전 순위",
+            "비교순위": f"{target_name_for_table} 순위",
             "운영우선순위변동": "순위 변동",
-            "기준점수": "기준 점수",
-            "비교점수": "비교 점수",
+            "기준점수": "이전 점수",
+            "비교점수": f"{target_name_for_table} 점수",
             "최종점수변동": "점수 변동",
-            "기준액션버킷": "기준 검토 단계",
-            "비교액션버킷": "비교 검토 단계",
+            "기준액션버킷": "이전 검토 단계",
+            "비교액션버킷": f"{target_name_for_table} 검토 단계",
             "변화요약": "변화 요약",
         })
 
