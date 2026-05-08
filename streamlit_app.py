@@ -641,13 +641,36 @@ def prepare_snapshot_df(snap: pd.DataFrame) -> pd.DataFrame:
     if date_col is None:
         return pd.DataFrame()
 
+    # -----------------------------------------------------
+    # 날짜 파싱 보정
+    # - Streamlit Cloud / pandas 버전에 따라 timezone이 섞인 timestamp가
+    #   하루 밀려 보이는 경우를 방지하기 위해, 원본 문자열에
+    #   YYYY-MM-DD 패턴이 있으면 그 날짜를 우선 사용한다.
+    # - 예: 2026-05-01T23:xx:xx+09:00 같은 값이 UTC 변환 과정에서
+    #   2026-05-02로 보이는 문제를 방지한다.
+    # -----------------------------------------------------
+    raw_date_text = out[date_col].astype(str).str.strip()
+    extracted_date = raw_date_text.str.extract(r"(20\d{2}-\d{2}-\d{2})", expand=False)
+
     out["__snapshot_dt__"] = pd.to_datetime(out[date_col], errors="coerce")
-    out = out.dropna(subset=["__snapshot_dt__"]).copy()
+    out["__snapshot_date__"] = extracted_date
+
+    # 원본 문자열에서 날짜를 못 뽑은 행만 datetime 파싱값으로 보완
+    missing_date_mask = out["__snapshot_date__"].isna() | (out["__snapshot_date__"].astype(str).str.strip() == "")
+    out.loc[missing_date_mask, "__snapshot_date__"] = (
+        out.loc[missing_date_mask, "__snapshot_dt__"].dt.strftime("%Y-%m-%d")
+    )
+
+    out["__snapshot_date_dt__"] = pd.to_datetime(out["__snapshot_date__"], errors="coerce")
+    out = out.dropna(subset=["__snapshot_date_dt__"]).copy()
 
     if out.empty:
         return pd.DataFrame()
 
-    out["__snapshot_date__"] = out["__snapshot_dt__"].dt.strftime("%Y-%m-%d")
+    # 같은 날짜 내부에서 최신 실행분을 고르기 위해 dt가 없으면 날짜 기준으로 보완
+    out["__snapshot_dt__"] = out["__snapshot_dt__"].fillna(out["__snapshot_date_dt__"])
+    out["__snapshot_date__"] = out["__snapshot_date_dt__"].dt.strftime("%Y-%m-%d")
+
     return out
 
 
@@ -1020,14 +1043,18 @@ tracking_base_label = "-"
 tracking_target_label = "현재"
 
 if not snapshot_prepared_df.empty:
-    snapshot_dates_all = sorted(
-        snapshot_prepared_df["__snapshot_date__"]
-        .dropna()
-        .unique()
+    snapshot_dates_all = (
+        snapshot_prepared_df[["__snapshot_date__", "__snapshot_date_dt__"]]
+        .dropna(subset=["__snapshot_date__", "__snapshot_date_dt__"])
+        .drop_duplicates(subset=["__snapshot_date__"])
+        .sort_values("__snapshot_date_dt__")
+        ["__snapshot_date__"]
         .tolist()
     )
 
     # 핵심 수정: 2026-05-01 이전 날짜 제거
+    # - 날짜 문자열 비교가 아니라 datetime 기준으로 비교
+    # - 2026-05-01은 포함되어야 하므로 >= 조건 유지
     snapshot_dates = [
         d for d in snapshot_dates_all
         if pd.to_datetime(d, errors="coerce") >= MIN_TRACKING_DATE
@@ -1070,7 +1097,12 @@ if not snapshot_prepared_df.empty:
             # - 과거 snapshot 비교: 같은 날짜가 있으면 같은 날짜를 기본값으로 둠
             #   동일 날짜 비교 시 증감이 0으로 나와야 정상
             if tracking_target_label == "현재":
-                default_base_label = available_base_dates[-1]
+                # 기본 기준 시점은 2026-05-01이 있으면 2026-05-01로 둔다.
+                # 없으면 사용 가능한 가장 이른 날짜를 기본값으로 사용한다.
+                if MIN_TRACKING_DATE_LABEL in available_base_dates:
+                    default_base_label = MIN_TRACKING_DATE_LABEL
+                else:
+                    default_base_label = available_base_dates[0]
             else:
                 default_base_label = tracking_target_label
 
