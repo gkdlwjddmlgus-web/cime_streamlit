@@ -529,6 +529,319 @@ st.markdown(
 
 
 # =========================================================
+# 1-2. Clean Cosmic 정돈형 스타일 오버라이드
+# - 기존 코스믹 분위기는 유지하되, 캡처 참고처럼 카드/표/설명 영역을 정돈된 레이아웃으로 통일
+# - 과한 글로우와 배경 노이즈를 줄이고, 섹션 간 경계/여백/카드 높이를 안정화
+# =========================================================
+
+st.markdown(
+    """
+    <style>
+    :root {
+        --cime-bg-0: #050917;
+        --cime-bg-1: #081426;
+        --cime-card: rgba(10, 22, 40, 0.88);
+        --cime-card-strong: rgba(13, 30, 54, 0.94);
+        --cime-line: rgba(118, 242, 226, 0.18);
+        --cime-line-strong: rgba(118, 242, 226, 0.34);
+        --cime-text: #efffff;
+        --cime-muted: #a9b9c9;
+        --cime-accent: #5fffe8;
+        --cime-blue: #7fb7ff;
+        --cime-pink: #ff6edb;
+        --cime-gold: #ffd76a;
+    }
+
+    .stApp {
+        background:
+            radial-gradient(circle at 78% 6%, rgba(95, 255, 232, 0.13) 0, transparent 22%),
+            radial-gradient(circle at 8% 16%, rgba(95, 135, 255, 0.10) 0, transparent 24%),
+            linear-gradient(145deg, var(--cime-bg-0) 0%, var(--cime-bg-1) 46%, #040712 100%);
+        color: var(--cime-text);
+    }
+
+    .stApp::before {
+        opacity: 0.09;
+        background-size: 72px 72px, 128px 128px;
+    }
+
+    .block-container {
+        max-width: 1480px;
+        padding-top: 1.6rem;
+        padding-bottom: 4rem;
+    }
+
+    h1, h2, h3 {
+        letter-spacing: -0.035em;
+        line-height: 1.18;
+        text-shadow: none !important;
+    }
+
+    h3 {
+        margin-top: 0.2rem !important;
+        margin-bottom: 0.85rem !important;
+        font-size: 1.38rem !important;
+    }
+
+    .mission-hero {
+        border-radius: 24px;
+        padding: 28px 34px;
+        margin-bottom: 22px;
+        background:
+            radial-gradient(circle at 72% 42%, rgba(95,255,232,0.20), transparent 18%),
+            radial-gradient(circle at 87% 27%, rgba(255,110,219,0.11), transparent 14%),
+            linear-gradient(135deg, rgba(10,26,48,0.94), rgba(5,12,26,0.96));
+        border: 1px solid var(--cime-line-strong);
+        box-shadow: 0 18px 46px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .mission-hero::after {
+        width: 210px;
+        height: 210px;
+        right: 70px;
+        top: 34px;
+        opacity: 0.35;
+        filter: blur(0.4px);
+    }
+
+    .mission-title {
+        font-size: 38px;
+        letter-spacing: 0.8px;
+    }
+
+    .mission-subtitle {
+        color: var(--cime-accent);
+        font-size: 15px;
+        margin-top: 10px;
+    }
+
+    .mission-desc {
+        color: var(--cime-muted);
+        max-width: 760px;
+        font-size: 13.5px;
+        margin-top: 12px;
+    }
+
+    .mission-time-pill {
+        background: rgba(6, 17, 33, 0.82);
+        border: 1px solid var(--cime-line);
+        color: #d8fff8;
+        box-shadow: none;
+    }
+
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, rgba(5, 13, 28, 0.98), rgba(3, 8, 18, 0.98));
+        border-right: 1px solid rgba(118,242,226,0.20);
+        box-shadow: 8px 0 26px rgba(0,0,0,0.22);
+    }
+
+    .mission-sidebar-title {
+        border-bottom: 1px solid rgba(118,242,226,0.16);
+        padding-bottom: 14px;
+    }
+
+    .mission-sidebar-logo {
+        font-size: 25px;
+        color: var(--cime-accent);
+        text-shadow: 0 0 12px rgba(95,255,232,0.35);
+    }
+
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] .stMarkdown,
+    section[data-testid="stSidebar"] p {
+        font-size: 0.9rem;
+    }
+
+    .kpi-card,
+    .candidate-card,
+    .section-card,
+    div[data-testid="stMetric"] {
+        background: linear-gradient(180deg, rgba(11,25,45,0.94), rgba(7,16,31,0.96));
+        border: 1px solid var(--cime-line);
+        border-radius: 20px;
+        box-shadow: 0 14px 34px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.055);
+        backdrop-filter: blur(4px);
+    }
+
+    .kpi-card:hover,
+    .candidate-card:hover,
+    .section-card:hover {
+        border-color: var(--cime-line-strong);
+        box-shadow: 0 16px 38px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.075);
+        transform: translateY(-1px);
+        transition: 0.16s ease;
+    }
+
+    .kpi-card {
+        min-height: 142px;
+        padding: 20px 22px 18px 22px;
+    }
+
+    .kpi-label {
+        color: #bfd0dc;
+        font-size: 13px;
+        font-weight: 760;
+        letter-spacing: -0.01em;
+    }
+
+    .kpi-value {
+        font-size: 34px;
+        font-weight: 900;
+        color: #f7ffff;
+        margin: 9px 0 2px 0;
+    }
+
+    .kpi-sub {
+        color: #8ea0b2;
+        font-size: 11.8px;
+        line-height: 1.45;
+        margin-top: 7px;
+    }
+
+    .kpi-delta {
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.045);
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+    .kpi-up { color: #ff7a7a; }
+    .kpi-down { color: #69b4ff; }
+    .kpi-flat { color: #b5c3ce; }
+
+    .candidate-card {
+        min-height: 245px;
+        padding: 18px;
+    }
+
+    .candidate-avatar {
+        width: 66px;
+        height: 66px;
+        font-size: 27px;
+        margin: 14px auto 12px auto;
+        box-shadow: 0 0 18px rgba(95,255,232,0.20);
+    }
+
+    .candidate-name {
+        font-size: 16px;
+        letter-spacing: -0.02em;
+    }
+
+    .score-text {
+        color: var(--cime-accent);
+        font-size: 28px;
+        text-shadow: 0 0 10px rgba(95,255,232,0.34);
+    }
+
+    .section-card {
+        padding: 20px 22px;
+        margin-bottom: 0.35rem;
+    }
+
+    .section-card > div:first-child,
+    .section-card h3:first-child {
+        margin-top: 0 !important;
+    }
+
+    .section-divider {
+        height: 1px;
+        margin: 30px 0 22px 0;
+        background: linear-gradient(90deg, transparent, rgba(95,255,232,0.30), rgba(255,110,219,0.18), transparent);
+    }
+
+    .segment-pill {
+        background: rgba(95, 255, 232, 0.08);
+        border: 1px solid rgba(95, 255, 232, 0.22);
+        color: #d7fffa;
+        box-shadow: none;
+        padding: 5px 10px;
+    }
+
+    .rank-badge {
+        background: linear-gradient(135deg, #fff0a6, #ffd76a);
+        color: #111624;
+        box-shadow: none;
+    }
+
+    .reason-box,
+    .explain-box,
+    .guide-box {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(255,255,255,0.085);
+        border-radius: 14px;
+        color: #dceaf1;
+        line-height: 1.65;
+    }
+
+    .guide-box {
+        background: rgba(95,255,232,0.065);
+        border-left: 3px solid rgba(95,255,232,0.55);
+    }
+
+    .chart-caption {
+        color: #9eb0bf;
+        font-size: 12.5px;
+        line-height: 1.58;
+        margin-top: 4px;
+    }
+
+    div[data-testid="stExpander"] {
+        background: rgba(8,18,34,0.78) !important;
+        border: 1px solid rgba(118,242,226,0.16) !important;
+        border-radius: 15px !important;
+        box-shadow: none !important;
+    }
+
+    div[data-testid="stExpander"] summary {
+        font-weight: 750;
+        color: #e9fffb !important;
+    }
+
+    div[data-testid="stDataFrame"] {
+        border: 1px solid rgba(118,242,226,0.14);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .stDataFrame div[role="grid"] {
+        background: rgba(5, 12, 24, 0.72) !important;
+    }
+
+    button,
+    .stButton > button,
+    .stDownloadButton > button {
+        border: 1px solid rgba(118,242,226,0.25) !important;
+        background: linear-gradient(135deg, rgba(16,42,65,0.96), rgba(7,18,36,0.96)) !important;
+        color: #eafffb !important;
+        border-radius: 12px !important;
+        box-shadow: none !important;
+        font-weight: 700 !important;
+    }
+
+    .stSelectbox > div > div,
+    .stMultiSelect > div > div,
+    .stTextInput > div > div,
+    .stNumberInput > div > div {
+        background: rgba(7,18,34,0.85) !important;
+        border-color: rgba(118,242,226,0.18) !important;
+        border-radius: 12px !important;
+    }
+
+    .js-plotly-plot .plotly .modebar {
+        opacity: 0.35;
+    }
+
+    hr {
+        border-color: rgba(118,242,226,0.16) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
 # 2. 경로 및 데이터 로드
 # =========================================================
 
