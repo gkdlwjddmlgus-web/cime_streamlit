@@ -23,7 +23,13 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+# =========================================================
+# 변화 추적 최소 허용 날짜
+# - 2026-05-01 이전 snapshot은 값이 불안정하므로 화면 필터에서 제외
+# =========================================================
 
+MIN_TRACKING_DATE = pd.Timestamp("2026-05-01")
+MIN_TRACKING_DATE_LABEL = MIN_TRACKING_DATE.strftime("%Y-%m-%d")
 
 # =========================================================
 # 0. 페이지 설정
@@ -1001,7 +1007,10 @@ top_n = st.sidebar.slider("TOP N", min_value=5, max_value=50, value=10, step=5)
 
 # =========================================================
 # 변화 추적 기준 시점 필터
+# - 2026-05-01 이전 snapshot은 선택 불가
+# - 비교 대상 시점/기준 시점 모두 최소 날짜를 2026-05-01로 제한
 # =========================================================
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 변화 추적 기준")
 
@@ -1011,47 +1020,75 @@ tracking_base_label = "-"
 tracking_target_label = "현재"
 
 if not snapshot_prepared_df.empty:
-    snapshot_dates = sorted(snapshot_prepared_df["__snapshot_date__"].dropna().unique().tolist())
-
-    target_options = snapshot_dates + ["현재"]
-
-    default_target_idx = len(target_options) - 1
-    tracking_target_label = st.sidebar.selectbox(
-        "비교 대상 시점",
-        options=target_options,
-        index=default_target_idx,
-        help="현재 또는 특정 과거 snapshot을 비교 대상 시점으로 선택합니다.",
+    snapshot_dates_all = sorted(
+        snapshot_prepared_df["__snapshot_date__"]
+        .dropna()
+        .unique()
+        .tolist()
     )
 
-    if tracking_target_label == "현재":
+    # 핵심 수정: 2026-05-01 이전 날짜 제거
+    snapshot_dates = [
+        d for d in snapshot_dates_all
+        if pd.to_datetime(d, errors="coerce") >= MIN_TRACKING_DATE
+    ]
+
+    if not snapshot_dates:
+        st.sidebar.warning(
+            f"{MIN_TRACKING_DATE_LABEL} 이후 snapshot 날짜가 없습니다. "
+            "STEP11 snapshot append를 다시 누적하세요."
+        )
         tracking_target_df = df.copy()
-        available_base_dates = snapshot_dates
+        tracking_target_label = "현재"
     else:
-        tracking_target_df = get_snapshot_by_date(snapshot_prepared_df, tracking_target_label)
-        available_base_dates = [d for d in snapshot_dates if d <= tracking_target_label]
+        target_options = snapshot_dates + ["현재"]
 
-    if available_base_dates:
-        # 기본값: 비교 대상보다 약 7일 전과 가장 가까운 날짜
-        if tracking_target_label == "현재":
-            target_dt = pd.Timestamp.today().normalize()
-        else:
-            target_dt = pd.to_datetime(tracking_target_label)
+        default_target_idx = len(target_options) - 1
 
-        desired_base_dt = target_dt - pd.Timedelta(days=7)
-        base_dates_dt = pd.to_datetime(pd.Series(available_base_dates))
-        default_base_label = available_base_dates[int((base_dates_dt - desired_base_dt).abs().argmin())]
-        default_base_idx = available_base_dates.index(default_base_label)
-
-        tracking_base_label = st.sidebar.selectbox(
-            "기준 시점",
-            options=available_base_dates,
-            index=default_base_idx,
-            help="이 날짜를 기준으로 비교 대상 시점의 순위/점수/버킷 변화를 계산합니다.",
+        tracking_target_label = st.sidebar.selectbox(
+            "비교 대상 시점",
+            options=target_options,
+            index=default_target_idx,
+            help=f"{MIN_TRACKING_DATE_LABEL} 이후 snapshot 또는 현재 데이터를 비교 대상 시점으로 선택합니다.",
         )
 
-        tracking_base_df = get_snapshot_by_date(snapshot_prepared_df, tracking_base_label)
-    else:
-        st.sidebar.warning("비교 가능한 과거 snapshot 날짜가 없습니다.")
+        if tracking_target_label == "현재":
+            tracking_target_df = df.copy()
+            available_base_dates = snapshot_dates
+        else:
+            tracking_target_df = get_snapshot_by_date(snapshot_prepared_df, tracking_target_label)
+
+            # 기준 시점도 2026-05-01 이상 + 비교 대상 시점 이하만 허용
+            available_base_dates = [
+                d for d in snapshot_dates
+                if d <= tracking_target_label
+            ]
+
+        if available_base_dates:
+            # 기본값:
+            # - 현재 비교: 가장 최근 snapshot
+            # - 과거 snapshot 비교: 같은 날짜가 있으면 같은 날짜를 기본값으로 둠
+            #   동일 날짜 비교 시 증감이 0으로 나와야 정상
+            if tracking_target_label == "현재":
+                default_base_label = available_base_dates[-1]
+            else:
+                default_base_label = tracking_target_label
+
+            if default_base_label not in available_base_dates:
+                default_base_label = available_base_dates[-1]
+
+            default_base_idx = available_base_dates.index(default_base_label)
+
+            tracking_base_label = st.sidebar.selectbox(
+                "기준 시점",
+                options=available_base_dates,
+                index=default_base_idx,
+                help=f"{MIN_TRACKING_DATE_LABEL} 이후 날짜만 기준 시점으로 선택할 수 있습니다.",
+            )
+
+            tracking_base_df = get_snapshot_by_date(snapshot_prepared_df, tracking_base_label)
+        else:
+            st.sidebar.warning("비교 가능한 기준 snapshot 날짜가 없습니다.")
 else:
     st.sidebar.warning("snapshot 파일이 없거나 날짜 컬럼을 찾지 못했습니다.")
 
@@ -1084,24 +1121,48 @@ with right_info:
 # 8. KPI 카드
 # =========================================================
 
-# 현재 화면 기준 KPI
-current_all_kpi = calc_kpi_values(df)
-current_filtered_kpi = calc_kpi_values(filtered)
-
-total_candidates = len(df)
-filtered_candidates = len(filtered)
-
 # ---------------------------------------------------------
-# 기준 시점 KPI
-# - 전체 후보군/핵심 검토 대상: 기준 snapshot 전체 기준으로 비교
-# - 평균 점수/고우선 후보 수: 현재 화면 필터를 기준 snapshot에도 최대한 동일 적용해 비교
+# KPI 계산 기준
+# - 기존 문제:
+#   사이드바에서 "비교 대상 시점"을 바꿔도 KPI 빅넘버는 항상 현재 df 기준으로만 계산됨
+#
+# - 수정 방향:
+#   빅넘버 = 사용자가 선택한 비교 대상 시점 기준
+#   증감 = 기준 시점 대비 비교 대상 시점
+#
+# 예:
+#   기준 시점: 2026-05-01
+#   비교 대상 시점: 현재
+#   → 현재 값과 2026-05-01 snapshot의 차이 표시
+#
+#   기준 시점: 2026-05-01
+#   비교 대상 시점: 2026-05-01
+#   → 같은 snapshot끼리 비교하므로 증감 0
 # ---------------------------------------------------------
-base_all_kpi_df = pd.DataFrame()
-base_filtered_kpi_df = pd.DataFrame()
 
-if not tracking_base_df.empty:
+# 비교 대상 데이터가 비어 있으면 현재 df로 fallback
+if tracking_target_df is not None and not tracking_target_df.empty:
+    target_all_kpi_df = add_score_display_column(tracking_target_df)
+else:
+    target_all_kpi_df = add_score_display_column(df)
+
+# 기준 시점 데이터
+if tracking_base_df is not None and not tracking_base_df.empty:
     base_all_kpi_df = add_score_display_column(tracking_base_df)
+else:
+    base_all_kpi_df = pd.DataFrame()
+
+# 현재 화면 필터 조건을 비교 대상/기준 snapshot에도 최대한 동일 적용
+target_filtered_kpi_df = apply_snapshot_filters_for_kpi(target_all_kpi_df)
+
+if not base_all_kpi_df.empty:
     base_filtered_kpi_df = apply_snapshot_filters_for_kpi(base_all_kpi_df)
+else:
+    base_filtered_kpi_df = pd.DataFrame()
+
+# KPI 값 계산
+target_all_kpi = calc_kpi_values(target_all_kpi_df)
+target_filtered_kpi = calc_kpi_values(target_filtered_kpi_df)
 
 base_all_kpi = calc_kpi_values(base_all_kpi_df) if not base_all_kpi_df.empty else {
     "total": np.nan,
@@ -1117,23 +1178,64 @@ base_filtered_kpi = calc_kpi_values(base_filtered_kpi_df) if not base_filtered_k
     "high_priority": np.nan,
 }
 
-# 카드별 변화량
-# 전체 후보군과 핵심 검토 대상은 전체 기준, 평균 점수와 고우선 후보 수는 현재 필터 기준으로 비교
-delta_total = current_all_kpi["total"] - base_all_kpi["total"] if pd.notna(base_all_kpi["total"]) else np.nan
-delta_shortlist = current_all_kpi["shortlist"] - base_all_kpi["shortlist"] if pd.notna(base_all_kpi["shortlist"]) else np.nan
-delta_avg_score = current_filtered_kpi["avg_score"] - base_filtered_kpi["avg_score"] if pd.notna(base_filtered_kpi["avg_score"]) else np.nan
-delta_high_priority = current_filtered_kpi["high_priority"] - base_filtered_kpi["high_priority"] if pd.notna(base_filtered_kpi["high_priority"]) else np.nan
+# ---------------------------------------------------------
+# 동일 날짜 비교 방어
+# - 기준 시점과 비교 대상 시점이 같으면 증감은 강제로 0 처리
+# - 동일 snapshot인데도 증감이 뜨는 문제 방지
+# ---------------------------------------------------------
 
-compare_label = f"기준: {tracking_base_label}" if tracking_base_label != "-" else "비교 기준 없음"
+is_same_snapshot_compare = (
+    tracking_base_label != "-"
+    and tracking_target_label != "현재"
+    and tracking_base_label == tracking_target_label
+)
+
+if is_same_snapshot_compare:
+    delta_total = 0
+    delta_shortlist = 0
+    delta_avg_score = 0
+    delta_high_priority = 0
+else:
+    delta_total = (
+        target_all_kpi["total"] - base_all_kpi["total"]
+        if pd.notna(base_all_kpi["total"])
+        else np.nan
+    )
+
+    delta_shortlist = (
+        target_all_kpi["shortlist"] - base_all_kpi["shortlist"]
+        if pd.notna(base_all_kpi["shortlist"])
+        else np.nan
+    )
+
+    delta_avg_score = (
+        target_filtered_kpi["avg_score"] - base_filtered_kpi["avg_score"]
+        if pd.notna(base_filtered_kpi["avg_score"])
+        else np.nan
+    )
+
+    delta_high_priority = (
+        target_filtered_kpi["high_priority"] - base_filtered_kpi["high_priority"]
+        if pd.notna(base_filtered_kpi["high_priority"])
+        else np.nan
+    )
+
+# 카드 하단 설명 문구
+if tracking_base_label != "-":
+    compare_label = f"기준: {tracking_base_label} → 비교: {tracking_target_label}"
+else:
+    compare_label = "비교 기준 없음"
+
+target_label_for_sub = tracking_target_label if tracking_target_label else "현재"
 
 k1, k2, k3, k4 = st.columns(4)
 
 with k1:
     render_kpi_card(
         label="전체 후보군",
-        value=total_candidates,
+        value=target_all_kpi["total"],
         value_suffix="명",
-        sub=f"현재 필터 결과 {fmt_int(filtered_candidates)}명 · {compare_label}",
+        sub=f"{target_label_for_sub} 전체 후보 기준 · {compare_label}",
         delta=delta_total,
         value_ndigits=0,
         delta_ndigits=0,
@@ -1143,7 +1245,7 @@ with k1:
 with k2:
     render_kpi_card(
         label="핵심 검토 대상",
-        value=current_all_kpi["shortlist"],
+        value=target_all_kpi["shortlist"],
         value_suffix="명",
         sub=f"shortlist 또는 주요 액션버킷 기준 · {compare_label}",
         delta=delta_shortlist,
@@ -1155,9 +1257,9 @@ with k2:
 with k3:
     render_kpi_card(
         label="평균 영입 점수(100점)",
-        value=current_filtered_kpi["avg_score"],
+        value=target_filtered_kpi["avg_score"],
         value_suffix="",
-        sub=f"현재 필터 기준 · {compare_label}",
+        sub=f"{target_label_for_sub} 필터 적용 기준 · {compare_label}",
         delta=delta_avg_score,
         value_ndigits=1,
         delta_ndigits=1,
@@ -1167,7 +1269,7 @@ with k3:
 with k4:
     render_kpi_card(
         label="고우선 후보 수",
-        value=current_filtered_kpi["high_priority"],
+        value=target_filtered_kpi["high_priority"],
         value_suffix="명",
         sub=f"즉시검토/영입제한/위성 등 · {compare_label}",
         delta=delta_high_priority,
