@@ -759,7 +759,94 @@ def build_tracking_between(base_df: pd.DataFrame, target_df: pd.DataFrame, base_
     merged["채널명"] = merged["비교_채널명"].combine_first(merged.get("기준_채널명"))
     merged["기준시점"] = base_label
     merged["비교시점"] = target_label
+    # -----------------------------------------------------
+    # 대표상위/하위세그먼트 누락 보완
+    # - 비교 시점 snapshot에 세그먼트가 비어 있으면
+    #   기준 시점 세그먼트 → 현재 최신 df 매핑 순서로 보완
+    # -----------------------------------------------------
 
+    if "비교_대표상위세그먼트" in merged.columns:
+        merged["비교_대표상위세그먼트"] = (
+            merged["비교_대표상위세그먼트"]
+            .replace(["None", "nan", "NaN", ""], pd.NA)
+        )
+
+        if "기준_대표상위세그먼트" in merged.columns:
+            merged["기준_대표상위세그먼트"] = (
+                merged["기준_대표상위세그먼트"]
+                .replace(["None", "nan", "NaN", ""], pd.NA)
+            )
+            merged["비교_대표상위세그먼트"] = (
+                merged["비교_대표상위세그먼트"]
+                .combine_first(merged["기준_대표상위세그먼트"])
+            )
+
+        # 현재 최신 df에서 채널ID 기준으로 대표상위세그먼트 보완
+        try:
+            if "df" in globals() and channel_id_col and segment_col:
+                latest_segment_map = (
+                    df[[channel_id_col, segment_col]]
+                    .dropna(subset=[channel_id_col])
+                    .copy()
+                )
+                latest_segment_map[channel_id_col] = latest_segment_map[channel_id_col].astype(str).str.strip()
+                latest_segment_map[segment_col] = latest_segment_map[segment_col].replace(
+                    ["None", "nan", "NaN", ""], pd.NA
+                )
+                latest_segment_map = latest_segment_map.dropna(subset=[segment_col])
+                latest_segment_map = latest_segment_map.drop_duplicates(subset=[channel_id_col], keep="first")
+
+                seg_map = latest_segment_map.set_index(channel_id_col)[segment_col].to_dict()
+
+                merged["비교_대표상위세그먼트"] = (
+                    merged["비교_대표상위세그먼트"]
+                    .combine_first(merged["채널ID"].astype(str).str.strip().map(seg_map))
+                )
+        except Exception:
+            pass
+
+        merged["비교_대표상위세그먼트"] = merged["비교_대표상위세그먼트"].fillna("미분류")
+
+    if "비교_대표하위세그먼트" in merged.columns:
+        merged["비교_대표하위세그먼트"] = (
+            merged["비교_대표하위세그먼트"]
+            .replace(["None", "nan", "NaN", ""], pd.NA)
+        )
+
+        if "기준_대표하위세그먼트" in merged.columns:
+            merged["기준_대표하위세그먼트"] = (
+                merged["기준_대표하위세그먼트"]
+                .replace(["None", "nan", "NaN", ""], pd.NA)
+            )
+            merged["비교_대표하위세그먼트"] = (
+                merged["비교_대표하위세그먼트"]
+                .combine_first(merged["기준_대표하위세그먼트"])
+            )
+
+        try:
+            if "df" in globals() and channel_id_col and lower_segment_col:
+                latest_lower_map = (
+                    df[[channel_id_col, lower_segment_col]]
+                    .dropna(subset=[channel_id_col])
+                    .copy()
+                )
+                latest_lower_map[channel_id_col] = latest_lower_map[channel_id_col].astype(str).str.strip()
+                latest_lower_map[lower_segment_col] = latest_lower_map[lower_segment_col].replace(
+                    ["None", "nan", "NaN", ""], pd.NA
+                )
+                latest_lower_map = latest_lower_map.dropna(subset=[lower_segment_col])
+                latest_lower_map = latest_lower_map.drop_duplicates(subset=[channel_id_col], keep="first")
+
+                lower_map = latest_lower_map.set_index(channel_id_col)[lower_segment_col].to_dict()
+
+                merged["비교_대표하위세그먼트"] = (
+                    merged["비교_대표하위세그먼트"]
+                    .combine_first(merged["채널ID"].astype(str).str.strip().map(lower_map))
+                )
+        except Exception:
+            pass
+
+        merged["비교_대표하위세그먼트"] = merged["비교_대표하위세그먼트"].fillna("미분류")
     merged["운영우선순위변동"] = merged["기준_운영우선순위"] - merged["비교_운영우선순위"]
     merged["최종점수변동"] = merged["비교_최종점수"] - merged["기준_최종점수"]
     merged["신규진입여부"] = merged["기준_운영우선순위"].isna()
@@ -1909,6 +1996,13 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
 
         tracking_view = tracking_view.rename(columns=rename_tracking_cols)
 
+        for c in ["대표상위세그먼트", "대표하위세그먼트"]:
+            if c in tracking_view.columns:
+                tracking_view[c] = (
+                    tracking_view[c]
+                    .replace(["None", "nan", "NaN", ""], pd.NA)
+                    .fillna("미분류")
+                )
         for c in ["기준점수", "비교점수", "최종점수변동"]:
             if c in tracking_view.columns:
                 tracking_view[c] = pd.to_numeric(tracking_view[c], errors="coerce").round(1)
