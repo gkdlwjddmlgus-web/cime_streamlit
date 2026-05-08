@@ -17,6 +17,7 @@
 
 from pathlib import Path
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -1233,7 +1234,8 @@ with left_title:
     )
 
 with right_info:
-    st.caption(f"마지막 화면 갱신: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    now_kst = datetime.now(ZoneInfo("Asia/Seoul"))
+    st.caption(f"마지막 화면 갱신(KST): {now_kst.strftime('%Y-%m-%d %H:%M:%S')}")
 
 
 # =========================================================
