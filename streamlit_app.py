@@ -270,6 +270,263 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# =========================================================
+# 1-1. Cosmic Mission Control 스타일 오버라이드
+# - 하단 디버그 expander 제거 버전
+# - 전체 화면을 우주 관제실 느낌으로 통일
+# =========================================================
+
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&display=swap');
+
+    .stApp {
+        background:
+            radial-gradient(circle at 70% 8%, rgba(52, 255, 224, 0.20) 0, transparent 23%),
+            radial-gradient(circle at 18% 18%, rgba(94, 112, 255, 0.18) 0, transparent 26%),
+            radial-gradient(circle at 92% 72%, rgba(255, 63, 190, 0.12) 0, transparent 22%),
+            linear-gradient(145deg, #020612 0%, #07111f 42%, #02040b 100%);
+        color: #efffff;
+    }
+
+    .stApp::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background-image:
+            radial-gradient(circle, rgba(255,255,255,0.78) 0.7px, transparent 1.2px),
+            radial-gradient(circle, rgba(80,255,230,0.42) 0.6px, transparent 1.3px);
+        background-size: 46px 46px, 91px 91px;
+        background-position: 0 0, 18px 24px;
+        opacity: 0.20;
+    }
+
+    .block-container {
+        position: relative;
+        z-index: 1;
+        padding-top: 2.2rem;
+        max-width: 1500px;
+    }
+
+    section[data-testid="stSidebar"] {
+        background:
+            linear-gradient(180deg, rgba(4,12,25,0.98), rgba(2,7,15,0.98)),
+            radial-gradient(circle at 50% 0%, rgba(39, 255, 218, 0.18), transparent 40%);
+        border-right: 1px solid rgba(71,255,226,0.24);
+        box-shadow: 12px 0 30px rgba(0, 255, 224, 0.05);
+    }
+
+    section[data-testid="stSidebar"] * {
+        color: #dffdf8;
+    }
+
+    .mission-sidebar-title {
+        padding: 10px 6px 18px 6px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid rgba(61,255,220,0.18);
+    }
+
+    .mission-sidebar-logo {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 1.6px;
+        color: #63ffea;
+        text-shadow: 0 0 18px rgba(99,255,234,0.75);
+        line-height: 1.0;
+    }
+
+    .mission-sidebar-sub {
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: #8fb8c6;
+        margin-top: 4px;
+    }
+
+    .mission-hero {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(70,255,226,0.28);
+        border-radius: 26px;
+        padding: 30px 34px;
+        margin-bottom: 24px;
+        background:
+            radial-gradient(circle at 70% 45%, rgba(65,255,226,0.28), transparent 18%),
+            radial-gradient(circle at 86% 30%, rgba(255,76,216,0.14), transparent 16%),
+            linear-gradient(135deg, rgba(7,20,38,0.96), rgba(3,8,20,0.94));
+        box-shadow:
+            0 0 0 1px rgba(255,255,255,0.035) inset,
+            0 24px 60px rgba(0,0,0,0.36),
+            0 0 40px rgba(48,255,225,0.08);
+    }
+
+    .mission-hero::after {
+        content: "";
+        position: absolute;
+        right: 60px;
+        top: 26px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 36% 34%, rgba(255,255,255,0.92), rgba(89,255,232,0.72) 10%, rgba(31,172,162,0.20) 34%, transparent 62%);
+        box-shadow: 0 0 38px rgba(77,255,232,0.42), inset 0 0 28px rgba(255,255,255,0.24);
+        opacity: 0.55;
+        filter: blur(0.2px);
+    }
+
+    .mission-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 42px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        color: #f7ffff;
+        text-shadow: 0 0 22px rgba(77,255,232,0.36);
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .mission-highlight {
+        color: #5fffe8;
+        text-shadow: 0 0 18px rgba(95,255,232,0.80);
+    }
+
+    .mission-subtitle {
+        color: #8efbea;
+        font-size: 16px;
+        font-weight: 700;
+        margin-top: 12px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .mission-desc {
+        color: #b7c6d6;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 14px;
+        max-width: 720px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .mission-time-pill {
+        display: inline-block;
+        padding: 8px 12px;
+        border: 1px solid rgba(92,255,232,0.28);
+        border-radius: 999px;
+        background: rgba(7,18,31,0.72);
+        color: #bafdf3;
+        box-shadow: 0 0 22px rgba(69,255,222,0.08) inset;
+    }
+
+    .kpi-card,
+    .candidate-card,
+    .section-card,
+    div[data-testid="stMetric"] {
+        background:
+            linear-gradient(145deg, rgba(11, 29, 52, 0.88), rgba(5, 12, 26, 0.92));
+        border: 1px solid rgba(83,255,226,0.18);
+        box-shadow:
+            0 18px 38px rgba(0,0,0,0.38),
+            0 0 24px rgba(59,255,226,0.06),
+            inset 0 1px 0 rgba(255,255,255,0.05);
+        backdrop-filter: blur(6px);
+    }
+
+    .kpi-card:hover,
+    .candidate-card:hover,
+    .section-card:hover {
+        border-color: rgba(97,255,232,0.34);
+        box-shadow:
+            0 22px 48px rgba(0,0,0,0.46),
+            0 0 34px rgba(73,255,226,0.11),
+            inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .kpi-label,
+    .small-muted,
+    .chart-caption,
+    .kpi-sub,
+    .sub-title {
+        color: #98adbf;
+    }
+
+    .kpi-value,
+    .detail-title,
+    h1, h2, h3 {
+        color: #f4ffff !important;
+        text-shadow: 0 0 14px rgba(90,255,232,0.18);
+    }
+
+    .score-text {
+        color: #78ffee;
+        text-shadow: 0 0 16px rgba(120,255,238,0.65);
+    }
+
+    .segment-pill {
+        background: rgba(36,255,218,0.10);
+        border: 1px solid rgba(75,255,230,0.28);
+        color: #bffdf5;
+        box-shadow: inset 0 0 18px rgba(30,255,218,0.04);
+    }
+
+    .rank-badge {
+        background: linear-gradient(135deg, #fcf3a4, #ffe35a, #ffb347);
+        color: #10131a;
+        box-shadow: 0 0 18px rgba(255,218,90,0.35);
+    }
+
+    .candidate-avatar {
+        background: radial-gradient(circle at 32% 28%, #ffffff, #69ffee 17%, #1f9df5 52%, #6b4dff 100%);
+        box-shadow: 0 0 28px rgba(89,255,232,0.35);
+        border: 1px solid rgba(255,255,255,0.52);
+    }
+
+    .reason-box,
+    .explain-box,
+    .guide-box {
+        background: rgba(7, 20, 37, 0.74);
+        border: 1px solid rgba(86,255,226,0.16);
+        color: #d8f7f3;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: linear-gradient(90deg, rgba(59,255,226,0), rgba(59,255,226,0.68), rgba(255,82,211,0.38), rgba(59,255,226,0));
+        margin: 26px 0 20px 0;
+    }
+
+    div[data-testid="stExpander"] {
+        border: 1px solid rgba(86,255,226,0.15) !important;
+        border-radius: 14px !important;
+        background: rgba(5, 13, 27, 0.60) !important;
+    }
+
+    div[data-testid="stDataFrame"] {
+        border: 1px solid rgba(86,255,226,0.14);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    button,
+    .stButton > button,
+    .stDownloadButton > button {
+        border: 1px solid rgba(83,255,226,0.32) !important;
+        background: linear-gradient(135deg, rgba(20,56,83,0.95), rgba(7,20,39,0.95)) !important;
+        color: #dffff9 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 0 18px rgba(69,255,225,0.10) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # =========================================================
 # 2. 경로 및 데이터 로드
@@ -1056,8 +1313,16 @@ snapshot_prepared_df = prepare_snapshot_df(snapshot_df)
 # 6. 사이드바 필터
 # =========================================================
 
-st.sidebar.markdown("## CIME")
-st.sidebar.markdown("### 필터")
+st.sidebar.markdown(
+    """
+    <div class="mission-sidebar-title">
+        <div class="mission-sidebar-logo">🪐 CIME</div>
+        <div class="mission-sidebar-sub">MISSION CONTROL</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+st.sidebar.markdown("### 🚀 필터")
 
 filtered = df.copy()
 
@@ -1260,25 +1525,29 @@ if st.sidebar.button("데이터 새로고침"):
     st.cache_data.clear()
     st.rerun()
 
-st.sidebar.caption(f"PROJECT_ROOT: {PROJECT_ROOT}")
 
 
 # =========================================================
 # 7. 헤더
 # =========================================================
 
-left_title, right_info = st.columns([0.75, 0.25])
-
-with left_title:
-    st.markdown('<div class="main-title">CIME 유튜브 영입후보 발굴 대시보드</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="sub-title">파이프라인 산출 CSV 기반으로 영입 우선순위와 핵심 후보를 한눈에 확인</div>',
-        unsafe_allow_html=True,
-    )
-
-with right_info:
-    now_kst = datetime.now(ZoneInfo("Asia/Seoul"))
-    st.caption(f"마지막 화면 갱신(KST): {now_kst.strftime('%Y-%m-%d %H:%M:%S')}")
+now_kst = datetime.now(ZoneInfo("Asia/Seoul"))
+st.markdown(
+    f"""
+    <div class="mission-hero">
+        <div class="mission-title"><span class="mission-highlight">CIME</span> STREAM PLANET</div>
+        <div class="mission-subtitle">데이터 우주에서 다음 플랫폼의 중심 별을 찾다</div>
+        <div class="mission-desc">
+            유튜브 API 기반 후보 데이터를 바탕으로 성장성, 팬 반응, 라이브 전환 가능성, 영입 현실성을 종합해
+            CIME가 검토할 잠재 스트리머 후보를 탐색합니다.
+        </div>
+        <div style="margin-top: 16px; position: relative; z-index: 1;">
+            <span class="mission-time-pill">🟢 데이터 정상 로드 · 마지막 화면 갱신(KST): {now_kst.strftime('%Y-%m-%d %H:%M:%S')}</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # =========================================================
@@ -1478,7 +1747,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # =========================================================
 
 add_section_divider()
-st.markdown("### TOP 영입 후보")
+st.markdown("### ⭐ TOP 영입 후보")
 
 top_candidates = filtered.head(5).copy()
 
@@ -1533,7 +1802,7 @@ main_left, main_right = st.columns([0.68, 0.32])
 
 with main_left:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 영입 우선순위 TOP")
+    st.markdown("### 🛰️ 영입 우선순위 TOP")
     st.caption("현재 필터 조건에서 검토 우선순위가 높은 후보를 보여줍니다. 표의 순위는 전체 원본 순위가 아니라 현재 필터 결과 기준입니다.")
 
     display_cols = [
@@ -1602,7 +1871,7 @@ with main_left:
     # =====================================================
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 세그먼트별 영입 후보 점수 분포")
+    st.markdown("### 🌌 세그먼트별 영입 후보 점수 분포")
     st.caption("각 점은 후보 채널 1개를 의미합니다. x축은 주요 콘텐츠군, y축은 영입 적합도 점수입니다.")
 
     if segment_col and score_col:
@@ -1774,7 +2043,7 @@ with main_left:
 
 with main_right:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 선택 후보 상세")
+    st.markdown("### 🔭 선택 후보 상세")
 
     if channel_name_col:
         candidate_names = filtered[channel_name_col].dropna().astype(str).tolist()
@@ -1850,7 +2119,7 @@ with main_right:
 # =========================================================
 
 st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("### 후보군 운영 현황 요약")
+st.markdown("### 🧭 후보군 운영 현황 요약")
 st.caption("현재 필터 조건에서 후보군이 어떤 검토 단계와 콘텐츠군으로 구성되어 있는지 요약합니다.")
 
 chart_col1, chart_col2, chart_col3 = st.columns(3)
@@ -1860,7 +2129,7 @@ chart_col1, chart_col2, chart_col3 = st.columns(3)
 # ---------------------------------------------------------
 with chart_col1:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 검토 단계별 후보 수")
+    st.markdown("### 🚦 검토 단계별 후보 수")
 
     if action_col and action_col in filtered.columns:
         bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
@@ -1931,7 +2200,7 @@ with chart_col1:
 # ---------------------------------------------------------
 with chart_col2:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 콘텐츠군별 평균 영입 점수")
+    st.markdown("### ✨ 콘텐츠군별 평균 영입 점수")
 
     if segment_col and score_display_col and segment_col in filtered.columns and score_display_col in filtered.columns:
         seg_score_df = filtered.copy()
@@ -1992,7 +2261,7 @@ with chart_col2:
 # ---------------------------------------------------------
 with chart_col3:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 콘텐츠군 구성 비율")
+    st.markdown("### 🪐 콘텐츠군 구성 비율")
 
     pie_col = action_col if action_col else segment_col
 
@@ -2043,7 +2312,7 @@ with chart_col3:
 # =========================================================
 
 add_section_divider()
-st.markdown("### 후보 포지셔닝 맵")
+st.markdown("### 🗺️ 후보 포지셔닝 맵")
 st.caption("엄밀한 알고리즘 클러스터링이 아니라, 팬 반응 밀도와 라이브 전환 가능성을 기준으로 후보군의 위치를 보는 운영형 포지셔닝 맵입니다.")
 
 if fan_col and live_col and fan_col in filtered.columns and live_col in filtered.columns:
@@ -2098,7 +2367,7 @@ else:
 
 st.markdown("<br>", unsafe_allow_html=True)
 add_section_divider()
-st.markdown("### 최근 주목 후보 변화")
+st.markdown("### 📡 최근 주목 후보 변화")
 st.markdown(
     """
     <div class="guide-box">
@@ -2247,17 +2516,3 @@ else:
         "과거 시점 비교를 하려면 `09_intermediate/snapshots/candidate_scored_snapshot.csv`에 "
         "날짜가 다른 snapshot이 1개 이상 있어야 합니다. 현재 snapshot이 부족하면 STEP11 snapshot append를 먼저 누적하세요."
     )
-
-
-# =========================================================
-# 12. 디버그 정보
-# =========================================================
-
-with st.expander("데이터 경로 및 컬럼 확인"):
-    st.write("PROJECT_ROOT:", str(PROJECT_ROOT))
-    st.write("candidate path:", str(CANDIDATE_DASHBOARD_PATH))
-    st.write("candidate rows:", len(candidate_df))
-    st.write("filtered rows:", len(filtered))
-    st.write("score_col:", score_col)
-    st.write("score_display_col:", score_display_col)
-    st.write("columns:", list(candidate_df.columns))
