@@ -1838,6 +1838,17 @@ if st.sidebar.button("데이터 새로고침"):
     st.cache_data.clear()
     st.rerun()
 
+with st.sidebar.expander("최신 파이프라인 결과 반영 방법", expanded=False):
+    st.markdown(
+        """
+        1. 로컬 원본 프로젝트에서 최신 파이프라인을 실행합니다.  
+        2. 생성된 `10_dashboard/data/*.csv`, `11_final/core_output/*.csv`, `09_intermediate/snapshots/*.csv`를 배포용 repo에 복사합니다.  
+        3. GitHub에 commit/push합니다.  
+        4. Streamlit Cloud에서 자동 재배포 후, 필요 시 `데이터 새로고침`으로 캐시를 비웁니다.  
+
+        이 대시보드는 API를 직접 실행하지 않고, 파이프라인 산출 CSV를 읽는 조회형 구조입니다.
+        """
+    )
 
 
 # =========================================================
@@ -2177,15 +2188,15 @@ with main_left:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
-    # 후보 분포: 대표상위세그먼트별 최종점수 분포
+    # 후보 분포: 상위 콘텐츠별 최종점수 분포
     # - 전체 후보를 기본으로 그림
     # - 현재 필터 조건에 포함된 후보는 세그먼트별 색상
     # - 필터에서 제외된 후보는 회색 처리
     # =====================================================
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 🌌 세그먼트별 영입 후보 점수 분포")
-    st.caption("각 점은 후보 채널 1개를 의미합니다. x축은 주요 콘텐츠군, y축은 영입 적합도 점수입니다.")
+    st.markdown("### 🌌 상위 콘텐츠별 영입 후보 점수 분포")
+    st.caption("각 점은 후보 채널 1개를 의미합니다. x축은 상위 콘텐츠군, y축은 영입 적합도 점수입니다.")
 
     if segment_col and score_col:
         plot_all = df.copy()
@@ -2319,9 +2330,9 @@ with main_left:
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=30, b=80),
-            legend_title_text="대표상위세그먼트",
+            legend_title_text="상위 콘텐츠군",
             xaxis=dict(
-                title="대표상위세그먼트",
+                title="상위 콘텐츠군",
                 tickmode="array",
                 tickvals=list(range(len(segment_order))),
                 ticktext=segment_order,
@@ -2338,13 +2349,13 @@ with main_left:
         st.plotly_chart(fig, use_container_width=True)
 
         st.caption(
-            "해석 포인트: 어느 콘텐츠군에 고득점 후보가 많은지, 특정 콘텐츠군이 낮은 점수대에 몰려 있는지, "
+            "해석 포인트: 어느 상위 콘텐츠군에 고득점 후보가 많은지, 특정 상위 콘텐츠군이 낮은 점수대에 몰려 있는지, "
             "현재 필터에서 제외된 후보가 얼마나 많은지 확인할 수 있습니다. "
             "색상 점은 현재 필터에 포함된 후보, 회색 점은 필터에서 제외된 후보입니다."
         )
 
     else:
-        st.info("세그먼트별 스코어 분포를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
+        st.info("상위 콘텐츠별 점수 분포를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
