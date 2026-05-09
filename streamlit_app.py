@@ -4988,18 +4988,21 @@ st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 add_section_divider()
 st.markdown("### 📡 최근 주목 후보 변화")
-st.markdown(
-    """
-    <div class="guide-box">
-    <b>표 해석법</b><br>
-    - <b>순위 변동</b>이 양수이면 이전 시점보다 순위가 상승한 후보입니다.<br>
-    - <b>점수 변동</b>이 양수이면 영입 적합도 점수가 상승한 후보입니다.<br>
-    - <b>검토 단계</b>가 보류 → 성장관찰, 검증필요 → 즉시검토처럼 개선되면 우선 확인 대상입니다.<br>
-    - <b>신규진입</b>은 기준 시점에는 없었지만 비교 시점에 새로 등장한 후보입니다.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+with st.expander("📘 표 해석법", expanded=False):
+    st.markdown(
+        """
+        <div class="guide-box">
+        <b>변화 추적 표를 읽는 법</b><br>
+        - <b>순위 변동</b>이 양수이면 이전 시점보다 현재 순위가 상승한 후보입니다.<br>
+        - <b>점수 변동</b>이 양수이면 영입 적합도 점수가 상승한 후보입니다.<br>
+        - <b>검토 단계</b>가 보류 → 성장관찰, 검증필요 → 즉시검토처럼 개선되면 우선 확인 대상입니다.<br>
+        - <b>신규진입</b>은 기준 시점에는 없었지만 비교 시점에 새로 등장한 후보입니다.<br><br>
+        <b>도출 가능한 인사이트</b><br>
+        버킷이 개선된 후보는 단순 순위 상승보다 운영상 의미가 큽니다. 특히 순위와 점수가 함께 상승하고 현재 검토 단계가 즉시검토로 바뀐 후보는 후속 수기 검증 우선순위를 높게 볼 수 있습니다.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 if not tracking_base_df.empty and not tracking_target_df.empty:
     dynamic_tracking_df = build_tracking_between(
@@ -5089,10 +5092,193 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
             "변화요약": "변화 요약",
         })
 
-        st.dataframe(
-            tracking_display,
-            use_container_width=True,
-            hide_index=True,
+        # Streamlit 기본 dataframe 대신 TOP 테이블과 같은 랭킹 보드형 HTML 테이블로 표시
+        st.markdown(
+            """
+            <style>
+            .tracking-board-wrap {
+                margin-top: 14px;
+                margin-bottom: 16px;
+            }
+            .tracking-board {
+                font-size: 13px;
+            }
+            .tracking-board thead th {
+                padding: 10px 8px;
+                font-size: 12.3px;
+            }
+            .tracking-board tbody td {
+                padding: 10px 8px;
+                height: 38px;
+            }
+            .tracking-name {
+                text-align: left !important;
+                font-weight: 900;
+                color: #ffffff;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+            .tracking-num {
+                font-weight: 850;
+                font-variant-numeric: tabular-nums;
+                color: #eafcff;
+            }
+            .tracking-rank-up,
+            .tracking-score-up {
+                color: #ff7a7a;
+                font-weight: 950;
+            }
+            .tracking-rank-down,
+            .tracking-score-down {
+                color: #69b4ff;
+                font-weight: 950;
+            }
+            .tracking-rank-flat,
+            .tracking-score-flat {
+                color: #b8c7d5;
+                font-weight: 850;
+            }
+            .tracking-summary {
+                text-align: left !important;
+                color: #c9d7e3;
+                font-size: 12px;
+                line-height: 1.35;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            .tracking-chip {
+                display: inline-block;
+                padding: 7px 18px;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.95);
+                color: #111827;
+                font-size: 13px;
+                font-weight: 850;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+                margin: 4px 0 10px 0;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        def _tracking_num_cell(value, ndigits=0):
+            if pd.isna(value):
+                return "-"
+            try:
+                num = float(value)
+                if ndigits == 0:
+                    return f"{int(round(num)):,}"
+                return f"{num:,.{ndigits}f}"
+            except Exception:
+                return _safe_cell(value, "-")
+
+        def _tracking_delta_class(value, prefix):
+            try:
+                num = float(value)
+            except Exception:
+                return f"{prefix}-flat"
+            if num > 0:
+                return f"{prefix}-up"
+            if num < 0:
+                return f"{prefix}-down"
+            return f"{prefix}-flat"
+
+        def _tracking_delta_text(value, ndigits=0):
+            if pd.isna(value):
+                return "-"
+            try:
+                num = float(value)
+                abs_num = abs(num)
+                if ndigits == 0:
+                    formatted = f"{int(round(abs_num)):,}"
+                else:
+                    formatted = f"{abs_num:,.{ndigits}f}"
+                if num > 0:
+                    return f"▲ {formatted}"
+                if num < 0:
+                    return f"▼ {formatted}"
+                return "—"
+            except Exception:
+                return _safe_cell(value, "-")
+
+        tracking_rows_html = []
+        for _, row in tracking_display.iterrows():
+            name_html = _safe_cell(row.get("채널명", "-"))
+            prev_rank = _tracking_num_cell(row.get("이전 순위"), 0)
+            cur_rank_col = f"{target_name_for_table} 순위"
+            cur_score_col = f"{target_name_for_table} 점수"
+            cur_action_col = f"{target_name_for_table} 검토 단계"
+            cur_rank = _tracking_num_cell(row.get(cur_rank_col), 0)
+            rank_delta_val = row.get("순위 변동", np.nan)
+            rank_delta = _tracking_delta_text(rank_delta_val, 0)
+            rank_delta_cls = _tracking_delta_class(rank_delta_val, "tracking-rank")
+            prev_score = _tracking_num_cell(row.get("이전 점수"), 1)
+            cur_score = _tracking_num_cell(row.get(cur_score_col), 1)
+            score_delta_val = row.get("점수 변동", np.nan)
+            score_delta = _tracking_delta_text(score_delta_val, 1)
+            score_delta_cls = _tracking_delta_class(score_delta_val, "tracking-score")
+            prev_action = _action_pill(row.get("이전 검토 단계", "-"))
+            cur_action = _action_pill(row.get(cur_action_col, "-"))
+            summary = _safe_cell(_short_text(row.get("변화 요약", "-"), 70))
+
+            tracking_rows_html.append(
+                f"""
+                <tr>
+                    <td class="tracking-name">{name_html}</td>
+                    <td class="tracking-num">{prev_rank}</td>
+                    <td class="tracking-num">{cur_rank}</td>
+                    <td class="{rank_delta_cls}">{rank_delta}</td>
+                    <td class="tracking-num">{prev_score}</td>
+                    <td class="tracking-num">{cur_score}</td>
+                    <td class="{score_delta_cls}">{score_delta}</td>
+                    <td>{prev_action}</td>
+                    <td>{cur_action}</td>
+                    <td class="tracking-summary" title="{summary}">{summary}</td>
+                </tr>
+                """
+            )
+
+        html(
+            f"""
+            <div class="tracking-chip">top 1~{min(int(max_tracking_rows), len(tracking_display))}</div>
+            <div class="priority-board-wrap tracking-board-wrap">
+                <table class="priority-board tracking-board">
+                    <colgroup>
+                        <col style="width: 16%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 16%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>채널명</th>
+                            <th>이전 순위</th>
+                            <th>{target_name_for_table} 순위</th>
+                            <th>순위 변동</th>
+                            <th>이전 점수</th>
+                            <th>{target_name_for_table} 점수</th>
+                            <th>점수 변동</th>
+                            <th>이전 단계</th>
+                            <th>{target_name_for_table} 단계</th>
+                            <th>변화 요약</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {''.join(tracking_rows_html)}
+                    </tbody>
+                </table>
+            </div>
+            """
         )
 
         with st.expander("변화 추적 상세 컬럼 보기", expanded=False):
