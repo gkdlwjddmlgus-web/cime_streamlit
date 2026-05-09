@@ -5117,6 +5117,9 @@ with left_col:
 
 with right_col:
     if selected_options:
+        # 좌측의 우선순위 제목/필터 행과 시각적 기준선을 맞추기 위해
+        # 선택 후보 드롭다운 위에 소폭 여백을 둡니다.
+        st.markdown('<div class="candidate-select-top-spacer"></div>', unsafe_allow_html=True)
         selected_name = st.selectbox(
             "선택 후보",
             options=selected_options,
@@ -5908,3 +5911,35 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
+# =========================================================
+# 추가 보정: 우측 선택 후보 드롭다운 상단 여백
+# - TOP5 카드 바로 아래에 붙어 보이지 않도록 좌측 제목 영역과 비슷한 여백 확보
+# =========================================================
+st.markdown(
+    """
+    <style>
+    .candidate-select-top-spacer {
+        height: 18px !important;
+        min-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    div.element-container:has(.candidate-select-top-spacer) {
+        height: 18px !important;
+        min-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 선택 후보 selectbox 자체의 위/아래 기본 여백을 안정화 */
+    div.element-container:has(.candidate-select-top-spacer) + div.element-container {
+        margin-top: 0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
