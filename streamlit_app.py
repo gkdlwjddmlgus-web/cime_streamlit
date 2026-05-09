@@ -5420,6 +5420,59 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
+
+
+st.markdown(
+    """
+    <style>
+    /* 후보군 비교 그래프: 영입 우선순위 TOP과 동일한 제목+버튼 한 줄 레이아웃 */
+    .graph-header-title {
+        font-size: 25px;
+        font-weight: 950;
+        color: #fff8ff;
+        letter-spacing: -0.04em;
+        line-height: 46px;
+        white-space: nowrap;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-shadow: 0 0 14px rgba(180, 120, 255, 0.30);
+    }
+
+    /* graph buttons가 radio처럼 보이도록 높이/간격 통일 */
+    div[data-testid="column"] .stButton > button[kind="primary"],
+    div[data-testid="column"] .stButton > button[kind="secondary"] {
+        min-height: 46px !important;
+        height: 46px !important;
+        padding: 0 16px !important;
+        border-radius: 16px !important;
+        font-size: 15px !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+    }
+
+    /* 활성 버튼은 기존 후보군 버튼과 동일하게 보라/코스믹 톤 */
+    div[data-testid="column"] .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, rgba(143,84,255,0.92), rgba(207,71,178,0.70)) !important;
+        border-color: rgba(221,160,255,0.52) !important;
+        color: #fffaff !important;
+        box-shadow: 0 0 16px rgba(145, 93, 255, 0.24) !important;
+    }
+
+    div[data-testid="column"] .stButton > button[kind="secondary"] {
+        background: rgba(7,18,34,0.84) !important;
+        border-color: rgba(118,242,226,0.22) !important;
+        color: #e9f7ff !important;
+        box-shadow: none !important;
+    }
+
+    /* 그래프 헤더 행과 실제 그래프 사이 간격을 영입 우선순위 표와 유사하게 정리 */
+    .graph-header-title + div {
+        margin: 0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 # 13. 하단 후보군 비교 그래프
 # ---------------------------------------------------------
 
@@ -5441,25 +5494,65 @@ GRAPH_OPTIONS = [
     "후보군 콘텐츠 비율",
 ]
 
-html(
-    """
-    <div class="board-panel bottom-panel">
-        <div class="board-panel-title">📊 후보군 비교 그래프</div>
-    </div>
-    """
-)
+# 후보군 비교 그래프도 영입 우선순위 TOP 영역과 동일하게
+# 제목과 버튼형 필터를 같은 라인에 배치한다.
+def _set_graph_view(mode: str) -> None:
+    st.session_state["mock_graph_view"] = mode
 
-# 필터는 타이틀 아래에 한 번만 표시한다. 기존 mock-tab 중복 표시는 제거.
-st.markdown('<div class="graph-radio-wrap">', unsafe_allow_html=True)
-graph_view = st.radio(
-    "후보군 비교 그래프 선택",
-    GRAPH_OPTIONS,
-    index=0,
-    horizontal=True,
-    key="mock_graph_view",
-    label_visibility="collapsed",
-)
-st.markdown('</div>', unsafe_allow_html=True)
+current_graph_view = st.session_state.get("mock_graph_view", GRAPH_OPTIONS[0])
+if current_graph_view not in GRAPH_OPTIONS:
+    current_graph_view = GRAPH_OPTIONS[0]
+    st.session_state["mock_graph_view"] = current_graph_view
+
+try:
+    graph_title_col, graph_btn_col_1, graph_btn_col_2, graph_btn_col_3 = st.columns(
+        [0.34, 0.22, 0.22, 0.22], gap="small", vertical_alignment="center"
+    )
+except TypeError:
+    graph_title_col, graph_btn_col_1, graph_btn_col_2, graph_btn_col_3 = st.columns(
+        [0.34, 0.22, 0.22, 0.22], gap="small"
+    )
+
+with graph_title_col:
+    st.markdown(
+        '<div class="graph-header-title">📊 후보군 비교 그래프</div>',
+        unsafe_allow_html=True,
+    )
+
+with graph_btn_col_1:
+    st.button(
+        "콘텐츠 유형별 추천 점수",
+        key="graph_view_score_button",
+        use_container_width=True,
+        type="primary" if current_graph_view == "콘텐츠 유형별 추천 점수" else "secondary",
+        on_click=_set_graph_view,
+        args=("콘텐츠 유형별 추천 점수",),
+    )
+
+with graph_btn_col_2:
+    st.button(
+        "검토 단계별 후보 분포",
+        key="graph_view_bucket_button",
+        use_container_width=True,
+        type="primary" if current_graph_view == "검토 단계별 후보 분포" else "secondary",
+        on_click=_set_graph_view,
+        args=("검토 단계별 후보 분포",),
+    )
+
+with graph_btn_col_3:
+    st.button(
+        "후보군 콘텐츠 비율",
+        key="graph_view_ratio_button",
+        use_container_width=True,
+        type="primary" if current_graph_view == "후보군 콘텐츠 비율" else "secondary",
+        on_click=_set_graph_view,
+        args=("후보군 콘텐츠 비율",),
+    )
+
+graph_view = st.session_state.get("mock_graph_view", GRAPH_OPTIONS[0])
+if graph_view not in GRAPH_OPTIONS:
+    graph_view = GRAPH_OPTIONS[0]
+    st.session_state["mock_graph_view"] = graph_view
 
 # 모든 그래프/테이블은 같은 2열 구조의 우측 출력 박스에 표시한다.
 graph_left, graph_right = st.columns([0.23, 0.77], gap="small")
