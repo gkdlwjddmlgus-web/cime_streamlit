@@ -4309,202 +4309,882 @@ st.markdown(
 )
 
 # =========================================================
-# 7. 헤더
+# 7. STAR SEED 관제보드형 대시보드 본문
+# - 레퍼런스 이미지 기반으로 STAR SEED 페이지 전체 배치 재구성
+# - 상단 헤더 / KPI 4카드 / 추천 후보 TOP5 / 우선순위 표+상세 / 하단 그래프 탭
 # =========================================================
 
-html(
-    """
-    <div class="starseed-dashboard-hero">
-        <div class="starseed-head-left">
-            <div class="starseed-title-mini">STAR SEED</div>
-            <div class="starseed-subtitle-mini"> 외부 반응 속 성장 가능성이 보이는 후보군을 찾습니다</div>
-        </div>
-        <div class="starseed-info-card">
-            <div class="starseed-info-icon">✦</div>
-            <div>
-                <div class="starseed-info-title">스타시드는 무엇을 찾나요?</div>
-                <div class="starseed-info-text">
-                    YouTube Data API 기반 후보군 중 최근 성장세, 팬덤 반응, 콘텐츠 적합성, 영입 리스크를 함께 검토해 CIME에서 성장 가능성이 높은 후보를 선별합니다.
-                </div>
-            </div>
-        </div>
-    </div>
-    """
+# ---------------------------------------------------------
+# 7-0. 레퍼런스형 STAR SEED CSS
+# ---------------------------------------------------------
+st.markdown(
+    clean_html(
+        """
+        <style>
+        .block-container {
+            max-width: 1380px !important;
+            padding-top: 0.35rem !important;
+            padding-left: 2.0rem !important;
+            padding-right: 2.0rem !important;
+            padding-bottom: 2.5rem !important;
+        }
+
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, rgba(4, 8, 20, .98), rgba(7, 8, 26, .98)) !important;
+            border-right: 1px solid rgba(132, 93, 255, .34) !important;
+        }
+
+        .starseed-board {
+            width: 100%;
+            padding: 8px 0 18px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .board-hero {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .board-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 54px;
+            font-weight: 900;
+            line-height: .95;
+            letter-spacing: 8px;
+            color: #fff8ff;
+            text-shadow: 0 0 18px rgba(190, 115, 255, .78), 0 0 34px rgba(118, 87, 255, .38);
+            margin: 0 0 10px 0;
+        }
+
+        .board-subtitle {
+            color: #d9cdf9;
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .board-info-card {
+            display: grid;
+            grid-template-columns: 58px 1fr;
+            gap: 16px;
+            align-items: center;
+            min-height: 82px;
+            border-radius: 18px;
+            border: 1px solid rgba(164, 111, 255, .36);
+            background: linear-gradient(135deg, rgba(55, 22, 102, .72), rgba(22, 17, 55, .86));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 26px rgba(143, 84, 255, .14);
+            padding: 15px 20px;
+        }
+
+        .board-info-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 25px;
+            background: radial-gradient(circle at 32% 28%, #cfa9ff, #7037d7 55%, #27164e 100%);
+            box-shadow: 0 0 18px rgba(178, 118, 255, .38);
+        }
+
+        .board-info-title {
+            color: #f7efff;
+            font-size: 14px;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .board-info-text {
+            color: #bdb2d6;
+            font-size: 12px;
+            line-height: 1.55;
+            word-break: keep-all;
+        }
+
+        .board-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin: 8px 0 8px 0;
+        }
+
+        .board-kpi-card {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 52px 1fr;
+            gap: 13px;
+            align-items: center;
+            min-height: 82px;
+            border-radius: 14px;
+            padding: 13px 16px;
+            border: 1px solid rgba(122, 100, 220, .36);
+            background: linear-gradient(180deg, rgba(20, 25, 50, .90), rgba(12, 15, 34, .96));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 10px 24px rgba(0,0,0,.20);
+        }
+
+        .board-kpi-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 8% 18%, rgba(155, 98, 255, .18), transparent 30%);
+            pointer-events: none;
+        }
+
+        .board-kpi-icon {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            background: radial-gradient(circle at 34% 24%, rgba(255,255,255,.36), rgba(124, 83, 236, .82) 48%, rgba(48, 25, 112, .92) 100%);
+            box-shadow: 0 0 18px rgba(144, 94, 255, .35);
+        }
+
+        .board-kpi-content { position: relative; min-width: 0; }
+        .board-kpi-label { color: #c9c1dd; font-size: 12px; font-weight: 850; margin-bottom: 3px; }
+        .board-kpi-value { color: #fff; font-size: 25px; font-weight: 950; line-height: 1.1; letter-spacing: -.03em; }
+        .board-kpi-delta { display:inline-flex; align-items:center; gap:2px; margin-top: 3px; font-size: 10px; font-weight: 900; border-radius:999px; padding: 2px 7px; background: rgba(255,255,255,.05); }
+        .board-kpi-delta.up { color:#ff7b86; background: rgba(255, 91, 108, .12); }
+        .board-kpi-delta.down { color:#72b8ff; background: rgba(79, 150, 255, .12); }
+        .board-kpi-delta.flat { color:#c4bad8; background: rgba(185,170,230,.10); }
+        .board-kpi-note { display:inline-block; margin-left: 6px; color:#8d849f; font-size: 10px; font-weight: 700; }
+
+        .board-panel {
+            border-radius: 16px;
+            border: 1px solid rgba(127, 98, 221, .35);
+            background: linear-gradient(180deg, rgba(22, 18, 48, .86), rgba(11, 14, 33, .93));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 16px 32px rgba(0,0,0,.20);
+            padding: 12px 14px;
+        }
+
+        .board-panel-title {
+            display:flex;
+            align-items:center;
+            gap: 8px;
+            color:#f5efff;
+            font-size: 15px;
+            font-weight: 950;
+            margin: 0 0 10px 0;
+        }
+
+        .top5-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .mini-candidate-card {
+            position: relative;
+            min-height: 86px;
+            border-radius: 12px;
+            border: 1px solid rgba(135, 105, 232, .28);
+            background: linear-gradient(180deg, rgba(22, 24, 52, .80), rgba(13, 15, 36, .94));
+            padding: 12px 10px 10px 72px;
+            overflow: hidden;
+        }
+
+        .mini-rank {
+            position:absolute;
+            top: 9px;
+            left: 9px;
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#ffd86b;
+            border:1px solid rgba(255,216,107,.75);
+            background: rgba(42, 29, 72, .78);
+            font-size: 11px;
+            font-weight: 950;
+        }
+
+        .mini-avatar-wrap {
+            position: absolute;
+            left: 31px;
+            top: 18px;
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: radial-gradient(circle at 32% 28%, #fff, #8b5cf6 42%, #25154d 100%);
+            border: 2px solid rgba(255,255,255,.35);
+            box-shadow: 0 0 12px rgba(155, 109, 255, .34);
+        }
+
+        .mini-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display:block; }
+        .mini-avatar-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:950; font-size:20px; }
+        .mini-name { color:#fff; font-size: 13px; font-weight: 950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top: 0px; }
+        .mini-score { color:#fff; font-size: 16px; font-weight: 950; margin-top: 1px; }
+        .mini-stage { display:inline-block; color:#b9ffe8; background: rgba(20, 152, 123, .28); border:1px solid rgba(64,226,190,.35); border-radius:999px; padding: 2px 8px; font-size: 10px; font-weight: 900; margin-top:3px; }
+        .mini-reason { color:#beb3d4; font-size: 10.5px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:4px; }
+
+        .mid-grid {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .priority-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 11px;
+            table-layout: fixed;
+            font-size: 11px;
+        }
+        .priority-table th {
+            background: rgba(255,255,255,.08);
+            color:#ddd5ef;
+            font-weight:900;
+            padding: 7px 8px;
+            border-bottom: 1px solid rgba(255,255,255,.09);
+            text-align:center;
+        }
+        .priority-table td {
+            color:#f7f4ff;
+            padding: 4px 8px;
+            border-bottom: 1px solid rgba(255,255,255,.055);
+            text-align:center;
+            font-weight: 740;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .priority-table td.name { text-align:left; font-weight:900; }
+        .priority-score { color:#fff !important; font-weight:950 !important; }
+
+        .tag-pill {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius: 999px;
+            min-width: 54px;
+            max-width: 118px;
+            padding: 3px 8px;
+            font-size: 10px;
+            font-weight: 950;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color:#fff;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+        }
+        .seg-music { background: linear-gradient(135deg, #7b5cff, #5840c6); }
+        .seg-visual { background: linear-gradient(135deg, #d64b92, #963069); }
+        .seg-virtual { background: linear-gradient(135deg, #d69428, #9d5f12); }
+        .seg-game { background: linear-gradient(135deg, #2a9dd6, #1768a5); }
+        .seg-subculture { background: linear-gradient(135deg, #ff9c55, #c96a28); }
+        .seg-etc { background: linear-gradient(135deg, #7d8798, #4c5568); }
+        .sub-music { background: linear-gradient(135deg, #5d3acc, #352079); }
+        .sub-visual { background: linear-gradient(135deg, #a82c6d, #681a48); }
+        .sub-virtual { background: linear-gradient(135deg, #9e5a16, #65350c); }
+        .sub-game { background: linear-gradient(135deg, #1b73b7, #113d70); }
+        .sub-subculture { background: linear-gradient(135deg, #ca6930, #7c3918); }
+        .sub-etc { background: linear-gradient(135deg, #5c6576, #343b48); }
+        .action-immediate { background: linear-gradient(135deg, #1aa98c, #0e6b62); color:#dffff8; }
+        .action-watch { background: linear-gradient(135deg, #6f83ee, #4350a5); }
+        .action-verify { background: linear-gradient(135deg, #d75d86, #8e2d56); }
+        .action-hold { background: linear-gradient(135deg, #7b8798, #4b5363); }
+
+        .view-more-bar {
+            margin-top: 6px;
+            height: 23px;
+            border-radius: 7px;
+            color:#d9d2ef;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size: 10px;
+            font-weight: 850;
+            background: linear-gradient(90deg, rgba(68, 76, 142, .55), rgba(25, 33, 73, .70));
+            border:1px solid rgba(145, 116, 233, .22);
+        }
+
+        .detail-card-inner {
+            display: grid;
+            grid-template-columns: 125px 1fr 210px;
+            gap: 16px;
+            align-items: center;
+        }
+        .detail-avatar-big {
+            width: 108px;
+            height: 108px;
+            border-radius: 999px;
+            overflow:hidden;
+            border: 3px solid rgba(255,255,255,.55);
+            box-shadow: 0 0 20px rgba(160, 102, 255, .35);
+            margin: 0 auto;
+            background: radial-gradient(circle at 32% 28%, #fff, #9c6aff 43%, #25154d 100%);
+        }
+        .detail-avatar-big img { width:100%; height:100%; object-fit:cover; display:block; }
+        .detail-avatar-big .mini-avatar-fallback { font-size: 42px; }
+        .detail-name-row { display:flex; gap: 8px; align-items:center; margin-bottom: 10px; }
+        .detail-name-main { color:#fff; font-size: 20px; font-weight: 950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .detail-metric-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .detail-metric-box { border: 1px solid rgba(139,110,230,.26); background:rgba(255,255,255,.045); border-radius:8px; padding:7px 9px; min-height:48px; }
+        .detail-metric-label { color:#bfb4d3; font-size:10px; font-weight:850; }
+        .detail-metric-value { color:#fff; font-size:18px; font-weight:950; line-height:1.2; margin-top:2px; }
+        .reason-panel { border:1px solid rgba(157,103,255,.32); background:rgba(49,28,91,.36); border-radius:12px; padding:12px 14px; min-height:106px; }
+        .reason-title { color:#e4d6ff; font-size:12px; font-weight:950; margin-bottom:8px; }
+        .reason-bullet { color:#cfc4e4; font-size:11px; line-height:1.55; margin:5px 0; }
+        .reason-bullet::before { content:'●'; color:#8f5bff; margin-right:7px; }
+
+        .bottom-panel { margin-top: 10px; }
+        .mock-tabs { display:flex; gap:8px; align-items:center; justify-content:center; margin: -2px 0 10px 0; }
+        .mock-tab { min-width: 160px; text-align:center; border-radius:999px; padding:7px 16px; color:#c9c0dc; background:rgba(255,255,255,.055); border:1px solid rgba(145,116,233,.24); font-size:11px; font-weight:900; }
+        .mock-tab.active { color:#fff; background: linear-gradient(135deg, rgba(143,84,255,.90), rgba(207,71,178,.72)); border-color: rgba(221,160,255,.48); box-shadow: 0 0 16px rgba(145, 93, 255, .25); }
+        .graph-grid { display:grid; grid-template-columns: 250px 1fr; gap: 14px; align-items:stretch; }
+        .graph-explain { padding: 18px 8px 12px 8px; }
+        .graph-explain-title { color:#fff; font-size:17px; font-weight:950; margin-bottom: 8px; }
+        .graph-explain-text { color:#bcb3d2; font-size:12px; line-height:1.65; word-break: keep-all; }
+        .plot-shell { border-radius:13px; border:1px solid rgba(133, 103, 229, .22); background: rgba(7, 10, 24, .62); padding: 4px 8px 0 8px; min-height: 230px; }
+
+        .recent-mini-table { width:100%; border-collapse: collapse; table-layout:fixed; font-size:11px; }
+        .recent-mini-table th { color:#ddd5ef; background:rgba(255,255,255,.07); padding:7px; font-weight:950; }
+        .recent-mini-table td { color:#f7f4ff; padding:7px; border-bottom:1px solid rgba(255,255,255,.06); font-weight:750; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .recent-up { color:#ff838d !important; font-weight:950 !important; }
+
+        .stPlotlyChart {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+        }
+
+        @media (max-width: 1200px) {
+            .board-hero, .mid-grid, .detail-card-inner, .graph-grid { grid-template-columns: 1fr; }
+            .board-kpi-grid, .top5-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .board-title { font-size: 44px; }
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
 )
 
-# =========================================================
-# 8. KPI 카드
-# =========================================================
-
 # ---------------------------------------------------------
-# KPI 계산 기준
-# - 기존 문제:
-#   사이드바에서 "비교 대상 시점"을 바꿔도 KPI 빅넘버는 항상 현재 df 기준으로만 계산됨
-#
-# - 수정 방향:
-#   빅넘버 = 사용자가 선택한 비교 대상 시점 기준
-#   증감 = 기준 시점 대비 비교 대상 시점
-#
-# 예:
-#   기준 시점: 2026-05-01
-#   비교 대상 시점: 현재
-#   → 현재 값과 2026-05-01 snapshot의 차이 표시
-#
-#   기준 시점: 2026-05-01
-#   비교 대상 시점: 2026-05-01
-#   → 같은 snapshot끼리 비교하므로 증감 0
+# 7-1. 보조 함수
 # ---------------------------------------------------------
 
-# 비교 대상 데이터가 비어 있으면 현재 df로 fallback
+def _safe_html(value):
+    return html_lib.escape(str(value if pd.notna(value) else "-"), quote=True)
+
+
+def _short_text(value, limit=42):
+    text = str(value if pd.notna(value) else "-").strip()
+    return text if len(text) <= limit else text[:limit].rstrip() + "…"
+
+
+def _fmt_num(value, ndigits=0, suffix=""):
+    if pd.isna(value):
+        return "-"
+    try:
+        f = float(value)
+        if ndigits == 0:
+            return f"{int(round(f)):,}{suffix}"
+        return f"{f:,.{ndigits}f}{suffix}"
+    except Exception:
+        return f"{value}{suffix}"
+
+
+def _delta_badge(delta, ndigits=0, suffix=""):
+    if pd.isna(delta):
+        return '<span class="board-kpi-delta flat">— 변화 없음</span>'
+    try:
+        d = float(delta)
+    except Exception:
+        return '<span class="board-kpi-delta flat">— 변화 없음</span>'
+    arrow = "▲" if d > 0 else "▼" if d < 0 else "—"
+    cls = "up" if d > 0 else "down" if d < 0 else "flat"
+    mag = abs(d)
+    val = f"{mag:,.{ndigits}f}" if ndigits else f"{int(round(mag)):,}"
+    return f'<span class="board-kpi-delta {cls}">{arrow} {val}{suffix}</span>'
+
+
+def _seg_key(text):
+    t = str(text or "")
+    if "음악" in t or "보이스" in t or "커버" in t or "성우" in t:
+        return "music"
+    if "창작" in t or "비주얼" in t or "코스프레" in t or "일러" in t:
+        return "visual"
+    if "버츄얼" in t or "버튜" in t or "VTuber" in t:
+        return "virtual"
+    if "게임" in t or "롤" in t or "실황" in t:
+        return "game"
+    if "서브컬처" in t or "토크" in t or "팬덤" in t:
+        return "subculture"
+    return "etc"
+
+
+def _tag(value, level="main"):
+    text = str(value if pd.notna(value) and str(value).strip() else "미분류")
+    key = _seg_key(text)
+    cls = f"seg-{key}" if level == "main" else f"sub-{key}"
+    return f'<span class="tag-pill {cls}" title="{_safe_html(text)}">{_safe_html(text)}</span>'
+
+
+def _action_tag(value):
+    text = str(value if pd.notna(value) and str(value).strip() else "미분류")
+    if "즉시" in text:
+        cls = "action-immediate"
+    elif "성장" in text:
+        cls = "action-watch"
+    elif "검증" in text:
+        cls = "action-verify"
+    else:
+        cls = "action-hold"
+    return f'<span class="tag-pill {cls}" title="{_safe_html(text)}">{_safe_html(text)}</span>'
+
+
+def _thumb_url(row):
+    if channel_thumbnail_col and channel_thumbnail_col in row.index:
+        url = str(row.get(channel_thumbnail_col, "") or "").strip()
+        if url.startswith("http://") or url.startswith("https://"):
+            return url
+    return ""
+
+
+def _avatar_small(row):
+    url = _thumb_url(row)
+    name = str(row.get(channel_name_col, "?") if channel_name_col else "?")
+    initial = _safe_html(name[:1] if name else "?")
+    if url:
+        return f'<div class="mini-avatar-wrap"><img src="{_safe_html(url)}" loading="lazy" referrerpolicy="no-referrer"></div>'
+    return f'<div class="mini-avatar-wrap"><div class="mini-avatar-fallback">{initial}</div></div>'
+
+
+def _avatar_big(row):
+    url = _thumb_url(row)
+    name = str(row.get(channel_name_col, "?") if channel_name_col else "?")
+    initial = _safe_html(name[:1] if name else "?")
+    if url:
+        return f'<div class="detail-avatar-big"><img src="{_safe_html(url)}" loading="lazy" referrerpolicy="no-referrer"></div>'
+    return f'<div class="detail-avatar-big"><div class="mini-avatar-fallback">{initial}</div></div>'
+
+
+def _channel_link(name, row):
+    safe_name = _safe_html(name)
+    if channel_url_col and channel_url_col in row.index:
+        url = str(row.get(channel_url_col, "") or "").strip()
+        if url.startswith("http://") or url.startswith("https://"):
+            return f'<a href="{_safe_html(url)}" target="_blank" style="color:inherit;text-decoration:none;">{safe_name}</a>'
+    return safe_name
+
+
+def _reason_short(row):
+    for c in ["추천사유", "자동판정근거", "주의사유", "변화요약"]:
+        if c in row.index and pd.notna(row.get(c)) and str(row.get(c)).strip():
+            return str(row.get(c))
+    seg = row.get(segment_col, "") if segment_col else ""
+    return f"{seg} 콘텐츠 적합도 우수"
+
+# ---------------------------------------------------------
+# 8. KPI 계산
+# ---------------------------------------------------------
+
 if tracking_target_df is not None and not tracking_target_df.empty:
     target_all_kpi_df = add_score_display_column(tracking_target_df)
 else:
     target_all_kpi_df = add_score_display_column(df)
 
-# 기준 시점 데이터
 if tracking_base_df is not None and not tracking_base_df.empty:
     base_all_kpi_df = add_score_display_column(tracking_base_df)
 else:
     base_all_kpi_df = pd.DataFrame()
 
-# 현재 화면 필터 조건을 비교 대상/기준 snapshot에도 최대한 동일 적용
 target_filtered_kpi_df = apply_snapshot_filters_for_kpi(target_all_kpi_df)
+base_filtered_kpi_df = apply_snapshot_filters_for_kpi(base_all_kpi_df) if not base_all_kpi_df.empty else pd.DataFrame()
 
-if not base_all_kpi_df.empty:
-    base_filtered_kpi_df = apply_snapshot_filters_for_kpi(base_all_kpi_df)
-else:
-    base_filtered_kpi_df = pd.DataFrame()
-
-# KPI 값 계산
 target_all_kpi = calc_kpi_values(target_all_kpi_df)
 target_filtered_kpi = calc_kpi_values(target_filtered_kpi_df)
+base_all_kpi = calc_kpi_values(base_all_kpi_df) if not base_all_kpi_df.empty else {"total": np.nan, "shortlist": np.nan, "avg_score": np.nan, "high_priority": np.nan}
+base_filtered_kpi = calc_kpi_values(base_filtered_kpi_df) if not base_filtered_kpi_df.empty else {"total": np.nan, "shortlist": np.nan, "avg_score": np.nan, "high_priority": np.nan}
 
-base_all_kpi = calc_kpi_values(base_all_kpi_df) if not base_all_kpi_df.empty else {
-    "total": np.nan,
-    "shortlist": np.nan,
-    "avg_score": np.nan,
-    "high_priority": np.nan,
-}
-
-base_filtered_kpi = calc_kpi_values(base_filtered_kpi_df) if not base_filtered_kpi_df.empty else {
-    "total": np.nan,
-    "shortlist": np.nan,
-    "avg_score": np.nan,
-    "high_priority": np.nan,
-}
+is_same_snapshot_compare = tracking_base_label != "-" and tracking_target_label != "현재" and tracking_base_label == tracking_target_label
+if is_same_snapshot_compare:
+    delta_total = delta_shortlist = delta_avg_score = delta_high_priority = 0
+else:
+    delta_total = target_all_kpi["total"] - base_all_kpi["total"] if pd.notna(base_all_kpi["total"]) else np.nan
+    delta_shortlist = target_all_kpi["shortlist"] - base_all_kpi["shortlist"] if pd.notna(base_all_kpi["shortlist"]) else np.nan
+    delta_avg_score = target_filtered_kpi["avg_score"] - base_filtered_kpi["avg_score"] if pd.notna(base_filtered_kpi["avg_score"]) else np.nan
+    delta_high_priority = target_filtered_kpi["high_priority"] - base_filtered_kpi["high_priority"] if pd.notna(base_filtered_kpi["high_priority"]) else np.nan
 
 # ---------------------------------------------------------
-# 동일 날짜 비교 방어
-# - 기준 시점과 비교 대상 시점이 같으면 증감은 강제로 0 처리
-# - 동일 snapshot인데도 증감이 뜨는 문제 방지
+# 9. 변화 추적 mini 데이터 생성
 # ---------------------------------------------------------
 
-is_same_snapshot_compare = (
-    tracking_base_label != "-"
-    and tracking_target_label != "현재"
-    and tracking_base_label == tracking_target_label
+mini_tracking_df = pd.DataFrame()
+if tracking_base_df is not None and tracking_target_df is not None and not tracking_base_df.empty and not tracking_target_df.empty:
+    try:
+        mini_tracking_df = build_tracking_between(
+            base_df=tracking_base_df,
+            target_df=tracking_target_df,
+            base_label=tracking_base_label,
+            target_label=tracking_target_label,
+        )
+    except Exception:
+        mini_tracking_df = pd.DataFrame()
+
+if not mini_tracking_df.empty:
+    rename_tracking_cols = {
+        "기준_운영우선순위": "이전순위",
+        "비교_운영우선순위": "현재순위",
+        "운영우선순위변동": "순위변동",
+        "기준_최종점수": "이전점수",
+        "비교_최종점수": "현재점수",
+        "최종점수변동": "점수변동",
+        "기준_액션버킷": "이전단계",
+        "비교_액션버킷": "현재단계",
+    }
+    mini_tracking_df = mini_tracking_df.rename(columns=rename_tracking_cols)
+    if "순위변동" in mini_tracking_df.columns:
+        mini_tracking_df["순위변동"] = pd.to_numeric(mini_tracking_df["순위변동"], errors="coerce")
+        mini_tracking_df = mini_tracking_df.sort_values("순위변동", ascending=False)
+
+# ---------------------------------------------------------
+# 10. 상단 헤더 + KPI
+# ---------------------------------------------------------
+
+html(
+    f"""
+    <div class="starseed-board">
+        <div class="board-hero">
+            <div>
+                <div class="board-title">STAR SEED</div>
+                <div class="board-subtitle">외부 반응 속 성장 가능성이 보이는 후보군을 찾습니다</div>
+            </div>
+            <div class="board-info-card">
+                <div class="board-info-icon">✦</div>
+                <div>
+                    <div class="board-info-title">스타시드는 무엇을 찾나요?</div>
+                    <div class="board-info-text">유튜브 기반 후보군 중 최근 성장세, 팬덤 반응, 콘텐츠 적합성, 영입 리스크를 함께 검토해 CIME에서 성장 가능성이 높은 후보를 선별합니다.</div>
+                </div>
+            </div>
+        </div>
+        <div class="board-kpi-grid">
+            <div class="board-kpi-card"><div class="board-kpi-icon">👥</div><div class="board-kpi-content"><div class="board-kpi-label">전체 분석 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['total'], 0, '명')}</div>{_delta_badge(delta_total, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">▾</div><div class="board-kpi-content"><div class="board-kpi-label">1차 선별 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{_delta_badge(delta_shortlist, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div class="board-kpi-content"><div class="board-kpi-label">평균 추천 점수</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{_delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">◎</div><div class="board-kpi-content"><div class="board-kpi-label">즉시 검토 후보</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{_delta_badge(delta_high_priority, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+        </div>
+    </div>
+    """
 )
 
-if is_same_snapshot_compare:
-    delta_total = 0
-    delta_shortlist = 0
-    delta_avg_score = 0
-    delta_high_priority = 0
-else:
-    delta_total = (
-        target_all_kpi["total"] - base_all_kpi["total"]
-        if pd.notna(base_all_kpi["total"])
-        else np.nan
+# ---------------------------------------------------------
+# 11. 오늘의 추천 후보 TOP 5
+# ---------------------------------------------------------
+
+top_candidates = filtered.head(5).copy()
+mini_cards = []
+for i, (_, row) in enumerate(top_candidates.iterrows()):
+    name = row.get(channel_name_col, "-") if channel_name_col else "-"
+    score = row.get("_score_display", np.nan)
+    action = row.get(action_col, "") if action_col else ""
+    reason = _short_text(_reason_short(row), 24)
+    mini_cards.append(
+        f"""
+        <div class="mini-candidate-card">
+            <div class="mini-rank">{i + 1}</div>
+            {_avatar_small(row)}
+            <div class="mini-name">{_channel_link(name, row)}</div>
+            <div class="mini-score">{_fmt_num(score, 1, '점')}</div>
+            <span class="mini-stage">{_safe_html(action or '검토')}</span>
+            <div class="mini-reason">{_safe_html(reason)}</div>
+        </div>
+        """
     )
 
-    delta_shortlist = (
-        target_all_kpi["shortlist"] - base_all_kpi["shortlist"]
-        if pd.notna(base_all_kpi["shortlist"])
-        else np.nan
+html(
+    f"""
+    <div class="board-panel">
+        <div class="board-panel-title">✩ 오늘의 추천 후보 TOP 5</div>
+        <div class="top5-grid">{''.join(mini_cards)}</div>
+    </div>
+    """
+)
+
+# ---------------------------------------------------------
+# 12. 영입 우선순위 TOP + 선택 후보 상세
+# ---------------------------------------------------------
+
+priority_df = filtered.head(8).copy()
+priority_rows = []
+for i, (_, row) in enumerate(priority_df.iterrows()):
+    name = row.get(channel_name_col, "-") if channel_name_col else "-"
+    segment = row.get(segment_col, "-") if segment_col else "-"
+    lower_segment = row.get(lower_segment_col, "-") if lower_segment_col else "-"
+    action = row.get(action_col, "-") if action_col else "-"
+    score = row.get("_score_display", np.nan)
+    priority_rows.append(
+        f"""
+        <tr>
+            <td style="width:9%;">{i + 1}</td>
+            <td class="name" style="width:30%;">{_channel_link(_short_text(name, 18), row)}</td>
+            <td style="width:24%;">{_tag(segment, 'main')}</td>
+            <td style="width:17%;">{_action_tag(action)}</td>
+            <td class="priority-score" style="width:12%;">{_fmt_num(score, 1, '')}</td>
+        </tr>
+        """
     )
 
-    delta_avg_score = (
-        target_filtered_kpi["avg_score"] - base_filtered_kpi["avg_score"]
-        if pd.notna(base_filtered_kpi["avg_score"])
-        else np.nan
+selected_options = priority_df[channel_name_col].astype(str).tolist() if channel_name_col and not priority_df.empty else []
+selected_name = selected_options[0] if selected_options else None
+
+left_col, right_col = st.columns([0.58, 0.42], gap="small")
+
+with left_col:
+    html(
+        f"""
+        <div class="board-panel" style="min-height:228px;">
+            <div class="board-panel-title">🏆 영입 우선순위 TOP</div>
+            <table class="priority-table">
+                <thead>
+                    <tr><th>순위</th><th>스트리머명</th><th>주요 콘텐츠군</th><th>검토단계</th><th>점수</th></tr>
+                </thead>
+                <tbody>{''.join(priority_rows)}</tbody>
+            </table>
+            <div class="view-more-bar">전체 순위 보기 〉</div>
+        </div>
+        """
     )
 
-    delta_high_priority = (
-        target_filtered_kpi["high_priority"] - base_filtered_kpi["high_priority"]
-        if pd.notna(base_filtered_kpi["high_priority"])
-        else np.nan
+with right_col:
+    if selected_options:
+        selected_name = st.selectbox(
+            "선택 후보",
+            options=selected_options,
+            index=0,
+            key="mock_selected_candidate",
+            label_visibility="collapsed",
+        )
+        selected_row = priority_df[priority_df[channel_name_col].astype(str) == str(selected_name)].iloc[0]
+        sel_name = selected_row.get(channel_name_col, "-") if channel_name_col else "-"
+        sel_action = selected_row.get(action_col, "-") if action_col else "-"
+        sel_segment = selected_row.get(segment_col, "-") if segment_col else "-"
+        sel_lower = selected_row.get(lower_segment_col, "-") if lower_segment_col else "-"
+        sel_score = selected_row.get("_score_display", np.nan)
+        sel_growth = selected_row.get("성장성점수", selected_row.get("성장성", np.nan))
+        sel_subs = selected_row.get(subs_col, np.nan) if "subs_col" in globals() and subs_col else np.nan
+        sel_fan = selected_row.get("팬밀도점수", selected_row.get("팬밀도", np.nan))
+        sel_reason = _reason_short(selected_row)
+        bullets = [x.strip() for x in str(sel_reason).replace("/", "|").split("|") if x.strip()][:4]
+        if not bullets:
+            bullets = ["최종점수 상위권", "콘텐츠 적합도 양호", "실전성 리스크 낮음"]
+        reason_html = "".join([f'<div class="reason-bullet">{_safe_html(_short_text(b, 22))}</div>' for b in bullets])
+        html(
+            f"""
+            <div class="board-panel" style="min-height:228px;">
+                <div class="board-panel-title">👥 선택 후보 상세</div>
+                <div class="detail-card-inner">
+                    <div>{_avatar_big(selected_row)}</div>
+                    <div>
+                        <div class="detail-name-row"><div class="detail-name-main">{_channel_link(sel_name, selected_row)}</div>{_action_tag(sel_action)}</div>
+                        <div class="detail-metric-grid">
+                            <div class="detail-metric-box"><div class="detail-metric-label">추천 점수</div><div class="detail-metric-value">{_fmt_num(sel_score, 1, '점')}</div></div>
+                            <div class="detail-metric-box"><div class="detail-metric-label">성장성</div><div class="detail-metric-value">{_fmt_num(sel_growth, 3, '')}</div></div>
+                            <div class="detail-metric-box"><div class="detail-metric-label">구독자수</div><div class="detail-metric-value">{_fmt_num(sel_subs, 0, '')}</div></div>
+                            <div class="detail-metric-box"><div class="detail-metric-label">팬밀도</div><div class="detail-metric-value">{_fmt_num(sel_fan, 3, '')}</div></div>
+                        </div>
+                    </div>
+                    <div class="reason-panel">
+                        <div class="reason-title">핵심 추천 사유</div>
+                        {reason_html}
+                    </div>
+                </div>
+            </div>
+            """
+        )
+    else:
+        html('<div class="board-panel"><div class="board-panel-title">👥 선택 후보 상세</div><div class="board-info-text">표시할 후보가 없습니다.</div></div>')
+
+# ---------------------------------------------------------
+# 13. 하단 후보군 비교 그래프
+# ---------------------------------------------------------
+
+classified_filtered = filtered.copy()
+unclassified_filtered_count = 0
+if segment_col and segment_col in classified_filtered.columns:
+    unclassified_mask = (
+        classified_filtered[segment_col]
+        .fillna("미분류")
+        .astype(str)
+        .str.contains("미분류|None|nan", case=False, na=False)
     )
+    unclassified_filtered_count = int(unclassified_mask.sum())
+    classified_filtered = classified_filtered[~unclassified_mask].copy()
 
-# 카드 하단 설명 문구
-if tracking_base_label != "-":
-    compare_label = f"기준: {tracking_base_label} → 비교: {tracking_target_label}"
-else:
-    compare_label = "비교 기준 없음"
+GRAPH_OPTIONS = [
+    "콘텐츠 유형별 추천 점수",
+    "검토 단계별 후보 분포",
+    "후보군 콘텐츠 비율",
+    "최근 순위 상승 후보",
+]
 
-target_label_for_sub = tracking_target_label if tracking_target_label else "현재"
+graph_view = st.radio(
+    "후보군 비교 그래프 선택",
+    GRAPH_OPTIONS,
+    index=0,
+    horizontal=True,
+    key="mock_graph_view",
+    label_visibility="collapsed",
+)
 
-k1, k2, k3, k4 = st.columns(4)
+active_tabs = []
+for opt in GRAPH_OPTIONS:
+    active_tabs.append(f'<div class="mock-tab {"active" if opt == graph_view else ""}">{_safe_html(opt)}</div>')
 
-with k1:
-    render_kpi_card(
-        label="전체 후보군",
-        value=target_all_kpi["total"],
-        value_suffix="명",
-        sub=f"{target_label_for_sub} 전체 후보 기준 · {compare_label}",
-        delta=delta_total,
-        value_ndigits=0,
-        delta_ndigits=0,
-        delta_suffix="명",
-    )
+html(
+    f"""
+    <div class="board-panel bottom-panel">
+        <div class="board-panel-title">📊 후보군 비교 그래프</div>
+        <div class="mock-tabs">{''.join(active_tabs)}</div>
+    """
+)
 
-with k2:
-    render_kpi_card(
-        label="1차 선별 후보",
-        value=target_all_kpi["shortlist"],
-        value_suffix="명",
-        sub=f"shortlist 또는 주요 액션버킷 기준 · {compare_label}",
-        delta=delta_shortlist,
-        value_ndigits=0,
-        delta_ndigits=0,
-        delta_suffix="명",
-    )
+# Streamlit은 HTML div가 컴포넌트 사이를 정확히 감싸지 못하므로, 그래프 부분은 컬럼으로 배치한다.
+graph_left, graph_right = st.columns([0.23, 0.77], gap="small")
 
-with k3:
-    render_kpi_card(
-        label="평균 영입 점수(100점)",
-        value=target_filtered_kpi["avg_score"],
-        value_suffix="",
-        sub=f"{target_label_for_sub} 필터 적용 기준 · {compare_label}",
-        delta=delta_avg_score,
-        value_ndigits=1,
-        delta_ndigits=1,
-        delta_suffix="점",
-    )
+COSMIC_COLORS = ["#8b5cf6", "#5b7cfa", "#c94ea2", "#33c7b1", "#f09a4a", "#8fb4ff", "#b48cff"]
 
-with k4:
-    render_kpi_card(
-        label="고우선 후보 수",
-        value=target_filtered_kpi["high_priority"],
-        value_suffix="명",
-        sub=f"즉시검토/영입제한/위성 등 · {compare_label}",
-        delta=delta_high_priority,
-        value_ndigits=0,
-        delta_ndigits=0,
-        delta_suffix="명",
-    )
+with graph_left:
+    if graph_view == "콘텐츠 유형별 추천 점수":
+        html('<div class="graph-explain"><div class="graph-explain-title">콘텐츠 유형별 추천 점수</div><div class="graph-explain-text">어떤 콘텐츠군의 후보가 평균적으로 높은 추천 점수를 받는지 비교합니다. 점수가 높은 콘텐츠군은 우선 탐색 영역으로 볼 수 있습니다.</div></div>')
+    elif graph_view == "검토 단계별 후보 분포":
+        html('<div class="graph-explain"><div class="graph-explain-title">검토 단계별 후보 분포</div><div class="graph-explain-text">즉시검토, 성장관찰, 검증필요 등 운영 단계별 후보 수를 비교합니다. 검증필요가 많으면 리스크 검토 공수가 큽니다.</div></div>')
+    elif graph_view == "후보군 콘텐츠 비율":
+        html('<div class="graph-explain"><div class="graph-explain-title">후보군 콘텐츠 비율</div><div class="graph-explain-text">현재 후보 풀이 특정 콘텐츠군에 쏠려 있는지 확인합니다. 쏠림이 크면 수집 키워드와 필터 편향을 점검합니다.</div></div>')
+    else:
+        html('<div class="graph-explain"><div class="graph-explain-title">최근 순위 상승 후보</div><div class="graph-explain-text">기준 시점 대비 현재 순위가 크게 오른 후보를 보여줍니다. 점수와 단계가 함께 개선된 후보는 후속 검토 우선순위가 높습니다.</div></div>')
 
+with graph_right:
+    if graph_view == "콘텐츠 유형별 추천 점수":
+        if segment_col and score_display_col and not classified_filtered.empty:
+            seg_score = classified_filtered.copy()
+            seg_score["__score__"] = pd.to_numeric(seg_score[score_display_col], errors="coerce")
+            seg_score["__segment__"] = seg_score[segment_col].fillna("미분류").astype(str)
+            seg_summary = (
+                seg_score.groupby("__segment__", dropna=False)
+                .agg(추천점수=("__score__", "mean"), 후보수=("__score__", "size"))
+                .reset_index()
+                .sort_values("추천점수", ascending=False)
+                .head(8)
+            )
+            fig = px.bar(
+                seg_summary,
+                x="__segment__",
+                y="추천점수",
+                text="추천점수",
+                custom_data=["후보수"],
+                color="__segment__",
+                color_discrete_sequence=COSMIC_COLORS,
+                template="plotly_dark",
+                height=250,
+            )
+            fig.update_traces(texttemplate="%{y:.1f}", textposition="outside", cliponaxis=False, hovertemplate="콘텐츠군=%{x}<br>추천점수=%{y:.1f}<br>후보수=%{customdata[0]}명<extra></extra>")
+            fig.update_layout(
+                showlegend=False,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=12, r=12, t=12, b=50),
+                xaxis_title="",
+                yaxis_title="추천 점수",
+                xaxis=dict(tickangle=0, tickfont=dict(size=10, color="#d7cdeb")),
+                yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")),
+                font=dict(color="#eee8ff"),
+            )
+            html('<div class="plot-shell">')
+            st.plotly_chart(fig, use_container_width=True)
+            html('</div>')
+        else:
+            st.info("콘텐츠군별 점수를 만들 수 있는 컬럼이 부족합니다.")
 
-html('<div class="kpi-expander-spacer"></div>')
+    elif graph_view == "검토 단계별 후보 분포":
+        if action_col and action_col in filtered.columns:
+            bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
+            bucket_df = filtered[action_col].fillna("미분류").astype(str).value_counts().rename_axis("검토단계").reset_index(name="후보수")
+            bucket_df["정렬"] = bucket_df["검토단계"].apply(lambda x: bucket_order.index(x) if x in bucket_order else 999)
+            bucket_df = bucket_df.sort_values(["정렬", "후보수"], ascending=[True, False])
+            fig = px.bar(bucket_df, x="후보수", y="검토단계", orientation="h", text="후보수", color="검토단계", color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=250)
+            fig.update_traces(textposition="outside", cliponaxis=False, hovertemplate="검토단계=%{y}<br>후보수=%{x}명<extra></extra>")
+            fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8,r=32,t=8,b=30), xaxis_title="", yaxis_title="", xaxis=dict(gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")), yaxis=dict(tickfont=dict(color="#d7cdeb")), font=dict(color="#eee8ff"))
+            html('<div class="plot-shell">')
+            st.plotly_chart(fig, use_container_width=True)
+            html('</div>')
+        else:
+            st.info("검토 단계 컬럼이 없어 그래프를 만들 수 없습니다.")
+
+    elif graph_view == "후보군 콘텐츠 비율":
+        if segment_col and segment_col in classified_filtered.columns and not classified_filtered.empty:
+            pie_df = classified_filtered[segment_col].fillna("미분류").astype(str).value_counts().reset_index()
+            pie_df.columns = ["구분", "후보수"]
+            fig = px.pie(pie_df, names="구분", values="후보수", hole=.58, color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=250)
+            fig.update_traces(textposition="inside", textinfo="percent", marker=dict(line=dict(color="rgba(7,10,24,.85)", width=2)), hovertemplate="콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>")
+            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=6,r=6,t=6,b=6), legend=dict(font=dict(size=12, color="#eee8ff"), title_font=dict(size=12, color="#eee8ff"), x=1.02, y=.5, yanchor="middle"), font=dict(color="#eee8ff"))
+            html('<div class="plot-shell">')
+            st.plotly_chart(fig, use_container_width=True)
+            html('</div>')
+        else:
+            st.info("콘텐츠군 구성 비율을 만들 수 없습니다.")
+
+    else:
+        if not mini_tracking_df.empty:
+            mt = mini_tracking_df.head(5).copy()
+            rows = []
+            for _, r in mt.iterrows():
+                rows.append(
+                    f"""
+                    <tr>
+                        <td>{_safe_html(r.get('채널명', '-'))}</td>
+                        <td>{_fmt_num(r.get('이전순위', np.nan), 0, '')}</td>
+                        <td>{_fmt_num(r.get('현재순위', np.nan), 0, '')}</td>
+                        <td class="recent-up">▲ {_fmt_num(abs(float(r.get('순위변동', 0) or 0)), 0, '')}</td>
+                        <td>{_fmt_num(r.get('현재점수', np.nan), 1, '')}</td>
+                        <td>{_action_tag(r.get('현재단계', '-'))}</td>
+                    </tr>
+                    """
+                )
+            html(
+                f"""
+                <div class="plot-shell" style="padding:10px;">
+                    <table class="recent-mini-table">
+                        <thead><tr><th>후보</th><th>이전</th><th>현재</th><th>상승</th><th>점수</th><th>단계</th></tr></thead>
+                        <tbody>{''.join(rows)}</tbody>
+                    </table>
+                </div>
+                """
+            )
+        else:
+            st.info("비교 가능한 변화 추적 데이터가 없습니다.")
+
+html('</div>')
+
+# ---------------------------------------------------------
+# 14. 상세 설명 드롭다운
+# ---------------------------------------------------------
 
 with st.expander("KPI 해석 방법", expanded=False):
     st.markdown(
         """
         <div class="explain-box">
-        <b>전체 후보군</b>: 선택한 비교 대상 시점의 전체 후보 수입니다. 후보군 규모가 충분히 확보되었는지 확인합니다.<br><br>
-        <b>1차 선별 후보</b>: shortlist 또는 주요 액션버킷에 해당하는 후보 수입니다. 사람이 실제로 검토할 후보 pool의 크기를 의미합니다.<br><br>
-        <b>평균 영입 점수</b>: 현재 필터 조건에 남은 후보들의 평균 영입 적합도 점수입니다. 특정 세그먼트나 검토 단계를 선택했을 때 후보군의 평균 품질을 비교할 수 있습니다.<br><br>
-        <b>고우선 후보 수</b>: 즉시검토 또는 이에 준하는 우선순위 후보 수입니다. 우선 컨택/검증 대상의 규모를 빠르게 확인하는 지표입니다.<br><br>
-        <b>증감 표시</b>: 기준 시점 대비 비교 대상 시점의 변화량입니다. ▲는 증가, ▼는 감소, —는 변화 없음을 의미합니다.
+        <b>전체 분석 후보</b>: 수집/전처리 후 대시보드에 올라온 전체 후보 수입니다.<br><br>
+        <b>1차 선별 후보</b>: shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다.<br><br>
+        <b>평균 추천 점수</b>: 현재 필터 조건에 남은 후보들의 평균 영입 점수입니다.<br><br>
+        <b>즉시 검토 후보</b>: 우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다.
         </div>
         """,
         unsafe_allow_html=True,
@@ -4514,1182 +5194,11 @@ with st.expander("영입 점수 설명", expanded=False):
     st.markdown(
         """
         <div class="explain-box">
-        <b>영입 점수</b>는 유튜브 후보 채널이 CIME에서 실제 영입 검토 대상이 될 수 있는지를 보기 위한 100점 기준의 운영 점수입니다.
-        단순히 조회수나 구독자 수가 높은 채널을 찾는 것이 아니라, <b>채널 규모, 최근 성장성, 팬 반응 밀도, 라이브 전환 가능성, 영입 현실성</b>을 함께 봅니다.<br><br>
-
         <b>기본 산식</b><br>
-        <code>기본 영입점수 = 0.22×채널력점수 + 0.28×성장성점수 + 0.22×팬밀도점수 + 0.15×라이브친화점수 + 0.13×실전성점수</code><br><br>
-
-        <b>리스크 반영</b><br>
-        <code>최종 영입점수 = 기본 영입점수 - 수기제외/운영제외/검증필요 리스크 감점</code><br>
-        즉, 점수가 높더라도 방송사·기관·팬클립·아카이브·리믹스·외국채널·콘텐츠군 미분류 등 실제 영입 후보로 보기 어려운 신호가 있으면 검토 단계가 낮아질 수 있습니다.<br><br>
-
-        <b>가중치 설정 이유</b><br>
-        성장성점수에 가장 높은 가중치(<code>0.28</code>)를 둔 이유는 CIME가 신생 플랫폼이므로 이미 너무 큰 채널보다 <b>최근 성장 중인 잠재 후보</b>가 영입 현실성이 높다고 보았기 때문입니다.
-        채널력점수와 팬밀도점수는 각각 <code>0.22</code>로 두어, 최소한의 채널 체급과 팬덤 반응을 균형 있게 반영했습니다.
-        라이브친화점수(<code>0.15</code>)는 유튜브 채널이 스트리밍으로 전환될 가능성을 보기 위한 보조 축이며, 실전성점수(<code>0.13</code>)는 실제 영입 대상이 아닌 노이즈 채널을 낮추기 위한 보정 축입니다.<br><br>
-
-        따라서 영입 점수는 최종 의사결정 점수가 아니라, <b>후보를 빠르게 좁히기 위한 우선순위 점수</b>입니다. 실제 검토에서는 검토 단계, 추천 사유, 콘텐츠군, 최근 변화 추적을 함께 확인해야 합니다.
+        <code>영입점수 = 0.22×채널력 + 0.28×성장성 + 0.22×팬밀도 + 0.15×라이브친화 + 0.13×실전성 - 리스크 감점</code><br><br>
+        성장성에 가장 높은 가중치를 둔 이유는 신생 플랫폼 입장에서 이미 너무 큰 채널보다, 최근 반응과 성장 흐름이 확인되는 후보가 영입 현실성이 높다고 보았기 때문입니다.
+        채널력과 팬밀도는 최소 체급과 팬덤 결집력을 균형 있게 반영하고, 라이브친화와 실전성은 실제 방송 전환 가능성과 운영 리스크를 보정합니다.
         </div>
         """,
         unsafe_allow_html=True,
-    )
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-
-# =========================================================
-# 9. TOP 후보 카드
-# =========================================================
-
-add_section_divider()
-html('<div class="top-cards-title">⭐ 오늘의 추천 후보 TOP 5</div>')
-
-top_candidates = filtered.head(5).copy()
-
-card_cols = st.columns(5)
-
-for i, (_, row) in enumerate(top_candidates.iterrows()):
-    with card_cols[i]:
-        rank_value = row.get("표시순위", i + 1)
-        name = row.get(channel_name_col, "-") if channel_name_col else "-"
-        segment = row.get(segment_col, "-") if segment_col else "-"
-        lower_segment = row.get(lower_segment_col, "") if lower_segment_col else ""
-        action = row.get(action_col, "") if action_col else ""
-        score = row.get("_score_display", np.nan)
-
-        pill_text = action if str(action).strip() else segment
-        sub_pill = lower_segment if str(lower_segment).strip() else segment
-        avatar_html = get_candidate_avatar_html(row, segment_col, lower_segment_col, channel_thumbnail_col)
-        channel_url = row.get(channel_url_col, "") if channel_url_col else ""
-        candidate_name_html = make_channel_name_html(name, channel_url)
-
-        st.markdown(
-            f"""
-            <div class="candidate-card">
-                <div class="rank-badge">{fmt_int(rank_value)}</div>
-                {avatar_html}
-                <div class="candidate-name">{candidate_name_html}</div>
-                <div style="text-align:center;">
-                    <span class="segment-pill">{pill_text}</span>
-                </div>
-                <div class="score-text">{fmt_float(score, 1)}</div>
-                <div style="text-align:center;" class="small-muted">영입 종합 점수(100점)</div>
-                <div style="text-align:center; margin-top: 12px;">
-                    <span class="segment-pill">{sub_pill}</span>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-
-add_section_divider()
-# =========================================================
-# 10. 본문 레이아웃
-# - 좌측에는 영입 우선순위 TOP 표
-# - 우측에는 선택 후보 상세를 같은 높이 라인에 배치
-# - 기존처럼 빈 section-card div가 먼저 렌더링되는 문제를 피하기 위해
-#   우측 상세는 st.container(border=True)로 직접 감싼다.
-# =========================================================
-
-main_left, main_right = st.columns([0.68, 0.32], gap="large")
-
-
-# =========================================================
-# 10-1. 좌측: 영입 우선순위 TOP 표
-# =========================================================
-
-with main_left:
-    with st.container(border=True):
-        st.markdown("### 🛰️ 영입 우선순위 TOP")
-        st.caption("현재 필터 조건에서 검토 우선순위가 높은 후보를 보여줍니다. 표의 순위는 전체 원본 순위가 아니라 현재 필터 결과 기준입니다.")
-
-        # -------------------------------------------------
-        # TOP 후보 표시 컬럼
-        # - shortlist 유형, 변화 요약은 운영 상세 컬럼이므로 TOP 테이블에서는 제외
-        # - '현재 필터 기준 순위'는 화면에서 '순위'로 축약 표시
-        # -------------------------------------------------
-        display_cols = [
-            "표시순위",
-            channel_name_col,
-            segment_col,
-            lower_segment_col,
-            score_display_col,
-            subs_col,
-            view_col,
-            eng_col,
-            action_col,
-            recommend_col,
-            caution_col,
-        ]
-
-        display_cols = [c for c in display_cols if c and c in filtered.columns]
-        table_df = filtered[display_cols].head(top_n).copy()
-
-        display_rename_map = {
-            "표시순위": "순위",
-            score_display_col: "영입 적합도 점수",
-            channel_name_col: "채널명",
-            segment_col: "주요 콘텐츠군",
-            lower_segment_col: "세부 콘텐츠 유형",
-            subs_col: "구독자 수",
-            view_col: "최근 영상 평균 조회수",
-            eng_col: "평균 참여율",
-            action_col: "검토 단계",
-            recommend_col: "추천 사유",
-            caution_col: "주의 사유",
-        }
-        display_rename_map = {k: v for k, v in display_rename_map.items() if k and k in table_df.columns}
-        table_df = table_df.rename(columns=display_rename_map)
-
-        if "영입 적합도 점수" in table_df.columns:
-            table_df["영입 적합도 점수"] = pd.to_numeric(table_df["영입 적합도 점수"], errors="coerce").round(1)
-
-        def _plain_cell(value, default="-"):
-            if value is None:
-                return default
-            try:
-                if pd.isna(value):
-                    return default
-            except Exception:
-                pass
-            text_value = str(value).strip()
-            return text_value if text_value else default
-
-        def _safe_cell(value, default="-"):
-            return html_lib.escape(_plain_cell(value, default), quote=False)
-
-        def _short_text(value, limit=62):
-            text = _plain_cell(value, "")
-            if len(text) > limit:
-                return text[:limit].rstrip() + "…"
-            return text
-
-        def _score_class(value):
-            # 점수 색상은 전체 순위에서 동일한 강조색으로 통일한다.
-            return "priority-score-main"
-
-        # 주요 콘텐츠군 색상: 세부 콘텐츠 유형은 같은 계열의 더 짙은 색상으로 표시
-        def _segment_theme_class(text):
-            label = _plain_cell(text, "")
-            if any(k in label for k in ["버츄얼", "퍼포먼스", "버튜버", "VTuber"]):
-                return "seg-virtual"
-            if any(k in label for k in ["음악", "보이스", "커버", "성우", "더빙", "ASMR"]):
-                return "seg-music"
-            if any(k in label for k in ["창작", "비주얼", "코스프레", "일러스트"]):
-                return "seg-visual"
-            if any(k in label for k in ["게임", "실황", "롤", "로블록스", "발로란트"]):
-                return "seg-game"
-            if any(k in label for k in ["서브컬처", "토크", "팬덤"]):
-                return "seg-fandom"
-            return "seg-default"
-
-        def _segment_pill(text, kind="main"):
-            label = _safe_cell(text, "-")
-            raw = _plain_cell(text, "-")
-            base_cls = _segment_theme_class(raw)
-            depth_cls = "main-tag" if kind == "main" else "sub-tag"
-            return f'<span class="priority-tag {base_cls} {depth_cls}" title="{label}">{label}</span>'
-
-        def _action_pill(text):
-            label = _safe_cell(text, "-")
-            raw = _plain_cell(text, "-")
-            if "즉시" in raw:
-                cls = "action-immediate"
-            elif "성장" in raw:
-                cls = "action-growth"
-            elif "검증" in raw:
-                cls = "action-verify"
-            elif "제외" in raw:
-                cls = "action-exclude"
-            else:
-                cls = "action-hold"
-            return f'<span class="priority-action {cls}" title="{label}">{label}</span>'
-
-        def _make_note(row):
-            # 변화 요약/shortlist 유형은 TOP 테이블에서 제외. 비고는 추천/주의 사유 중심으로 축약.
-            rec = _short_text(row.get("추천 사유", ""), 72)
-            caution = _short_text(row.get("주의 사유", ""), 40)
-            if rec and caution:
-                return f"{rec} / 주의: {caution}"
-            if rec:
-                return rec
-            if caution:
-                return f"주의: {caution}"
-
-            seg_text = _plain_cell(row.get("주요 콘텐츠군", ""), "")
-            lower_text = _plain_cell(row.get("세부 콘텐츠 유형", ""), "")
-            view_text = _plain_cell(row.get("최근 영상 평균 조회수", ""), "")
-            eng_text = _plain_cell(row.get("평균 참여율", ""), "")
-            parts = []
-            if seg_text or lower_text:
-                parts.append(" · ".join([x for x in [seg_text, lower_text] if x]))
-            if view_text:
-                parts.append(f"최근 평균 조회수 {view_text}")
-            if eng_text:
-                parts.append(f"참여율 {eng_text}")
-            return " / ".join(parts) if parts else "필터 조건 기준 상위 후보"
-
-        st.markdown(
-            """
-            <style>
-            .priority-board-wrap {
-                width: 100%;
-                overflow: hidden;
-                border-radius: 16px;
-                border: 1px solid rgba(118, 242, 226, 0.18);
-                background: linear-gradient(180deg, rgba(12, 22, 39, 0.94), rgba(7, 13, 26, 0.98));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.22);
-                margin-top: 12px;
-                margin-bottom: 12px;
-            }
-            .priority-board {
-                width: 100%;
-                border-collapse: collapse;
-                table-layout: fixed;
-                color: #efffff;
-                font-size: 13.2px;
-            }
-            .priority-board thead th {
-                background: rgba(255,255,255,0.055);
-                color: #d9e8f2;
-                font-size: 12.5px;
-                font-weight: 850;
-                padding: 9px 8px;
-                border-bottom: 1px solid rgba(255,255,255,0.10);
-                text-align: center;
-                white-space: nowrap;
-            }
-            .priority-board tbody td {
-                padding: 10px 8px;
-                border-bottom: 1px solid rgba(255,255,255,0.075);
-                vertical-align: middle;
-                text-align: center;
-            }
-            .priority-board tbody tr:last-child td { border-bottom: 0; }
-            .priority-board tbody tr:hover { background: rgba(118, 242, 226, 0.055); }
-            .priority-rank {
-                color: #eafcff;
-                font-weight: 950;
-                font-variant-numeric: tabular-nums;
-            }
-            .priority-name {
-                text-align: left !important;
-                font-weight: 900;
-                color: #ffffff;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-            }
-            .priority-name a { color: #ffffff; text-decoration: none; }
-            .priority-name a:hover { color: #78ffee; text-decoration: underline; text-underline-offset: 3px; }
-            .priority-score {
-                font-size: 16px;
-                font-weight: 950;
-                font-variant-numeric: tabular-nums;
-                color: #7cfff1;
-                text-shadow: 0 0 10px rgba(95,255,232,0.32);
-            }
-            .priority-score-main,
-            .priority-score-high,
-            .priority-score-mid,
-            .priority-score-low { color: #7cfff1; }
-            .priority-note {
-                text-align: left !important;
-                color: #c4d1dc;
-                font-size: 12px;
-                line-height: 1.35;
-                overflow: hidden;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-            }
-            .priority-board-top-chip {
-                display: inline-block;
-                padding: 7px 18px;
-                border-radius: 999px;
-                background: rgba(255,255,255,0.95);
-                color: #111827;
-                font-size: 13px;
-                font-weight: 850;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.22);
-                margin: 2px 0 10px 0;
-            }
-            .priority-tag,
-            .priority-action {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                max-width: 138px;
-                padding: 5px 10px;
-                border-radius: 999px;
-                font-size: 11.5px;
-                font-weight: 900;
-                line-height: 1.05;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                border: 1px solid rgba(255,255,255,0.16);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 14px rgba(0,0,0,0.10);
-            }
-            .main-tag.seg-virtual { background: linear-gradient(135deg, rgba(245,158,11,.84), rgba(217,119,6,.58)); color:#fff4d8; }
-            .sub-tag.seg-virtual  { background: linear-gradient(135deg, rgba(180,83,9,.92), rgba(124,45,18,.72)); color:#ffe7bf; }
-            .main-tag.seg-music   { background: linear-gradient(135deg, rgba(99,102,241,.84), rgba(124,58,237,.58)); color:#eeeaff; }
-            .sub-tag.seg-music    { background: linear-gradient(135deg, rgba(76,29,149,.94), rgba(49,46,129,.75)); color:#e4dcff; }
-            .main-tag.seg-visual  { background: linear-gradient(135deg, rgba(236,72,153,.82), rgba(190,24,93,.58)); color:#ffe6f4; }
-            .sub-tag.seg-visual   { background: linear-gradient(135deg, rgba(157,23,77,.94), rgba(112,26,117,.72)); color:#ffd7ef; }
-            .main-tag.seg-game    { background: linear-gradient(135deg, rgba(14,165,233,.82), rgba(37,99,235,.58)); color:#e1f6ff; }
-            .sub-tag.seg-game     { background: linear-gradient(135deg, rgba(30,64,175,.94), rgba(15,23,42,.74)); color:#dbeafe; }
-            .main-tag.seg-fandom  { background: linear-gradient(135deg, rgba(20,184,166,.82), rgba(13,148,136,.58)); color:#dcfff8; }
-            .sub-tag.seg-fandom   { background: linear-gradient(135deg, rgba(15,118,110,.94), rgba(19,78,74,.74)); color:#ccfbf1; }
-            .main-tag.seg-default { background: linear-gradient(135deg, rgba(100,116,139,.78), rgba(51,65,85,.58)); color:#e9f0f8; }
-            .sub-tag.seg-default  { background: linear-gradient(135deg, rgba(71,85,105,.90), rgba(30,41,59,.76)); color:#e2e8f0; }
-            .priority-action { min-width: 64px; max-width: 95px; }
-            .action-immediate { background: linear-gradient(135deg, rgba(20,184,166,.70), rgba(13,148,136,.48)); color:#dffff9; }
-            .action-growth    { background: linear-gradient(135deg, rgba(124,58,237,.70), rgba(91,33,182,.48)); color:#efe7ff; }
-            .action-verify    { background: linear-gradient(135deg, rgba(245,158,11,.70), rgba(180,83,9,.48)); color:#fff2d2; }
-            .action-hold      { background: linear-gradient(135deg, rgba(100,116,139,.70), rgba(51,65,85,.48)); color:#e9f0f8; }
-            .action-exclude   { background: linear-gradient(135deg, rgba(148,85,255,.58), rgba(76,29,149,.46)); color:#eee7ff; }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        rows_html = []
-        for _, r in table_df.head(top_n).iterrows():
-            rank_text = _safe_cell(r.get("순위", "-"))
-            name_raw = _plain_cell(r.get("채널명", "-"), "-")
-            name_text = _safe_cell(name_raw)
-            channel_match = filtered[filtered[channel_name_col].astype(str) == str(name_raw)] if channel_name_col else pd.DataFrame()
-            channel_url = ""
-            if channel_url_col and not channel_match.empty and channel_url_col in channel_match.columns:
-                channel_url = str(channel_match.iloc[0].get(channel_url_col, "") or "").strip()
-            if is_valid_url(channel_url):
-                safe_url = html_lib.escape(channel_url, quote=True)
-                name_html = f'<a href="{safe_url}" target="_blank" rel="noopener noreferrer">{name_text}</a>'
-            else:
-                name_html = name_text
-
-            segment_html = _segment_pill(r.get("주요 콘텐츠군", "-"), kind="main")
-            lower_html = _segment_pill(r.get("세부 콘텐츠 유형", "-"), kind="sub")
-            action_html = _action_pill(r.get("검토 단계", "-"))
-            score_val = r.get("영입 적합도 점수", np.nan)
-            score_text = fmt_float(score_val, 1)
-            score_cls = _score_class(score_val)
-            rows_html.append(
-                f"""
-                <tr>
-                    <td class="priority-rank">{rank_text}</td>
-                    <td class="priority-name">{name_html}</td>
-                    <td>{segment_html}</td>
-                    <td>{lower_html}</td>
-                    <td>{action_html}</td>
-                    <td class="priority-score {score_cls}">{score_text}</td>
-                </tr>
-                """
-            )
-
-        html(
-            f"""
-            <div class="priority-board-wrap">
-                <table class="priority-board">
-                    <colgroup>
-                        <col style="width: 7%;">
-                        <col style="width: 21%;">
-                        <col style="width: 20%;">
-                        <col style="width: 20%;">
-                        <col style="width: 17%;">
-                        <col style="width: 15%;">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>순위</th>
-                            <th>스트리머명</th>
-                            <th>주요 콘텐츠군</th>
-                            <th>세부 콘텐츠 유형</th>
-                            <th>검토단계</th>
-                            <th>점수</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {''.join(rows_html)}
-                    </tbody>
-                </table>
-            </div>
-            """
-        )
-
-        with st.expander("📘 테이블 설명", expanded=False):
-            st.markdown(
-                """
-                <div class="guide-box">
-                    <b>테이블 읽는 법</b><br>
-                    현재 필터 조건에서 <b>검토 우선순위가 높은 후보</b>를 위에서부터 보여줍니다.
-                    순위는 전체 후보군 고정 순위가 아니라, 사이드바 필터가 적용된 뒤 다시 매긴 <b>현재 화면 기준 순위</b>입니다.
-                    주요 콘텐츠군과 세부 콘텐츠 유형은 같은 계열 색상으로 묶어 표시하며, 세부 유형은 더 짙은 색으로 표시해 소속 관계를 빠르게 볼 수 있습니다.
-                    <br><br>
-                    <b>도출 가능한 인사이트</b><br>
-                    상위권에 반복적으로 나타나는 콘텐츠군은 CIME가 우선 검토할 만한 후보 풀이 두꺼운 영역입니다.
-                    점수는 높지만 참여율이나 조회수 규모가 낮은 후보는 수기 검증이 필요하고,
-                    점수·참여율·라이브친화 신호가 함께 높은 후보는 우선 컨택 후보로 볼 수 있습니다.
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-        csv_download = table_df.to_csv(index=False, encoding="utf-8-sig")
-        st.download_button(
-            "현재 TOP 후보 CSV 다운로드",
-            data=csv_download,
-            file_name="cime_top_candidates.csv",
-            mime="text/csv",
-        )
-
-
-# =========================================================
-# 10-2. 우측: 선택 후보 상세
-# - 빈 박스가 따로 생기지 않도록 section-card HTML wrapper 제거
-# - 상세 판정 근거 expander 제거
-# - TOP 표와 비슷한 높이에서 끝나도록 핵심 지표와 압축 사유만 표시
-# =========================================================
-
-with main_right:
-    with st.container(border=True):
-        st.markdown("### 🔭 선택 후보 상세")
-
-        if channel_name_col:
-            candidate_names = filtered[channel_name_col].dropna().astype(str).tolist()
-
-            if candidate_names:
-                selected_name = st.selectbox("후보 선택", candidate_names, index=0)
-                selected_row = filtered[filtered[channel_name_col].astype(str) == selected_name].iloc[0]
-
-                def _clip_detail(value, limit=80):
-                    text_value = "-" if pd.isna(value) else str(value).strip()
-                    if not text_value:
-                        text_value = "-"
-                    return text_value if len(text_value) <= limit else text_value[:limit].rstrip() + "..."
-
-                selected_channel_url = selected_row.get(channel_url_col, "") if channel_url_col else ""
-                selected_name_html = make_channel_name_html(selected_row.get(channel_name_col, "-"), selected_channel_url)
-                selected_profile_html = get_selected_profile_html(selected_row, segment_col, lower_segment_col, channel_thumbnail_col)
-
-                html(
-                    f"""
-                    <div class="selected-profile-area">
-                        {selected_profile_html}
-                    </div>
-                    <div class="detail-title detail-title-centered">{selected_name_html}</div>
-                    """
-                )
-
-                metric_cols = st.columns(2)
-                with metric_cols[0]:
-                    st.metric("점수(100점)", fmt_float(selected_row.get(score_display_col), 1) if score_col else "-")
-                    st.metric(
-                        "구독자 수",
-                        fmt_int(
-                            get_first_value_from_row(
-                                selected_row,
-                                [subs_col, "채널구독자수", "채널 구독자 수", "구독자수", "구독자 수", "subscriber_count", "subscribers", "channel_subscriber_count"]
-                            )
-                        ),
-                    )
-                    st.metric("최근 조회수 평균", fmt_int(selected_row.get(view_col)) if view_col else "-")
-                with metric_cols[1]:
-                    st.metric("성장성", fmt_float(selected_row.get(growth_col), 3) if growth_col else "-")
-                    st.metric("팬밀도", fmt_float(selected_row.get(fan_col), 3) if fan_col else "-")
-                    st.metric("라이브친화", fmt_float(selected_row.get(live_col), 3) if live_col else "-")
-
-                st.markdown(
-                    f"""
-                    <div style="margin-top:8px;">
-                        <span class="segment-pill">{selected_row.get(segment_col, '-') if segment_col else '-'}</span>
-                        <span class="segment-pill">{selected_row.get(action_col, '-') if action_col else '-'}</span>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-                reason_text = selected_row.get(recommend_col, "-") if recommend_col else "-"
-
-                st.markdown(
-                    f"""
-                    <div class="reason-box compact-reason-box">
-                        <b>핵심 추천 사유</b><br>{_clip_detail(reason_text, 92)}
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.info("현재 필터 조건에 해당하는 후보가 없습니다.")
-        else:
-            st.info("후보명을 표시할 수 있는 컬럼을 찾지 못했습니다.")
-
-
-# =========================================================
-# 10-3. 후보 운영 그래프 선택형 뷰
-# - 우측 후보 상세와 겹치지 않도록 TOP 표/상세 아래의 전체 폭 영역으로 배치
-# - 상단 빈 구분 박스는 제거하고, 그래프 패널 테두리를 다른 박스류와 통일
-# =========================================================
-
-# =====================================================
-# 후보 운영 그래프 선택형 뷰
-# - 상위 콘텐츠별 점수 분포 / 검토 단계별 후보 수 /
-#   콘텐츠군별 평균 점수 / 콘텐츠군 구성 비율 중 1개만 표시
-# - 상위 콘텐츠군이 미분류인 후보는 콘텐츠 비교 그래프에서 제외
-# =====================================================
-
-st.markdown("<br>", unsafe_allow_html=True)
-add_section_divider()
-st.markdown("### 📊 종합 분석 그래프")
-st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 넓게 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
-
-graph_view = st.radio(
-    "그래프 유형 선택",
-    [
-        "상위 콘텐츠별 영입 후보 점수 분포",
-        "검토 단계별 후보 수",
-        "콘텐츠군별 평균 영입 점수",
-        "콘텐츠군 구성 비율",
-    ],
-    index=0,
-    horizontal=True,
-    key="starseed_graph_view_selector",
-    label_visibility="collapsed",
-)
-
-def _is_unclassified_segment(s: pd.Series) -> pd.Series:
-    return (
-        s.fillna("미분류")
-        .astype(str)
-        .str.strip()
-        .isin(["", "미분류", "None", "none", "nan", "NaN", "NULL", "null"])
-    )
-
-classified_filtered = filtered.copy()
-classified_all = df.copy()
-unclassified_filtered_count = 0
-unclassified_all_count = 0
-
-if segment_col and segment_col in filtered.columns:
-    unclassified_filtered_count = int(_is_unclassified_segment(filtered[segment_col]).sum())
-    classified_filtered = filtered[~_is_unclassified_segment(filtered[segment_col])].copy()
-
-if segment_col and segment_col in df.columns:
-    unclassified_all_count = int(_is_unclassified_segment(df[segment_col]).sum())
-    classified_all = df[~_is_unclassified_segment(df[segment_col])].copy()
-
-if graph_view == "상위 콘텐츠별 영입 후보 점수 분포":
-    st.markdown("#### 🌠 상위 콘텐츠별 영입 후보 점수 분포")
-    st.caption("각 점은 후보 채널 1개를 의미합니다. x축은 상위 콘텐츠군, y축은 영입 적합도 점수입니다.")
-
-    if segment_col and score_col and not classified_all.empty:
-        plot_all = classified_all.copy()
-        plot_all = plot_all.reset_index().rename(columns={"index": "__original_index__"})
-
-        selected_index_set = set(classified_filtered.index.tolist())
-        plot_all["__is_selected__"] = plot_all["__original_index__"].isin(selected_index_set)
-        plot_all["__score_plot__"] = pd.to_numeric(plot_all[score_display_col], errors="coerce")
-        y_axis_title = "최종점수(100점 기준)"
-        plot_all["__segment__"] = plot_all[segment_col].fillna("미분류").astype(str)
-
-        segment_order = (
-            plot_all
-            .groupby("__segment__")["__score_plot__"]
-            .median()
-            .sort_values(ascending=False)
-            .index
-            .tolist()
-        )
-
-        seg_to_x = {seg: i for i, seg in enumerate(segment_order)}
-        plot_all["__x_base__"] = plot_all["__segment__"].map(seg_to_x)
-
-        rng = np.random.default_rng(42)
-        plot_all["__x_jitter__"] = plot_all["__x_base__"] + rng.normal(
-            loc=0,
-            scale=0.08,
-            size=len(plot_all),
-        )
-
-        palette = px.colors.qualitative.Safe + px.colors.qualitative.Set3 + px.colors.qualitative.Pastel
-        seg_color_map = {seg: palette[i % len(palette)] for i, seg in enumerate(segment_order)}
-
-        selected_plot = plot_all[plot_all["__is_selected__"] == True].copy()
-        unselected_plot = plot_all[plot_all["__is_selected__"] == False].copy()
-
-        hover_cols = [
-            c for c in [
-                channel_name_col,
-                segment_col,
-                lower_segment_col,
-                action_col,
-                score_display_col,
-                subs_col,
-                view_col,
-                eng_col,
-            ]
-            if c and c in plot_all.columns
-        ]
-
-        fig = go.Figure()
-
-        if not unselected_plot.empty:
-            fig.add_trace(
-                go.Scatter(
-                    x=unselected_plot["__x_jitter__"],
-                    y=unselected_plot["__score_plot__"],
-                    mode="markers",
-                    name="필터 제외",
-                    marker=dict(size=7, color="rgba(150,150,150,0.28)", line=dict(width=0)),
-                    customdata=unselected_plot[hover_cols].astype(str).values if hover_cols else None,
-                    hovertemplate=(
-                        "<b>%{customdata[0]}</b><br>"
-                        + "상위 콘텐츠군: %{customdata[1]}<br>" if len(hover_cols) >= 2 else ""
-                    )
-                    + "점수: %{y:.2f}<br>"
-                    + "<extra>필터 제외</extra>",
-                    showlegend=True,
-                )
-            )
-
-        for seg in segment_order:
-            seg_df = selected_plot[selected_plot["__segment__"] == seg].copy()
-            if seg_df.empty:
-                continue
-            fig.add_trace(
-                go.Scatter(
-                    x=seg_df["__x_jitter__"],
-                    y=seg_df["__score_plot__"],
-                    mode="markers",
-                    name=seg,
-                    marker=dict(
-                        size=9,
-                        color=seg_color_map.get(seg, "#888888"),
-                        opacity=0.82,
-                        line=dict(width=0.8, color="rgba(255,255,255,0.35)"),
-                    ),
-                    customdata=seg_df[hover_cols].astype(str).values if hover_cols else None,
-                    hovertemplate=(
-                        "<b>%{customdata[0]}</b><br>"
-                        + "상위 콘텐츠군: %{customdata[1]}<br>" if len(hover_cols) >= 2 else ""
-                    )
-                    + ("세부 콘텐츠 유형: %{customdata[2]}<br>" if len(hover_cols) >= 3 else "")
-                    + ("검토 단계: %{customdata[3]}<br>" if len(hover_cols) >= 4 else "")
-                    + "점수: %{y:.2f}<br>"
-                    + "<extra></extra>",
-                )
-            )
-
-        fig.update_layout(
-            template="plotly_dark",
-            height=460,
-            paper_bgcolor="rgba(5, 12, 24, 0.00)",
-            plot_bgcolor="rgba(5, 12, 24, 0.00)",
-            margin=dict(l=10, r=10, t=30, b=80),
-            legend_title_text="상위 콘텐츠군",
-            legend=dict(
-                font=dict(size=15, color="#f4ffff"),
-                title_font=dict(size=15, color="#f4ffff"),
-                itemsizing="constant",
-                tracegroupgap=8,
-            ),
-            xaxis=dict(
-                title="상위 콘텐츠군",
-                tickmode="array",
-                tickvals=list(range(len(segment_order))),
-                ticktext=segment_order,
-                tickangle=-35,
-                showgrid=False,
-            ),
-            yaxis=dict(title=y_axis_title, gridcolor="rgba(255,255,255,0.12)", zeroline=False),
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-        st.caption(
-            f"해석 포인트: 어느 상위 콘텐츠군에 고득점 후보가 많은지, 특정 상위 콘텐츠군이 낮은 점수대에 몰려 있는지 확인합니다. "
-            f"색상 점은 현재 필터에 포함된 후보, 회색 점은 필터에서 제외된 후보입니다. "
-            f"상위 콘텐츠군이 확인되지 않은 미분류 후보 {unclassified_all_count:,}명은 이 그래프에서 제외했습니다."
-        )
-    else:
-        st.info("상위 콘텐츠별 점수 분포를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
-
-elif graph_view == "검토 단계별 후보 수":
-    st.markdown("#### 🚦 검토 단계별 후보 수")
-    if action_col and action_col in filtered.columns:
-        bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
-        bucket_df = (
-            filtered[action_col]
-            .fillna("미분류")
-            .astype(str)
-            .value_counts()
-            .rename_axis("액션버킷")
-            .reset_index(name="후보수")
-        )
-        bucket_df["정렬순서"] = bucket_df["액션버킷"].apply(lambda x: bucket_order.index(x) if x in bucket_order else 999)
-        bucket_df = bucket_df.sort_values(["정렬순서", "후보수"], ascending=[True, False])
-
-        color_map_bucket = {
-            "즉시검토": "#19d3a2",
-            "성장관찰": "#636efa",
-            "검증필요": "#ef553b",
-            "보류": "#a0a7b8",
-            "제외": "#5b657a",
-            "미분류": "#8892a6",
-        }
-
-        fig_bucket = px.bar(
-            bucket_df,
-            x="후보수",
-            y="액션버킷",
-            orientation="h",
-            text="후보수",
-            template="plotly_dark",
-            height=460,
-            color="액션버킷",
-            color_discrete_map=color_map_bucket,
-        )
-        fig_bucket.update_traces(textposition="outside", cliponaxis=False, hovertemplate="액션버킷=%{y}<br>후보수=%{x}명<extra></extra>")
-        fig_bucket.update_layout(
-            showlegend=False,
-            paper_bgcolor="rgba(5, 12, 24, 0.00)",
-            plot_bgcolor="rgba(5, 12, 24, 0.00)",
-            margin=dict(l=5, r=35, t=20, b=45),
-            xaxis_title="후보 수",
-            yaxis_title="",
-            yaxis=dict(categoryorder="array", categoryarray=list(reversed(bucket_df["액션버킷"].tolist()))),
-        )
-        st.plotly_chart(fig_bucket, use_container_width=True)
-        st.caption("해석 포인트: 즉시검토, 성장관찰, 검증필요, 보류, 제외 중 후보가 어디에 몰려 있는지 확인합니다. 검증필요가 과도하게 많으면 리스크 검토 대상이 많다는 뜻이고, 즉시검토가 적으면 바로 컨택 가능한 후보 풀이 제한적이라는 뜻입니다.")
-    else:
-        st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
-
-elif graph_view == "콘텐츠군별 평균 영입 점수":
-    st.markdown("#### ✨ 콘텐츠군별 평균 영입 점수")
-    if segment_col and score_display_col and segment_col in classified_filtered.columns and score_display_col in classified_filtered.columns and not classified_filtered.empty:
-        seg_score_df = classified_filtered.copy()
-        seg_score_df["__score__"] = pd.to_numeric(seg_score_df[score_display_col], errors="coerce")
-        seg_score_df["__segment__"] = seg_score_df[segment_col].fillna("미분류").astype(str)
-
-        seg_summary = (
-            seg_score_df.groupby("__segment__", dropna=False)
-            .agg(평균최종점수=("__score__", "mean"), 후보수=("__score__", "size"))
-            .reset_index()
-            .sort_values(["평균최종점수", "후보수"], ascending=[False, False])
-        )
-
-        fig_seg_score = px.bar(
-            seg_summary,
-            x="__segment__",
-            y="평균최종점수",
-            text="평균최종점수",
-            custom_data=["후보수"],
-            template="plotly_dark",
-            height=460,
-            color="__segment__",
-        )
-        fig_seg_score.update_traces(
-            texttemplate="%{y:.1f}",
-            textposition="outside",
-            cliponaxis=False,
-            hovertemplate="상위 콘텐츠군=%{x}<br>평균최종점수=%{y:.1f}<br>후보수=%{customdata[0]}명<extra></extra>",
-        )
-        fig_seg_score.update_layout(
-            showlegend=False,
-            paper_bgcolor="rgba(5, 12, 24, 0.00)",
-            plot_bgcolor="rgba(5, 12, 24, 0.00)",
-            margin=dict(l=5, r=5, t=20, b=90),
-            xaxis_title="상위 콘텐츠군",
-            yaxis_title="평균 점수",
-            xaxis=dict(tickangle=-35),
-            yaxis=dict(range=[0, max(100, float(seg_summary["평균최종점수"].max(skipna=True) or 0) * 1.15)]),
-        )
-        st.plotly_chart(fig_seg_score, use_container_width=True)
-        st.caption(f"해석 포인트: 어떤 상위 콘텐츠군이 평균적으로 높은 영입 적합도를 보이는지 비교합니다. 단, 후보 수가 적은 콘텐츠군은 평균이 쉽게 흔들릴 수 있습니다. 미분류 후보 {unclassified_filtered_count:,}명은 제외했습니다.")
-    else:
-        st.info("콘텐츠군별 평균 점수를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
-
-elif graph_view == "콘텐츠군 구성 비율":
-    st.markdown("#### 🪐 콘텐츠군 구성 비율")
-    if segment_col and segment_col in classified_filtered.columns and not classified_filtered.empty:
-        pie_data = (
-            classified_filtered[segment_col]
-            .fillna("미분류")
-            .astype(str)
-            .value_counts()
-            .reset_index()
-        )
-        pie_data.columns = ["구분", "후보수"]
-        fig_pie = px.pie(pie_data, names="구분", values="후보수", hole=0.55, template="plotly_dark", height=460)
-        fig_pie.update_traces(textposition="inside", textinfo="percent", hovertemplate="상위 콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>")
-        fig_pie.update_layout(
-            paper_bgcolor="rgba(5, 12, 24, 0.00)",
-            plot_bgcolor="rgba(5, 12, 24, 0.00)",
-            margin=dict(l=5, r=5, t=20, b=20),
-            legend=dict(
-                orientation="v",
-                yanchor="middle",
-                y=0.5,
-                xanchor="left",
-                x=1.02,
-                font=dict(size=15, color="#f4ffff"),
-                title_font=dict(size=15, color="#f4ffff"),
-                itemsizing="constant",
-                tracegroupgap=8,
-            ),
-        )
-        st.plotly_chart(fig_pie, use_container_width=True)
-        st.caption(f"해석 포인트: 현재 후보군이 특정 상위 콘텐츠군에 과도하게 쏠려 있는지 확인합니다. 쏠림이 크면 수집 키워드나 필터가 특정 콘텐츠군에 편향됐을 가능성을 점검해야 합니다. 미분류 후보 {unclassified_filtered_count:,}명은 제외했습니다.")
-    else:
-        st.info("콘텐츠군 구성 비율을 만들기 위해서는 대표상위세그먼트 컬럼이 필요합니다.")
-
-# =========================================================
-# 10-4. 후보 클러스터 포지셔닝 맵
-# - 요청에 따라 대시보드 본문에서 제외함
-# =========================================================
-
-# =========================================================
-# 11. 하단: Snapshot 기반 변화 추적
-# =========================================================
-
-st.markdown("<br>", unsafe_allow_html=True)
-add_section_divider()
-st.markdown("### 📡 최근 주목 후보 변화")
-with st.expander("📘 표 해석법", expanded=False):
-    st.markdown(
-        """
-        <div class="guide-box">
-        <b>변화 추적 표를 읽는 법</b><br>
-        - <b>순위 변동</b>이 양수이면 이전 시점보다 현재 순위가 상승한 후보입니다.<br>
-        - <b>점수 변동</b>이 양수이면 영입 적합도 점수가 상승한 후보입니다.<br>
-        - <b>검토 단계</b>가 보류 → 성장관찰, 검증필요 → 즉시검토처럼 개선되면 우선 확인 대상입니다.<br>
-        - <b>신규진입</b>은 기준 시점에는 없었지만 비교 시점에 새로 등장한 후보입니다.<br><br>
-        <b>도출 가능한 인사이트</b><br>
-        버킷이 개선된 후보는 단순 순위 상승보다 운영상 의미가 큽니다. 특히 순위와 점수가 함께 상승하고 현재 검토 단계가 즉시검토로 바뀐 후보는 후속 수기 검증 우선순위를 높게 볼 수 있습니다.
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-if not tracking_base_df.empty and not tracking_target_df.empty:
-    dynamic_tracking_df = build_tracking_between(
-        base_df=tracking_base_df,
-        target_df=tracking_target_df,
-        base_label=tracking_base_label,
-        target_label=tracking_target_label,
-    )
-
-    st.caption(f"기준 시점: {tracking_base_label}  →  비교 대상 시점: {tracking_target_label}")
-
-    if not dynamic_tracking_df.empty:
-        tracking_filter_cols = st.columns([0.25, 0.25, 0.25, 0.25])
-
-        with tracking_filter_cols[0]:
-            only_bucket_changed = st.checkbox("버킷변경", value=True)
-        with tracking_filter_cols[1]:
-            only_new = st.checkbox("신규진입", value=False)
-        with tracking_filter_cols[2]:
-            only_rank_up = st.checkbox("순위상승", value=False)
-        with tracking_filter_cols[3]:
-            max_tracking_rows = st.number_input("표시 행 수", min_value=10, max_value=500, value=10, step=10)
-
-        tracking_view = dynamic_tracking_df.copy()
-
-        if only_new and "신규진입여부" in tracking_view.columns:
-            tracking_view = tracking_view[tracking_view["신규진입여부"] == True]
-
-        if only_bucket_changed and "버킷변경여부" in tracking_view.columns:
-            tracking_view = tracking_view[tracking_view["버킷변경여부"] == True]
-
-        if only_rank_up and "운영우선순위변동" in tracking_view.columns:
-            tracking_view = tracking_view[pd.to_numeric(tracking_view["운영우선순위변동"], errors="coerce") > 0]
-
-        # 표시 컬럼명 정리
-        rename_tracking_cols = {
-            "기준_운영우선순위": "기준순위",
-            "비교_운영우선순위": "비교순위",
-            "기준_최종점수": "기준점수",
-            "비교_최종점수": "비교점수",
-            "기준_액션버킷": "기준액션버킷",
-            "비교_액션버킷": "비교액션버킷",
-            "비교_대표상위세그먼트": "대표상위세그먼트",
-            "비교_대표하위세그먼트": "대표하위세그먼트",
-        }
-
-        tracking_view = tracking_view.rename(columns=rename_tracking_cols)
-
-        for c in ["대표상위세그먼트", "대표하위세그먼트"]:
-            if c in tracking_view.columns:
-                tracking_view[c] = (
-                    tracking_view[c]
-                    .replace(["None", "nan", "NaN", ""], pd.NA)
-                    .fillna("미분류")
-                )
-        for c in ["기준점수", "비교점수", "최종점수변동"]:
-            if c in tracking_view.columns:
-                tracking_view[c] = pd.to_numeric(tracking_view[c], errors="coerce").round(1)
-
-        # 기본 표는 제3자가 바로 해석할 수 있도록 핵심 컬럼만 간략 표시
-        # 요청 반영: 주요 콘텐츠군 컬럼은 기본 변화 추적 표에서 제외
-        display_cols_tracking = [
-            "채널명",
-            "기준순위",
-            "비교순위",
-            "운영우선순위변동",
-            "기준점수",
-            "비교점수",
-            "최종점수변동",
-            "기준액션버킷",
-            "비교액션버킷",
-            "변화요약",
-        ]
-        display_cols_tracking = [c for c in display_cols_tracking if c in tracking_view.columns]
-
-        tracking_display = tracking_view[display_cols_tracking].head(int(max_tracking_rows)).copy()
-        target_name_for_table = "현재" if tracking_target_label == "현재" else "비교 시점"
-        tracking_display = tracking_display.rename(columns={
-            "기준순위": "이전 순위",
-            "비교순위": f"{target_name_for_table} 순위",
-            "운영우선순위변동": "순위 변동",
-            "기준점수": "이전 점수",
-            "비교점수": f"{target_name_for_table} 점수",
-            "최종점수변동": "점수 변동",
-            "기준액션버킷": "이전 검토 단계",
-            "비교액션버킷": f"{target_name_for_table} 검토 단계",
-            "변화요약": "변화 요약",
-        })
-
-        # Streamlit 기본 dataframe 대신 TOP 테이블과 같은 랭킹 보드형 HTML 테이블로 표시
-        st.markdown(
-            """
-            <style>
-            .tracking-board-wrap {
-                margin-top: 14px;
-                margin-bottom: 16px;
-            }
-            .tracking-board {
-                font-size: 13px;
-            }
-            .tracking-board thead th {
-                padding: 10px 8px;
-                font-size: 12.3px;
-            }
-            .tracking-board tbody td {
-                padding: 10px 8px;
-                height: 38px;
-            }
-            .tracking-name {
-                text-align: left !important;
-                font-weight: 900;
-                color: #ffffff;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-            }
-            .tracking-num {
-                font-weight: 850;
-                font-variant-numeric: tabular-nums;
-                color: #eafcff;
-            }
-            .tracking-rank-up,
-            .tracking-score-up {
-                color: #ff7a7a;
-                font-weight: 950;
-            }
-            .tracking-rank-down,
-            .tracking-score-down {
-                color: #69b4ff;
-                font-weight: 950;
-            }
-            .tracking-rank-flat,
-            .tracking-score-flat {
-                color: #b8c7d5;
-                font-weight: 850;
-            }
-            .tracking-summary {
-                text-align: left !important;
-                color: #c9d7e3;
-                font-size: 12px;
-                line-height: 1.35;
-                overflow: hidden;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-            }
-            .tracking-chip {
-                display: inline-block;
-                padding: 7px 18px;
-                border-radius: 999px;
-                background: rgba(255,255,255,0.95);
-                color: #111827;
-                font-size: 13px;
-                font-weight: 850;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.22);
-                margin: 4px 0 10px 0;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        def _tracking_num_cell(value, ndigits=0):
-            if pd.isna(value):
-                return "-"
-            try:
-                num = float(value)
-                if ndigits == 0:
-                    return f"{int(round(num)):,}"
-                return f"{num:,.{ndigits}f}"
-            except Exception:
-                return _safe_cell(value, "-")
-
-        def _tracking_delta_class(value, prefix):
-            try:
-                num = float(value)
-            except Exception:
-                return f"{prefix}-flat"
-            if num > 0:
-                return f"{prefix}-up"
-            if num < 0:
-                return f"{prefix}-down"
-            return f"{prefix}-flat"
-
-        def _tracking_delta_text(value, ndigits=0):
-            if pd.isna(value):
-                return "-"
-            try:
-                num = float(value)
-                abs_num = abs(num)
-                if ndigits == 0:
-                    formatted = f"{int(round(abs_num)):,}"
-                else:
-                    formatted = f"{abs_num:,.{ndigits}f}"
-                if num > 0:
-                    return f"▲ {formatted}"
-                if num < 0:
-                    return f"▼ {formatted}"
-                return "—"
-            except Exception:
-                return _safe_cell(value, "-")
-
-        tracking_rows_html = []
-        for _, row in tracking_display.iterrows():
-            name_html = _safe_cell(row.get("채널명", "-"))
-            prev_rank = _tracking_num_cell(row.get("이전 순위"), 0)
-            cur_rank_col = f"{target_name_for_table} 순위"
-            cur_score_col = f"{target_name_for_table} 점수"
-            cur_action_col = f"{target_name_for_table} 검토 단계"
-            cur_rank = _tracking_num_cell(row.get(cur_rank_col), 0)
-            rank_delta_val = row.get("순위 변동", np.nan)
-            rank_delta = _tracking_delta_text(rank_delta_val, 0)
-            rank_delta_cls = _tracking_delta_class(rank_delta_val, "tracking-rank")
-            prev_score = _tracking_num_cell(row.get("이전 점수"), 1)
-            cur_score = _tracking_num_cell(row.get(cur_score_col), 1)
-            score_delta_val = row.get("점수 변동", np.nan)
-            score_delta = _tracking_delta_text(score_delta_val, 1)
-            score_delta_cls = _tracking_delta_class(score_delta_val, "tracking-score")
-            prev_action = _action_pill(row.get("이전 검토 단계", "-"))
-            cur_action = _action_pill(row.get(cur_action_col, "-"))
-            summary = _safe_cell(_short_text(row.get("변화 요약", "-"), 70))
-
-            tracking_rows_html.append(
-                f"""
-                <tr>
-                    <td class="tracking-name">{name_html}</td>
-                    <td class="tracking-num">{prev_rank}</td>
-                    <td class="tracking-num">{cur_rank}</td>
-                    <td class="{rank_delta_cls}">{rank_delta}</td>
-                    <td class="tracking-num">{prev_score}</td>
-                    <td class="tracking-num">{cur_score}</td>
-                    <td class="{score_delta_cls}">{score_delta}</td>
-                    <td>{prev_action}</td>
-                    <td>{cur_action}</td>
-                    <td class="tracking-summary" title="{summary}">{summary}</td>
-                </tr>
-                """
-            )
-
-        html(
-            f"""
-            <div class="priority-board-wrap tracking-board-wrap">
-                <table class="priority-board tracking-board">
-                    <colgroup>
-                        <col style="width: 16%;">
-                        <col style="width: 8%;">
-                        <col style="width: 8%;">
-                        <col style="width: 8%;">
-                        <col style="width: 8%;">
-                        <col style="width: 8%;">
-                        <col style="width: 8%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 16%;">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>채널명</th>
-                            <th>이전 순위</th>
-                            <th>{target_name_for_table} 순위</th>
-                            <th>순위 변동</th>
-                            <th>이전 점수</th>
-                            <th>{target_name_for_table} 점수</th>
-                            <th>점수 변동</th>
-                            <th>이전 단계</th>
-                            <th>{target_name_for_table} 단계</th>
-                            <th>변화 요약</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {''.join(tracking_rows_html)}
-                    </tbody>
-                </table>
-            </div>
-            """
-        )
-
-        with st.expander("변화 추적 상세 컬럼 보기", expanded=False):
-            detail_cols_tracking = [
-                "기준시점",
-                "비교시점",
-                "채널명",
-                "채널ID",
-                "기준순위",
-                "비교순위",
-                "운영우선순위변동",
-                "기준점수",
-                "비교점수",
-                "최종점수변동",
-                "기준액션버킷",
-                "비교액션버킷",
-                "버킷변경여부",
-                "신규진입여부",
-                "대표상위세그먼트",
-                "대표하위세그먼트",
-                "변화요약",
-            ]
-            detail_cols_tracking = [c for c in detail_cols_tracking if c in tracking_view.columns]
-            st.dataframe(
-                tracking_view[detail_cols_tracking].head(int(max_tracking_rows)),
-                use_container_width=True,
-                hide_index=True,
-            )
-
-        tracking_csv = tracking_view.to_csv(index=False, encoding="utf-8-sig")
-        st.download_button(
-            "현재 변화 추적 CSV 다운로드",
-            data=tracking_csv,
-            file_name=f"cime_tracking_{tracking_base_label}_to_{tracking_target_label}.csv".replace(":", "-"),
-            mime="text/csv",
-        )
-    else:
-        st.info("선택한 두 시점으로 계산된 변화 추적 결과가 없습니다.")
-else:
-    st.info(
-        "과거 시점 비교를 하려면 `09_intermediate/snapshots/candidate_scored_snapshot.csv`에 "
-        "날짜가 다른 snapshot이 1개 이상 있어야 합니다. 현재 snapshot이 부족하면 STEP11 snapshot append를 먼저 누적하세요."
     )
