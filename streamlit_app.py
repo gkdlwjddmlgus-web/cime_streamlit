@@ -1673,7 +1673,21 @@ def resolve_existing_path(relative_path: str) -> Path:
     return PROJECT_ROOT / rel
 
 
-CANDIDATE_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_candidate_table.csv")
+def resolve_first_existing(relative_paths):
+    """여러 후보 경로 중 실제 존재하는 파일을 우선순위대로 반환한다."""
+    for relative_path in relative_paths:
+        path = resolve_existing_path(relative_path)
+        if path.exists():
+            return path
+    return resolve_existing_path(relative_paths[0])
+
+
+# thumbnail 보강본이 따로 올라간 경우도 자동 인식한다.
+# 기존 파일명으로 덮어쓴 경우에도 그대로 동작한다.
+CANDIDATE_DASHBOARD_PATH = resolve_first_existing([
+    "10_dashboard/data/dashboard_candidate_table_with_thumbnail.csv",
+    "10_dashboard/data/dashboard_candidate_table.csv",
+])
 SEGMENT_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_segment_table.csv")
 SUMMARY_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_summary.csv")
 REFERENCE_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_reference_table.csv")
@@ -1697,8 +1711,17 @@ def read_csv_safe(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+def file_mtime_token(path: Path):
+    """Streamlit cache가 오래된 CSV를 계속 잡고 있는 문제를 막기 위한 mtime token."""
+    try:
+        return path.stat().st_mtime_ns if path.exists() else 0
+    except Exception:
+        return 0
+
+
 @st.cache_data(show_spinner=False)
-def load_data():
+def load_data(candidate_mtime, segment_mtime, summary_mtime, tracking_mtime, reference_mtime, snapshot_mtime):
+    # mtime 인자는 cache key 용도다. 함수 내부에서는 직접 사용하지 않아도 된다.
     candidate = read_csv_safe(CANDIDATE_DASHBOARD_PATH)
 
     if candidate.empty:
@@ -1713,7 +1736,14 @@ def load_data():
     return candidate, segment, summary, tracking, reference, snapshot
 
 
-candidate_df, segment_df, summary_df, tracking_df, reference_df, snapshot_df = load_data()
+candidate_df, segment_df, summary_df, tracking_df, reference_df, snapshot_df = load_data(
+    file_mtime_token(CANDIDATE_DASHBOARD_PATH),
+    file_mtime_token(SEGMENT_DASHBOARD_PATH),
+    file_mtime_token(SUMMARY_DASHBOARD_PATH),
+    file_mtime_token(SHORTLIST_TRACKING_PATH),
+    file_mtime_token(REFERENCE_DASHBOARD_PATH),
+    file_mtime_token(CANDIDATE_SCORED_SNAPSHOT_PATH),
+)
 
 
 # =========================================================
@@ -2433,6 +2463,23 @@ channel_id_col = first_existing(df, ["채널ID", "channel_id"])
 channel_name_col = first_existing(df, ["채널명", "channel_title", "채널명_clean"])
 channel_thumbnail_col = first_existing(df, ["channel_thumbnail_url", "채널썸네일URL", "채널프로필이미지URL", "thumbnail_url"])
 channel_url_col = first_existing(df, ["channel_url", "채널URL", "youtube_channel_url", "유튜브채널URL"])
+
+# 배포 후 썸네일 적용 상태 확인용. 기본은 접힘 상태라 화면을 방해하지 않는다.
+with st.sidebar.expander("썸네일 적용 상태", expanded=False):
+    st.write("후보 CSV 경로:", str(CANDIDATE_DASHBOARD_PATH))
+    st.write("썸네일 컬럼:", channel_thumbnail_col or "없음")
+    st.write("채널 URL 컬럼:", channel_url_col or "없음")
+    if channel_thumbnail_col and channel_thumbnail_col in df.columns:
+        thumb_count = df[channel_thumbnail_col].astype(str).str.startswith(("http://", "https://"), na=False).sum()
+        st.write(f"썸네일 URL 보유 행: {thumb_count:,} / {len(df):,}")
+        sample_urls = df.loc[df[channel_thumbnail_col].astype(str).str.startswith(("http://", "https://"), na=False), channel_thumbnail_col].head(3).tolist()
+        if sample_urls:
+            st.caption("샘플 URL")
+            for u in sample_urls:
+                st.code(str(u)[:120] + ("..." if len(str(u)) > 120 else ""), language=None)
+    else:
+        st.warning("현재 읽힌 후보 CSV에 channel_thumbnail_url 컬럼이 없습니다. 배포 repo의 10_dashboard/data/dashboard_candidate_table.csv를 다시 확인하세요.")
+
 rank_col = first_existing(df, ["운영우선순위", "최종순위", "rank", "순위"])
 score_col = first_existing(df, ["최종점수", "위성점수_log_minmax", "final_score", "score"])
 action_col = first_existing(df, ["액션버킷", "action_bucket"])
@@ -3204,20 +3251,20 @@ add_section_divider()
 # =====================================================
 # 후보 운영 그래프 선택형 뷰
 # - 상위 콘텐츠별 점수 분포 / 검토 단계별 후보 수 /
-#   콘텐츠군 평균 점수 / 콘텐츠군 구성 비율 중 1개만 표시
+#   콘텐츠군별 평균 점수 / 콘텐츠군 구성 비율 중 1개만 표시
 # - 상위 콘텐츠군이 미분류인 후보는 콘텐츠 비교 그래프에서 제외
 # =====================================================
 
 st.markdown('<div class="section-card">', unsafe_allow_html=True)
 st.markdown("### 🌌 후보 운영 그래프")
-st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
+st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 넓게 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
 
 graph_view = st.radio(
     "그래프 유형 선택",
     [
         "상위 콘텐츠별 영입 후보 점수 분포",
         "검토 단계별 후보 수",
-        "콘텐츠군 평균 영입 점수",
+        "콘텐츠군별 평균 영입 점수",
         "콘텐츠군 구성 비율",
     ],
     index=0,
@@ -3426,8 +3473,8 @@ elif graph_view == "검토 단계별 후보 수":
     else:
         st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
 
-elif graph_view == "콘텐츠군 평균 영입 점수":
-    st.markdown("#### ✨ 콘텐츠군 평균 영입 점수")
+elif graph_view == "콘텐츠군별 평균 영입 점수":
+    st.markdown("#### ✨ 콘텐츠군별 평균 영입 점수")
     if segment_col and score_display_col and segment_col in classified_filtered.columns and score_display_col in classified_filtered.columns and not classified_filtered.empty:
         seg_score_df = classified_filtered.copy()
         seg_score_df["__score__"] = pd.to_numeric(seg_score_df[score_display_col], errors="coerce")
@@ -3469,7 +3516,7 @@ elif graph_view == "콘텐츠군 평균 영입 점수":
         st.plotly_chart(fig_seg_score, use_container_width=True)
         st.caption(f"해석 포인트: 어떤 상위 콘텐츠군이 평균적으로 높은 영입 적합도를 보이는지 비교합니다. 단, 후보 수가 적은 콘텐츠군은 평균이 쉽게 흔들릴 수 있습니다. 미분류 후보 {unclassified_filtered_count:,}명은 제외했습니다.")
     else:
-        st.info("콘텐츠군 평균 점수를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
+        st.info("콘텐츠군별 평균 점수를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
 
 elif graph_view == "콘텐츠군 구성 비율":
     st.markdown("#### 🪐 콘텐츠군 구성 비율")
