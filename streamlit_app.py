@@ -1207,6 +1207,23 @@ st.markdown(
         .starseed-subtitle { color: #C6BBD9; font-size: 17px; font-weight: 760; margin-top: 6px; }
         .starseed-banner { background: rgba(21,16,47,.72); border: 1px solid rgba(152,255,171,.22); border-radius: 20px; padding: 18px 24px; margin: 18px 0 20px 0; box-shadow: 0 0 30px rgba(125,66,255,.10); }
 
+        /* STAR SEED 상단 헤더 간소화: 타이틀/부제만 노출 */
+        .starseed-hero {
+            padding: 0 0 12px 0 !important;
+            margin-top: -8px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .starseed-title {
+            margin-bottom: 10px !important;
+        }
+
+        .starseed-subtitle {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+
         @media (max-width: 1100px) {
             .hero-title { font-size: 42px; letter-spacing: 5px; }
             .planet-orbit { width: 620px; }
@@ -3186,20 +3203,11 @@ else:
 # 7. 헤더
 # =========================================================
 
-now_kst = datetime.now(ZoneInfo("Asia/Seoul"))
 st.markdown(
-    f"""
+    """
     <div class="starseed-hero">
-        <div class="dashboard-mode-label">PHASE 02 · STAR SEED</div>
         <div class="starseed-title">STAR SEED</div>
         <div class="starseed-subtitle">유튜브 기반 잠재 후보군 영입 분석 대시보드</div>
-    </div>
-    <div class="starseed-banner">
-        <div class="mission-desc" style="max-width: 980px; margin: 0 auto; text-align: center;">
-            YouTube Data API 기반 후보 데이터를 바탕으로 성장성, 팬 반응, 라이브 전환 가능성, 영입 현실성을 종합해
-            CIME가 검토할 잠재 스트리머 후보를 탐색합니다.<br>
-            <span class="mission-time-pill" style="margin-top: 12px; display: inline-block;">🟢 데이터 정상 로드 · 마지막 화면 갱신(KST): {now_kst.strftime('%Y-%m-%d %H:%M:%S')}</span>
-        </div>
     </div>
     """,
     unsafe_allow_html=True,
