@@ -4877,8 +4877,9 @@ with main_right:
 # - 상위 콘텐츠군이 미분류인 후보는 콘텐츠 비교 그래프에서 제외
 # =====================================================
 
-st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.markdown("### 🌌 후보 운영 그래프")
+st.markdown("<br>", unsafe_allow_html=True)
+add_section_divider()
+st.markdown("### 🌌 후보군 종합 분석 그래프")
 st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 넓게 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
 
 graph_view = st.radio(
@@ -5025,6 +5026,12 @@ if graph_view == "상위 콘텐츠별 영입 후보 점수 분포":
             plot_bgcolor="rgba(5, 12, 24, 0.00)",
             margin=dict(l=10, r=10, t=30, b=80),
             legend_title_text="상위 콘텐츠군",
+            legend=dict(
+                font=dict(size=15, color="#f4ffff"),
+                title_font=dict(size=15, color="#f4ffff"),
+                itemsizing="constant",
+                tracegroupgap=8,
+            ),
             xaxis=dict(
                 title="상위 콘텐츠군",
                 tickmode="array",
@@ -5157,14 +5164,22 @@ elif graph_view == "콘텐츠군 구성 비율":
             paper_bgcolor="rgba(5, 12, 24, 0.00)",
             plot_bgcolor="rgba(5, 12, 24, 0.00)",
             margin=dict(l=5, r=5, t=20, b=20),
-            legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.02),
+            legend=dict(
+                orientation="v",
+                yanchor="middle",
+                y=0.5,
+                xanchor="left",
+                x=1.02,
+                font=dict(size=15, color="#f4ffff"),
+                title_font=dict(size=15, color="#f4ffff"),
+                itemsizing="constant",
+                tracegroupgap=8,
+            ),
         )
         st.plotly_chart(fig_pie, use_container_width=True)
         st.caption(f"해석 포인트: 현재 후보군이 특정 상위 콘텐츠군에 과도하게 쏠려 있는지 확인합니다. 쏠림이 크면 수집 키워드나 필터가 특정 콘텐츠군에 편향됐을 가능성을 점검해야 합니다. 미분류 후보 {unclassified_filtered_count:,}명은 제외했습니다.")
     else:
         st.info("콘텐츠군 구성 비율을 만들기 위해서는 대표상위세그먼트 컬럼이 필요합니다.")
-
-st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================================================
 # 10-4. 후보 클러스터 포지셔닝 맵
