@@ -3994,6 +3994,13 @@ st.markdown(
             border-color: rgba(89, 219, 210, 0.26) !important;
         }
 
+
+
+        /* KPI 카드와 첫 번째 드롭다운 사이 여백 보정 */
+        .kpi-expander-spacer {
+            height: 22px;
+        }
+
         /* TOP 후보 카드도 투명감을 줄이고 내부 정보 가독성 강화 */
         .candidate-card {
             background:
@@ -4295,6 +4302,9 @@ with k4:
         delta_ndigits=0,
         delta_suffix="명",
     )
+
+
+html('<div class="kpi-expander-spacer"></div>')
 
 with st.expander("KPI 해석 방법", expanded=False):
     st.markdown(
