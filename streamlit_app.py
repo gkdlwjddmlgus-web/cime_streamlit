@@ -1227,6 +1227,74 @@ st.markdown(
 )
 
 
+# =========================================================
+# 1-4. Sidebar navigation / dropdown visibility patch
+# - 비활성 네비게이션 버튼이 흰 배경+밝은 글씨로 보이는 문제 보정
+# - 스타시드 필터 expander의 가독성 강화
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        section[data-testid="stSidebar"] .stButton > button[kind="secondary"] {
+            background: rgba(24, 17, 54, 0.90) !important;
+            color: #EEE7FF !important;
+            border: 1px solid rgba(199, 168, 255, 0.42) !important;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025) !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button[kind="secondary"] p,
+        section[data-testid="stSidebar"] .stButton > button[kind="secondary"] span {
+            color: #EEE7FF !important;
+            font-weight: 850 !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button[kind="secondary"]:hover {
+            background: rgba(42, 27, 88, 0.96) !important;
+            border-color: rgba(228, 205, 255, 0.72) !important;
+            color: #FFFFFF !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button[kind="primary"] p,
+        section[data-testid="stSidebar"] .stButton > button[kind="primary"] span {
+            color: #FFFFFF !important;
+            font-weight: 900 !important;
+        }
+
+        section[data-testid="stSidebar"] div[data-testid="stExpander"] {
+            background: rgba(18, 13, 44, 0.78) !important;
+            border: 1px solid rgba(199, 168, 255, 0.28) !important;
+            border-radius: 14px !important;
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+        }
+
+        section[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
+            color: #F8F2FF !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.2px;
+        }
+
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] .stCaptionContainer,
+        section[data-testid="stSidebar"] .stMarkdown p {
+            color: #DED5F8 !important;
+        }
+
+        section[data-testid="stSidebar"] [data-baseweb="select"] > div,
+        section[data-testid="stSidebar"] [data-baseweb="input"] > div,
+        section[data-testid="stSidebar"] [data-baseweb="textarea"] > div {
+            background: rgba(255,255,255,0.06) !important;
+            border-color: rgba(199, 168, 255, 0.22) !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+
 def render_planet_home():
     html(
         """
@@ -2133,101 +2201,122 @@ snapshot_prepared_df = prepare_snapshot_df(snapshot_df)
 
 # =========================================================
 # 6. 사이드바 필터
+# - 스타시드 필터는 드롭다운(expander) 안에 배치
+# - 기본은 접힘 상태로 두어 홈/네비게이션 가시성을 확보
 # =========================================================
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🌱 스타시드 필터")
 
 filtered = df.copy()
 
-if segment_col:
-    seg_values = sorted([x for x in filtered[segment_col].dropna().astype(str).unique()])
-    selected_segments = st.sidebar.multiselect(
-        "대표상위세그먼트",
-        options=seg_values,
-        default=seg_values,
-    )
-    if selected_segments:
-        filtered = filtered[filtered[segment_col].astype(str).isin(selected_segments)]
-
-if lower_segment_col:
-    lower_values = sorted([x for x in filtered[lower_segment_col].dropna().astype(str).unique()])
-    selected_lower = st.sidebar.multiselect(
-        "대표하위세그먼트",
-        options=lower_values,
-        default=[],
-    )
-    if selected_lower:
-        filtered = filtered[filtered[lower_segment_col].astype(str).isin(selected_lower)]
-
-if action_col:
-    action_values = sorted([x for x in filtered[action_col].dropna().astype(str).unique()])
-    selected_actions = st.sidebar.multiselect(
-        "액션버킷",
-        options=action_values,
-        default=action_values,
-    )
-    if selected_actions:
-        filtered = filtered[filtered[action_col].astype(str).isin(selected_actions)]
-
-if shortlist_col:
-    only_shortlist = st.sidebar.checkbox("shortlist 선정 후보만 보기", value=False)
-    if only_shortlist:
-        shortlist_bool = filtered[shortlist_col].astype(str).str.lower().isin(["true", "1", "yes", "y"])
-        filtered = filtered[shortlist_bool]
-
-hide_hold = st.sidebar.checkbox("보류/제외 숨기기", value=True)
-
-if hide_hold and action_col:
-    filtered = filtered[
-        ~filtered[action_col].astype(str).str.contains("보류|제외", na=False)
-    ]
-
-# 점수 필터를 사용하지 못하는 상황에서도 KPI 비교 로직이 안전하게 동작하도록 기본값 지정
+# apply_snapshot_filters_for_kpi()에서 참조할 수 있도록 기본값 선할당
+selected_segments = []
+selected_lower = []
+selected_actions = []
+only_shortlist = False
+hide_hold = True
 score_filter_100 = None
+min_subs = 0
+min_views = 0
+search_text = ""
 
-# =========================================================
-# 점수 필터: 100점 기준
-# - 원본 최종점수가 0~1이어도 화면에서는 0~100점으로 필터링
-# =========================================================
+def _filter_widget_container():
+    """스타시드 필터용 드롭다운 컨테이너."""
+    return st.sidebar.expander("🌱 스타시드 필터", expanded=False)
 
-if score_col:
-    score_series_100 = pd.to_numeric(df[score_display_col], errors="coerce")
+with _filter_widget_container() as filter_panel:
+    filter_panel.caption("상위 콘텐츠군, 검토 단계, 점수·규모 조건으로 후보군을 좁혀봅니다.")
 
-    if score_series_100.dropna().empty:
-        score_filter_100 = 0.0
-    else:
-        min_score_100 = float(score_series_100.min(skipna=True))
-        max_score_100 = float(score_series_100.max(skipna=True))
-
-        score_filter_100 = st.sidebar.slider(
-            "최소 최종점수(100점 기준)",
-            min_value=float(np.floor(min_score_100)),
-            max_value=float(np.ceil(max_score_100)),
-            value=float(np.floor(min_score_100)),
-            step=1.0,
+    if segment_col:
+        seg_values = sorted([x for x in filtered[segment_col].dropna().astype(str).unique()])
+        selected_segments = filter_panel.multiselect(
+            "상위 콘텐츠군",
+            options=seg_values,
+            default=seg_values,
+            help="후보 채널의 대표 상위 콘텐츠군입니다. 예: 게임 실황형, 음악·보이스형 등",
         )
+        if selected_segments:
+            filtered = filtered[filtered[segment_col].astype(str).isin(selected_segments)]
 
+    if lower_segment_col:
+        lower_values = sorted([x for x in filtered[lower_segment_col].dropna().astype(str).unique()])
+        selected_lower = filter_panel.multiselect(
+            "세부 콘텐츠 유형",
+            options=lower_values,
+            default=[],
+            help="상위 콘텐츠군보다 더 세분화된 콘텐츠 유형입니다.",
+        )
+        if selected_lower:
+            filtered = filtered[filtered[lower_segment_col].astype(str).isin(selected_lower)]
+
+    if action_col:
+        action_values = sorted([x for x in filtered[action_col].dropna().astype(str).unique()])
+        selected_actions = filter_panel.multiselect(
+            "검토 단계",
+            options=action_values,
+            default=action_values,
+            help="즉시검토, 성장관찰, 검증필요, 보류, 제외 등 운영용 후보 분류입니다.",
+        )
+        if selected_actions:
+            filtered = filtered[filtered[action_col].astype(str).isin(selected_actions)]
+
+    if shortlist_col:
+        only_shortlist = filter_panel.checkbox("shortlist 선정 후보만 보기", value=False)
+        if only_shortlist:
+            shortlist_bool = filtered[shortlist_col].astype(str).str.lower().isin(["true", "1", "yes", "y"])
+            filtered = filtered[shortlist_bool]
+
+    hide_hold = filter_panel.checkbox("보류/제외 숨기기", value=True)
+
+    if hide_hold and action_col:
         filtered = filtered[
-            pd.to_numeric(filtered[score_display_col], errors="coerce") >= score_filter_100
+            ~filtered[action_col].astype(str).str.contains("보류|제외", na=False)
         ]
 
-if subs_col:
-    min_subs = int(st.sidebar.number_input("최소 구독자 수", min_value=0, value=0, step=1000))
-    if min_subs > 0:
-        filtered = filtered[pd.to_numeric(filtered[subs_col], errors="coerce").fillna(0) >= min_subs]
+    # =========================================================
+    # 점수 필터: 100점 기준
+    # - 원본 최종점수가 0~1이어도 화면에서는 0~100점으로 필터링
+    # =========================================================
 
-if view_col:
-    min_views = int(st.sidebar.number_input("최소 최근영상조회수평균", min_value=0, value=0, step=1000))
-    if min_views > 0:
-        filtered = filtered[pd.to_numeric(filtered[view_col], errors="coerce").fillna(0) >= min_views]
+    if score_col:
+        score_series_100 = pd.to_numeric(df[score_display_col], errors="coerce")
 
-search_text = st.sidebar.text_input("채널명 검색", placeholder="채널명을 입력하세요")
+        if score_series_100.dropna().empty:
+            score_filter_100 = 0.0
+        else:
+            min_score_100 = float(score_series_100.min(skipna=True))
+            max_score_100 = float(score_series_100.max(skipna=True))
 
-if search_text and channel_name_col:
-    filtered = filtered[
-        filtered[channel_name_col].astype(str).str.contains(search_text, case=False, na=False)
-    ]
+            score_filter_100 = filter_panel.slider(
+                "최소 영입 적합도 점수(100점 기준)",
+                min_value=float(np.floor(min_score_100)),
+                max_value=float(np.ceil(max_score_100)),
+                value=float(np.floor(min_score_100)),
+                step=1.0,
+            )
+
+            filtered = filtered[
+                pd.to_numeric(filtered[score_display_col], errors="coerce") >= score_filter_100
+            ]
+
+    if subs_col:
+        min_subs = int(filter_panel.number_input("최소 구독자 수", min_value=0, value=0, step=1000))
+        if min_subs > 0:
+            filtered = filtered[pd.to_numeric(filtered[subs_col], errors="coerce").fillna(0) >= min_subs]
+
+    if view_col:
+        min_views = int(filter_panel.number_input("최소 최근영상조회수평균", min_value=0, value=0, step=1000))
+        if min_views > 0:
+            filtered = filtered[pd.to_numeric(filtered[view_col], errors="coerce").fillna(0) >= min_views]
+
+    search_text = filter_panel.text_input("채널명 검색", placeholder="채널명을 입력하세요")
+
+    if search_text and channel_name_col:
+        filtered = filtered[
+            filtered[channel_name_col].astype(str).str.contains(search_text, case=False, na=False)
+        ]
+
+    top_n = filter_panel.slider("TOP N", min_value=5, max_value=50, value=10, step=5)
 
 # =========================================================
 # 필터 적용 후 화면 표시용 순위 재부여
@@ -2236,8 +2325,6 @@ if search_text and channel_name_col:
 filtered = filtered.copy()
 filtered["표시순위"] = np.arange(1, len(filtered) + 1)
 
-top_n = st.sidebar.slider("TOP N", min_value=5, max_value=50, value=10, step=5)
-
 # =========================================================
 # 변화 추적 기준 시점 필터
 # - 2026-05-01 이전 snapshot은 선택 불가
@@ -2245,7 +2332,8 @@ top_n = st.sidebar.slider("TOP N", min_value=5, max_value=50, value=10, step=5)
 # =========================================================
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 변화 추적 기준")
+change_panel = st.sidebar.expander("🛰 변화 추적 기준", expanded=False)
+change_panel.caption("snapshot 기준 시점과 현재/비교 시점을 선택해 후보 변화량을 계산합니다.")
 
 tracking_base_df = pd.DataFrame()
 tracking_target_df = pd.DataFrame()
@@ -2271,7 +2359,7 @@ if not snapshot_prepared_df.empty:
     ]
 
     if not snapshot_dates:
-        st.sidebar.warning(
+        change_panel.warning(
             f"{MIN_TRACKING_DATE_LABEL} 이후 snapshot 날짜가 없습니다. "
             "STEP11 snapshot append를 다시 누적하세요."
         )
@@ -2282,7 +2370,7 @@ if not snapshot_prepared_df.empty:
 
         default_target_idx = len(target_options) - 1
 
-        tracking_target_label = st.sidebar.selectbox(
+        tracking_target_label = change_panel.selectbox(
             "비교 대상 시점",
             options=target_options,
             index=default_target_idx,
@@ -2321,7 +2409,7 @@ if not snapshot_prepared_df.empty:
 
             default_base_idx = available_base_dates.index(default_base_label)
 
-            tracking_base_label = st.sidebar.selectbox(
+            tracking_base_label = change_panel.selectbox(
                 "기준 시점",
                 options=available_base_dates,
                 index=default_base_idx,
@@ -2330,9 +2418,9 @@ if not snapshot_prepared_df.empty:
 
             tracking_base_df = get_snapshot_by_date(snapshot_prepared_df, tracking_base_label)
         else:
-            st.sidebar.warning("비교 가능한 기준 snapshot 날짜가 없습니다.")
+            change_panel.warning("비교 가능한 기준 snapshot 날짜가 없습니다.")
 else:
-    st.sidebar.warning("snapshot 파일이 없거나 날짜 컬럼을 찾지 못했습니다.")
+    change_panel.warning("snapshot 파일이 없거나 날짜 컬럼을 찾지 못했습니다.")
 
 st.sidebar.markdown("---")
 if st.sidebar.button("데이터 새로고침"):
