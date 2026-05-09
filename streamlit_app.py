@@ -1673,7 +1673,21 @@ def resolve_existing_path(relative_path: str) -> Path:
     return PROJECT_ROOT / rel
 
 
-CANDIDATE_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_candidate_table.csv")
+def resolve_first_existing(relative_paths):
+    """여러 후보 경로 중 실제 존재하는 파일을 우선순위대로 반환한다."""
+    for relative_path in relative_paths:
+        path = resolve_existing_path(relative_path)
+        if path.exists():
+            return path
+    return resolve_existing_path(relative_paths[0])
+
+
+# thumbnail 보강본이 따로 올라간 경우도 자동 인식한다.
+# 기존 파일명으로 덮어쓴 경우에도 그대로 동작한다.
+CANDIDATE_DASHBOARD_PATH = resolve_first_existing([
+    "10_dashboard/data/dashboard_candidate_table_with_thumbnail.csv",
+    "10_dashboard/data/dashboard_candidate_table.csv",
+])
 SEGMENT_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_segment_table.csv")
 SUMMARY_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_summary.csv")
 REFERENCE_DASHBOARD_PATH = resolve_existing_path("10_dashboard/data/dashboard_reference_table.csv")
@@ -1697,8 +1711,17 @@ def read_csv_safe(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+def file_mtime_token(path: Path):
+    """Streamlit cache가 오래된 CSV를 계속 잡고 있는 문제를 막기 위한 mtime token."""
+    try:
+        return path.stat().st_mtime_ns if path.exists() else 0
+    except Exception:
+        return 0
+
+
 @st.cache_data(show_spinner=False)
-def load_data():
+def load_data(candidate_mtime, segment_mtime, summary_mtime, tracking_mtime, reference_mtime, snapshot_mtime):
+    # mtime 인자는 cache key 용도다. 함수 내부에서는 직접 사용하지 않아도 된다.
     candidate = read_csv_safe(CANDIDATE_DASHBOARD_PATH)
 
     if candidate.empty:
@@ -1713,7 +1736,14 @@ def load_data():
     return candidate, segment, summary, tracking, reference, snapshot
 
 
-candidate_df, segment_df, summary_df, tracking_df, reference_df, snapshot_df = load_data()
+candidate_df, segment_df, summary_df, tracking_df, reference_df, snapshot_df = load_data(
+    file_mtime_token(CANDIDATE_DASHBOARD_PATH),
+    file_mtime_token(SEGMENT_DASHBOARD_PATH),
+    file_mtime_token(SUMMARY_DASHBOARD_PATH),
+    file_mtime_token(SHORTLIST_TRACKING_PATH),
+    file_mtime_token(REFERENCE_DASHBOARD_PATH),
+    file_mtime_token(CANDIDATE_SCORED_SNAPSHOT_PATH),
+)
 
 
 # =========================================================
@@ -2433,47 +2463,64 @@ channel_id_col = first_existing(df, ["채널ID", "channel_id"])
 channel_name_col = first_existing(df, ["채널명", "channel_title", "채널명_clean"])
 channel_thumbnail_col = first_existing(df, ["channel_thumbnail_url", "채널썸네일URL", "채널프로필이미지URL", "thumbnail_url"])
 channel_url_col = first_existing(df, ["channel_url", "채널URL", "youtube_channel_url", "유튜브채널URL"])
-rank_col = first_existing(df, ["운영우선순위", "최종순위", "rank", "순위"])
-score_col = first_existing(df, ["최종점수", "위성점수_log_minmax", "final_score", "score"])
-action_col = first_existing(df, ["액션버킷", "action_bucket"])
-segment_col = first_existing(df, ["대표상위세그먼트", "대표세그먼트", "segment", "대표상위세그먼트명"])
-lower_segment_col = first_existing(df, ["대표하위세그먼트", "sub_segment", "대표하위세그먼트명"])
-shortlist_col = first_existing(df, ["shortlist_선정여부", "shortlist", "shortlisted"])
-shortlist_type_col = first_existing(df, ["shortlist_유형", "shortlist_type"])
 
-subs_col = first_existing(df, ["채널구독자수", "subscriber_count", "구독자수"])
-view_col = first_existing(df, ["최근영상조회수평균", "avg_recent_views", "최근조회수평균"])
-eng_col = first_existing(df, ["최근영상참여율평균", "avg_engagement_rate", "참여율"])
-growth_col = first_existing(df, ["성장성점수", "growth_score"])
-fan_col = first_existing(df, ["팬밀도점수", "fan_density_score"])
-live_col = first_existing(df, ["라이브친화점수", "live_fit_score"])
-practical_col = first_existing(df, ["실전성점수", "practical_score"])
-channel_power_col = first_existing(df, ["채널력점수", "channel_power_score"])
-
-recommend_col = first_existing(df, ["추천사유", "recommend_reason"])
-caution_col = first_existing(df, ["주의사유", "caution_reason"])
-basis_col = first_existing(df, ["자동판정근거", "판정근거"])
-change_col = first_existing(df, ["변화요약", "change_summary"])
-
-risk_col = first_existing(df, ["운영제외리스크", "operation_exclusion_risk"])
-verify_risk_col = first_existing(df, ["검증필요리스크", "verification_risk"])
-
-numeric_candidates = [
-    rank_col,
-    score_col,
-    subs_col,
-    view_col,
-    eng_col,
-    growth_col,
-    fan_col,
-    live_col,
-    practical_col,
-    channel_power_col,
-    risk_col,
-    verify_risk_col,
-]
-
-df = to_numeric_if_exists(df, numeric_candidates)
+# ---------------------------------------------------------
+# 주요 화면/필터용 컬럼 매핑
+# - 사이드바 일부 블록 제거 과정에서 누락되면 NameError가 나므로
+#   스타시드 본문에서 쓰는 컬럼을 여기서 먼저 안정적으로 정의한다.
+# ---------------------------------------------------------
+score_col = first_existing(df, [
+    "최종점수", "최종점수_100점", "영입적합도점수", "영입 적합도 점수",
+    "영입종합점수", "영입 종합 점수", "위성점수_log_minmax", "final_score", "score"
+])
+rank_col = first_existing(df, [
+    "운영우선순위", "최종순위", "현재 필터 기준 순위", "순위", "rank", "final_rank"
+])
+segment_col = first_existing(df, [
+    "대표상위세그먼트", "주요 콘텐츠군", "상위 콘텐츠군", "대표세그먼트",
+    "segment", "segment_unified", "대표상위세그먼트명"
+])
+lower_segment_col = first_existing(df, [
+    "대표하위세그먼트", "세부 콘텐츠 유형", "하위 콘텐츠군", "sub_segment",
+    "대표하위세그먼트명", "segment_seed", "segment_seed_raw"
+])
+action_col = first_existing(df, [
+    "액션버킷", "검토 단계", "현재 검토 단계", "현재검토단계", "action_bucket"
+])
+shortlist_col = first_existing(df, [
+    "shortlist_선정여부", "shortlist 선정 여부", "shortlist", "is_shortlist", "shortlist_selected"
+])
+shortlist_type_col = first_existing(df, [
+    "shortlist_유형", "shortlist 유형", "shortlist_type"
+])
+subs_col = first_existing(df, [
+    "구독자수", "구독자 수", "subscriber_count", "subscribers", "channel_subscriber_count"
+])
+view_col = first_existing(df, [
+    "최근영상조회수평균", "최근 영상 평균 조회수", "최근 조회수 평균", "recent_view_avg",
+    "avg_recent_view_count", "view_count_mean", "평균조회수"
+])
+eng_col = first_existing(df, [
+    "평균참여율", "평균 참여율", "참여율", "engagement_rate", "avg_engagement_rate"
+])
+growth_col = first_existing(df, [
+    "성장성점수", "성장성", "growth_score", "growth_proxy", "성장성_score"
+])
+fan_col = first_existing(df, [
+    "팬밀도점수", "팬밀도", "fan_density_score", "fan_density", "팬밀도_score"
+])
+live_col = first_existing(df, [
+    "라이브친화점수", "라이브친화", "live_friendly_score", "live_affinity", "라이브친화_score"
+])
+recommend_col = first_existing(df, [
+    "추천사유", "추천 사유", "recommend_reason", "추천근거"
+])
+caution_col = first_existing(df, [
+    "주의사유", "주의 사유", "caution_reason", "리스크사유"
+])
+change_col = first_existing(df, [
+    "변화요약", "변화 요약", "change_summary"
+])
 
 # =========================================================
 # 최종점수 100점 기준 표시 컬럼 생성
@@ -2536,7 +2583,7 @@ search_text = ""
 
 def _filter_widget_container():
     """스타시드 필터용 드롭다운 컨테이너."""
-    return st.sidebar.expander("🌱 스타시드 필터", expanded=False)
+    return st.sidebar.expander("스타시드 필터", expanded=False)
 
 with _filter_widget_container() as filter_panel:
     filter_panel.caption("상위 콘텐츠군, 검토 단계, 점수·규모 조건으로 후보군을 좁혀봅니다.")
@@ -2646,7 +2693,7 @@ filtered["표시순위"] = np.arange(1, len(filtered) + 1)
 # =========================================================
 
 st.sidebar.markdown("---")
-change_panel = st.sidebar.expander("🛰 변화 추적 기준", expanded=False)
+change_panel = st.sidebar.expander("변화 추적 기준", expanded=False)
 change_panel.caption("snapshot 기준 시점과 현재/비교 시점을 선택해 후보 변화량을 계산합니다.")
 
 tracking_base_df = pd.DataFrame()
@@ -2736,22 +2783,6 @@ if not snapshot_prepared_df.empty:
 else:
     change_panel.warning("snapshot 파일이 없거나 날짜 컬럼을 찾지 못했습니다.")
 
-st.sidebar.markdown("---")
-if st.sidebar.button("데이터 새로고침"):
-    st.cache_data.clear()
-    st.rerun()
-
-with st.sidebar.expander("최신 파이프라인 결과 반영 방법", expanded=False):
-    st.markdown(
-        """
-        1. 로컬 원본 프로젝트에서 최신 파이프라인을 실행합니다.  
-        2. 생성된 `10_dashboard/data/*.csv`, `11_final/core_output/*.csv`, `09_intermediate/snapshots/*.csv`를 배포용 repo에 복사합니다.  
-        3. GitHub에 commit/push합니다.  
-        4. Streamlit Cloud에서 자동 재배포 후, 필요 시 `데이터 새로고침`으로 캐시를 비웁니다.  
-
-        이 대시보드는 API를 직접 실행하지 않고, 파이프라인 산출 CSV를 읽는 조회형 구조입니다.
-        """
-    )
 
 
 # =========================================================
