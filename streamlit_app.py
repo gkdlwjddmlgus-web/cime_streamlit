@@ -1295,6 +1295,57 @@ st.markdown(
 )
 
 
+# =========================================================
+# 1-5. 선택형 그래프 / 압축 후보 상세 스타일
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        .compact-detail-card {
+            min-height: 620px;
+        }
+
+        .compact-detail-card div[data-testid="stMetric"] {
+            padding: 10px 12px !important;
+            min-height: 86px;
+        }
+
+        .compact-detail-card div[data-testid="stMetric"] label,
+        .compact-detail-card div[data-testid="stMetric"] [data-testid="stMetricLabel"] {
+            font-size: 0.78rem !important;
+            color: #a9b9c9 !important;
+        }
+
+        .compact-detail-card div[data-testid="stMetric"] [data-testid="stMetricValue"] {
+            font-size: 1.55rem !important;
+        }
+
+        .compact-channel-id {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 10px;
+        }
+
+        .compact-reason-box {
+            margin-top: 12px;
+            max-height: 112px;
+            overflow: hidden;
+        }
+
+        .compact-detail-card div[data-testid="stExpander"] {
+            margin-top: 10px !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+
 def render_planet_home():
     html(
         """
@@ -2778,185 +2829,308 @@ with main_left:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
-    # 후보 분포: 상위 콘텐츠별 최종점수 분포
-    # - 전체 후보를 기본으로 그림
-    # - 현재 필터 조건에 포함된 후보는 세그먼트별 색상
-    # - 필터에서 제외된 후보는 회색 처리
+    # 후보 운영 그래프 선택형 뷰
+    # - 상위 콘텐츠별 점수 분포 / 검토 단계별 후보 수 /
+    #   콘텐츠군별 평균 점수 / 콘텐츠군 구성 비율 중 1개만 표시
+    # - 상위 콘텐츠군이 미분류인 후보는 콘텐츠 비교 그래프에서 제외
     # =====================================================
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 🌌 상위 콘텐츠별 영입 후보 점수 분포")
-    st.caption("각 점은 후보 채널 1개를 의미합니다. x축은 상위 콘텐츠군, y축은 영입 적합도 점수입니다.")
+    st.markdown("### 🌌 후보 운영 그래프")
+    st.caption("보고 싶은 그래프를 선택하면 해당 시각화와 해석 포인트만 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
 
-    if segment_col and score_col:
-        plot_all = df.copy()
-        plot_all = plot_all.reset_index().rename(columns={"index": "__original_index__"})
+    graph_view = st.selectbox(
+        "표시할 그래프 선택",
+        [
+            "상위 콘텐츠별 영입 후보 점수 분포",
+            "검토 단계별 후보 수",
+            "콘텐츠군별 평균 영입 점수",
+            "콘텐츠군 구성 비율",
+        ],
+        index=0,
+        key="starseed_graph_view_selector",
+    )
 
-        # filtered는 기존 df의 index를 유지하고 있으므로, 현재 필터에 남은 행을 표시
-        selected_index_set = set(filtered.index.tolist())
-        plot_all["__is_selected__"] = plot_all["__original_index__"].isin(selected_index_set)
-
-        # 점수 컬럼 정리: 그래프도 100점 기준으로 고정
-        plot_all["__score_plot__"] = pd.to_numeric(plot_all[score_display_col], errors="coerce")
-        y_axis_title = "최종점수(100점 기준)"
-
-        plot_all["__segment__"] = plot_all[segment_col].fillna("미분류").astype(str)
-
-        # 현재 필터에서 선택된 후보가 있는 세그먼트를 우선 정렬
-        segment_order = (
-            plot_all
-            .groupby("__segment__")["__score_plot__"]
-            .median()
-            .sort_values(ascending=False)
-            .index
-            .tolist()
+    def _is_unclassified_segment(s: pd.Series) -> pd.Series:
+        return (
+            s.fillna("미분류")
+            .astype(str)
+            .str.strip()
+            .isin(["", "미분류", "None", "none", "nan", "NaN", "NULL", "null"])
         )
 
-        seg_to_x = {seg: i for i, seg in enumerate(segment_order)}
-        plot_all["__x_base__"] = plot_all["__segment__"].map(seg_to_x)
+    classified_filtered = filtered.copy()
+    classified_all = df.copy()
+    unclassified_filtered_count = 0
+    unclassified_all_count = 0
 
-        # 공이 완전히 겹치지 않도록 x축에 약간의 jitter 추가
-        rng = np.random.default_rng(42)
-        plot_all["__x_jitter__"] = plot_all["__x_base__"] + rng.normal(
-            loc=0,
-            scale=0.08,
-            size=len(plot_all)
-        )
+    if segment_col and segment_col in filtered.columns:
+        unclassified_filtered_count = int(_is_unclassified_segment(filtered[segment_col]).sum())
+        classified_filtered = filtered[~_is_unclassified_segment(filtered[segment_col])].copy()
 
-        # 세그먼트별 색상 팔레트
-        palette = px.colors.qualitative.Safe + px.colors.qualitative.Set3 + px.colors.qualitative.Pastel
-        seg_color_map = {
-            seg: palette[i % len(palette)]
-            for i, seg in enumerate(segment_order)
-        }
+    if segment_col and segment_col in df.columns:
+        unclassified_all_count = int(_is_unclassified_segment(df[segment_col]).sum())
+        classified_all = df[~_is_unclassified_segment(df[segment_col])].copy()
 
-        # 선택 후보: 세그먼트별 색상
-        selected_plot = plot_all[plot_all["__is_selected__"] == True].copy()
+    if graph_view == "상위 콘텐츠별 영입 후보 점수 분포":
+        st.markdown("#### 🌠 상위 콘텐츠별 영입 후보 점수 분포")
+        st.caption("각 점은 후보 채널 1개를 의미합니다. x축은 상위 콘텐츠군, y축은 영입 적합도 점수입니다.")
 
-        # 필터 제외 후보: 회색
-        unselected_plot = plot_all[plot_all["__is_selected__"] == False].copy()
+        if segment_col and score_col and not classified_all.empty:
+            plot_all = classified_all.copy()
+            plot_all = plot_all.reset_index().rename(columns={"index": "__original_index__"})
 
-        hover_cols = [
-            c for c in [
-                channel_name_col,
-                segment_col,
-                lower_segment_col,
-                action_col,
-                score_display_col,
-                subs_col,
-                view_col,
-                eng_col,
+            selected_index_set = set(classified_filtered.index.tolist())
+            plot_all["__is_selected__"] = plot_all["__original_index__"].isin(selected_index_set)
+            plot_all["__score_plot__"] = pd.to_numeric(plot_all[score_display_col], errors="coerce")
+            y_axis_title = "최종점수(100점 기준)"
+            plot_all["__segment__"] = plot_all[segment_col].fillna("미분류").astype(str)
+
+            segment_order = (
+                plot_all
+                .groupby("__segment__")["__score_plot__"]
+                .median()
+                .sort_values(ascending=False)
+                .index
+                .tolist()
+            )
+
+            seg_to_x = {seg: i for i, seg in enumerate(segment_order)}
+            plot_all["__x_base__"] = plot_all["__segment__"].map(seg_to_x)
+
+            rng = np.random.default_rng(42)
+            plot_all["__x_jitter__"] = plot_all["__x_base__"] + rng.normal(
+                loc=0,
+                scale=0.08,
+                size=len(plot_all),
+            )
+
+            palette = px.colors.qualitative.Safe + px.colors.qualitative.Set3 + px.colors.qualitative.Pastel
+            seg_color_map = {seg: palette[i % len(palette)] for i, seg in enumerate(segment_order)}
+
+            selected_plot = plot_all[plot_all["__is_selected__"] == True].copy()
+            unselected_plot = plot_all[plot_all["__is_selected__"] == False].copy()
+
+            hover_cols = [
+                c for c in [
+                    channel_name_col,
+                    segment_col,
+                    lower_segment_col,
+                    action_col,
+                    score_display_col,
+                    subs_col,
+                    view_col,
+                    eng_col,
+                ]
+                if c and c in plot_all.columns
             ]
-            if c and c in plot_all.columns
-        ]
 
-        fig = go.Figure()
+            fig = go.Figure()
 
-        # 1) 필터 제외 후보: 회색 배경 점
-        if not unselected_plot.empty:
-            fig.add_trace(
-                go.Scatter(
-                    x=unselected_plot["__x_jitter__"],
-                    y=unselected_plot["__score_plot__"],
-                    mode="markers",
-                    name="필터 제외",
-                    marker=dict(
-                        size=7,
-                        color="rgba(150,150,150,0.28)",
-                        line=dict(width=0),
-                    ),
-                    customdata=unselected_plot[hover_cols].astype(str).values if hover_cols else None,
-                    hovertemplate=(
-                        "<b>%{customdata[0]}</b><br>"
-                        + "세그먼트: %{customdata[1]}<br>" if len(hover_cols) >= 2 else ""
+            if not unselected_plot.empty:
+                fig.add_trace(
+                    go.Scatter(
+                        x=unselected_plot["__x_jitter__"],
+                        y=unselected_plot["__score_plot__"],
+                        mode="markers",
+                        name="필터 제외",
+                        marker=dict(size=7, color="rgba(150,150,150,0.28)", line=dict(width=0)),
+                        customdata=unselected_plot[hover_cols].astype(str).values if hover_cols else None,
+                        hovertemplate=(
+                            "<b>%{customdata[0]}</b><br>"
+                            + "상위 콘텐츠군: %{customdata[1]}<br>" if len(hover_cols) >= 2 else ""
+                        )
+                        + "점수: %{y:.2f}<br>"
+                        + "<extra>필터 제외</extra>",
+                        showlegend=True,
                     )
-                    + "점수: %{y:.2f}<br>"
-                    + "<extra>필터 제외</extra>",
-                    showlegend=True,
                 )
-            )
 
-        # 2) 필터 선택 후보: 세그먼트별 색상
-        for seg in segment_order:
-            seg_df = selected_plot[selected_plot["__segment__"] == seg].copy()
-
-            if seg_df.empty:
-                continue
-
-            fig.add_trace(
-                go.Scatter(
-                    x=seg_df["__x_jitter__"],
-                    y=seg_df["__score_plot__"],
-                    mode="markers",
-                    name=seg,
-                    marker=dict(
-                        size=9,
-                        color=seg_color_map.get(seg, "#888888"),
-                        opacity=0.82,
-                        line=dict(
-                            width=0.8,
-                            color="rgba(255,255,255,0.35)"
+            for seg in segment_order:
+                seg_df = selected_plot[selected_plot["__segment__"] == seg].copy()
+                if seg_df.empty:
+                    continue
+                fig.add_trace(
+                    go.Scatter(
+                        x=seg_df["__x_jitter__"],
+                        y=seg_df["__score_plot__"],
+                        mode="markers",
+                        name=seg,
+                        marker=dict(
+                            size=9,
+                            color=seg_color_map.get(seg, "#888888"),
+                            opacity=0.82,
+                            line=dict(width=0.8, color="rgba(255,255,255,0.35)"),
                         ),
-                    ),
-                    customdata=seg_df[hover_cols].astype(str).values if hover_cols else None,
-                    hovertemplate=(
-                        "<b>%{customdata[0]}</b><br>"
-                        + "상위세그먼트: %{customdata[1]}<br>" if len(hover_cols) >= 2 else ""
+                        customdata=seg_df[hover_cols].astype(str).values if hover_cols else None,
+                        hovertemplate=(
+                            "<b>%{customdata[0]}</b><br>"
+                            + "상위 콘텐츠군: %{customdata[1]}<br>" if len(hover_cols) >= 2 else ""
+                        )
+                        + ("세부 콘텐츠 유형: %{customdata[2]}<br>" if len(hover_cols) >= 3 else "")
+                        + ("검토 단계: %{customdata[3]}<br>" if len(hover_cols) >= 4 else "")
+                        + "점수: %{y:.2f}<br>"
+                        + "<extra></extra>",
                     )
-                    + (
-                        "하위세그먼트: %{customdata[2]}<br>" if len(hover_cols) >= 3 else ""
-                    )
-                    + (
-                        "액션버킷: %{customdata[3]}<br>" if len(hover_cols) >= 4 else ""
-                    )
-                    + "점수: %{y:.2f}<br>"
-                    + "<extra></extra>",
                 )
+
+            fig.update_layout(
+                template="plotly_dark",
+                height=460,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=10, r=10, t=30, b=80),
+                legend_title_text="상위 콘텐츠군",
+                xaxis=dict(
+                    title="상위 콘텐츠군",
+                    tickmode="array",
+                    tickvals=list(range(len(segment_order))),
+                    ticktext=segment_order,
+                    tickangle=-35,
+                    showgrid=False,
+                ),
+                yaxis=dict(title=y_axis_title, gridcolor="rgba(255,255,255,0.12)", zeroline=False),
             )
 
-        fig.update_layout(
-            template="plotly_dark",
-            height=460,
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=10, r=10, t=30, b=80),
-            legend_title_text="상위 콘텐츠군",
-            xaxis=dict(
-                title="상위 콘텐츠군",
-                tickmode="array",
-                tickvals=list(range(len(segment_order))),
-                ticktext=segment_order,
-                tickangle=-35,
-                showgrid=False,
-            ),
-            yaxis=dict(
-                title=y_axis_title,
-                gridcolor="rgba(255,255,255,0.12)",
-                zeroline=False,
-            ),
-        )
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption(
+                f"해석 포인트: 어느 상위 콘텐츠군에 고득점 후보가 많은지, 특정 상위 콘텐츠군이 낮은 점수대에 몰려 있는지 확인합니다. "
+                f"색상 점은 현재 필터에 포함된 후보, 회색 점은 필터에서 제외된 후보입니다. "
+                f"상위 콘텐츠군이 확인되지 않은 미분류 후보 {unclassified_all_count:,}명은 이 그래프에서 제외했습니다."
+            )
+        else:
+            st.info("상위 콘텐츠별 점수 분포를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
 
-        st.plotly_chart(fig, use_container_width=True)
+    elif graph_view == "검토 단계별 후보 수":
+        st.markdown("#### 🚦 검토 단계별 후보 수")
+        if action_col and action_col in filtered.columns:
+            bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
+            bucket_df = (
+                filtered[action_col]
+                .fillna("미분류")
+                .astype(str)
+                .value_counts()
+                .rename_axis("액션버킷")
+                .reset_index(name="후보수")
+            )
+            bucket_df["정렬순서"] = bucket_df["액션버킷"].apply(lambda x: bucket_order.index(x) if x in bucket_order else 999)
+            bucket_df = bucket_df.sort_values(["정렬순서", "후보수"], ascending=[True, False])
 
-        st.caption(
-            "해석 포인트: 어느 상위 콘텐츠군에 고득점 후보가 많은지, 특정 상위 콘텐츠군이 낮은 점수대에 몰려 있는지, "
-            "현재 필터에서 제외된 후보가 얼마나 많은지 확인할 수 있습니다. "
-            "색상 점은 현재 필터에 포함된 후보, 회색 점은 필터에서 제외된 후보입니다."
-        )
+            color_map_bucket = {
+                "즉시검토": "#19d3a2",
+                "성장관찰": "#636efa",
+                "검증필요": "#ef553b",
+                "보류": "#a0a7b8",
+                "제외": "#5b657a",
+                "미분류": "#8892a6",
+            }
 
-    else:
-        st.info("상위 콘텐츠별 점수 분포를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
+            fig_bucket = px.bar(
+                bucket_df,
+                x="후보수",
+                y="액션버킷",
+                orientation="h",
+                text="후보수",
+                template="plotly_dark",
+                height=460,
+                color="액션버킷",
+                color_discrete_map=color_map_bucket,
+            )
+            fig_bucket.update_traces(textposition="outside", cliponaxis=False, hovertemplate="액션버킷=%{y}<br>후보수=%{x}명<extra></extra>")
+            fig_bucket.update_layout(
+                showlegend=False,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=5, r=35, t=20, b=45),
+                xaxis_title="후보 수",
+                yaxis_title="",
+                yaxis=dict(categoryorder="array", categoryarray=list(reversed(bucket_df["액션버킷"].tolist()))),
+            )
+            st.plotly_chart(fig_bucket, use_container_width=True)
+            st.caption("해석 포인트: 즉시검토, 성장관찰, 검증필요, 보류, 제외 중 후보가 어디에 몰려 있는지 확인합니다. 검증필요가 과도하게 많으면 리스크 검토 대상이 많다는 뜻이고, 즉시검토가 적으면 바로 컨택 가능한 후보 풀이 제한적이라는 뜻입니다.")
+        else:
+            st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
+
+    elif graph_view == "콘텐츠군별 평균 영입 점수":
+        st.markdown("#### ✨ 콘텐츠군별 평균 영입 점수")
+        if segment_col and score_display_col and segment_col in classified_filtered.columns and score_display_col in classified_filtered.columns and not classified_filtered.empty:
+            seg_score_df = classified_filtered.copy()
+            seg_score_df["__score__"] = pd.to_numeric(seg_score_df[score_display_col], errors="coerce")
+            seg_score_df["__segment__"] = seg_score_df[segment_col].fillna("미분류").astype(str)
+
+            seg_summary = (
+                seg_score_df.groupby("__segment__", dropna=False)
+                .agg(평균최종점수=("__score__", "mean"), 후보수=("__score__", "size"))
+                .reset_index()
+                .sort_values(["평균최종점수", "후보수"], ascending=[False, False])
+            )
+
+            fig_seg_score = px.bar(
+                seg_summary,
+                x="__segment__",
+                y="평균최종점수",
+                text="평균최종점수",
+                custom_data=["후보수"],
+                template="plotly_dark",
+                height=460,
+                color="__segment__",
+            )
+            fig_seg_score.update_traces(
+                texttemplate="%{y:.1f}",
+                textposition="outside",
+                cliponaxis=False,
+                hovertemplate="상위 콘텐츠군=%{x}<br>평균최종점수=%{y:.1f}<br>후보수=%{customdata[0]}명<extra></extra>",
+            )
+            fig_seg_score.update_layout(
+                showlegend=False,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=5, r=5, t=20, b=90),
+                xaxis_title="상위 콘텐츠군",
+                yaxis_title="평균 점수",
+                xaxis=dict(tickangle=-35),
+                yaxis=dict(range=[0, max(100, float(seg_summary["평균최종점수"].max(skipna=True) or 0) * 1.15)]),
+            )
+            st.plotly_chart(fig_seg_score, use_container_width=True)
+            st.caption(f"해석 포인트: 어떤 상위 콘텐츠군이 평균적으로 높은 영입 적합도를 보이는지 비교합니다. 단, 후보 수가 적은 콘텐츠군은 평균이 쉽게 흔들릴 수 있습니다. 미분류 후보 {unclassified_filtered_count:,}명은 제외했습니다.")
+        else:
+            st.info("콘텐츠군별 평균 점수를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
+
+    elif graph_view == "콘텐츠군 구성 비율":
+        st.markdown("#### 🪐 콘텐츠군 구성 비율")
+        if segment_col and segment_col in classified_filtered.columns and not classified_filtered.empty:
+            pie_data = (
+                classified_filtered[segment_col]
+                .fillna("미분류")
+                .astype(str)
+                .value_counts()
+                .reset_index()
+            )
+            pie_data.columns = ["구분", "후보수"]
+            fig_pie = px.pie(pie_data, names="구분", values="후보수", hole=0.55, template="plotly_dark", height=460)
+            fig_pie.update_traces(textposition="inside", textinfo="percent", hovertemplate="상위 콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>")
+            fig_pie.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=5, r=5, t=20, b=20),
+                legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.02),
+            )
+            st.plotly_chart(fig_pie, use_container_width=True)
+            st.caption(f"해석 포인트: 현재 후보군이 특정 상위 콘텐츠군에 과도하게 쏠려 있는지 확인합니다. 쏠림이 크면 수집 키워드나 필터가 특정 콘텐츠군에 편향됐을 가능성을 점검해야 합니다. 미분류 후보 {unclassified_filtered_count:,}명은 제외했습니다.")
+        else:
+            st.info("콘텐츠군 구성 비율을 만들기 위해서는 대표상위세그먼트 컬럼이 필요합니다.")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-
 # =========================================================
 # 10-2. 우측: 후보 상세
+# - 영입 우선순위 TOP 표 높이와 맞도록 핵심 정보만 압축 표시
+# - 세부 판정 문구는 접힘 영역으로 이동
 # =========================================================
 
 with main_right:
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-card compact-detail-card">', unsafe_allow_html=True)
     st.markdown("### 🔭 선택 후보 상세")
 
     if channel_name_col:
@@ -2966,23 +3140,25 @@ with main_right:
             selected_name = st.selectbox("후보 선택", candidate_names, index=0)
             selected_row = filtered[filtered[channel_name_col].astype(str) == selected_name].iloc[0]
 
+            def _clip_detail(value, limit=92):
+                text_value = "-" if pd.isna(value) else str(value).strip()
+                if not text_value:
+                    text_value = "-"
+                return text_value if len(text_value) <= limit else text_value[:limit].rstrip() + "..."
+
             st.markdown(
                 f"""
                 <div class="detail-title">{selected_row.get(channel_name_col, '-')}</div>
-                <div class="small-muted">{selected_row.get(channel_id_col, '') if channel_id_col else ''}</div>
+                <div class="small-muted compact-channel-id">{selected_row.get(channel_id_col, '') if channel_id_col else ''}</div>
                 """,
                 unsafe_allow_html=True,
             )
 
-            st.markdown("<br>", unsafe_allow_html=True)
-
             metric_cols = st.columns(2)
-
             with metric_cols[0]:
                 st.metric("점수(100점)", fmt_float(selected_row.get(score_display_col), 1) if score_col else "-")
                 st.metric("구독자 수", fmt_int(selected_row.get(subs_col)) if subs_col else "-")
                 st.metric("최근 조회수 평균", fmt_int(selected_row.get(view_col)) if view_col else "-")
-
             with metric_cols[1]:
                 st.metric("성장성", fmt_float(selected_row.get(growth_col), 3) if growth_col else "-")
                 st.metric("팬밀도", fmt_float(selected_row.get(fan_col), 3) if fan_col else "-")
@@ -2990,7 +3166,7 @@ with main_right:
 
             st.markdown(
                 f"""
-                <div style="margin-top:10px;">
+                <div style="margin-top:8px;">
                     <span class="segment-pill">{selected_row.get(segment_col, '-') if segment_col else '-'}</span>
                     <span class="segment-pill">{selected_row.get(action_col, '-') if action_col else '-'}</span>
                 </div>
@@ -3005,221 +3181,27 @@ with main_right:
 
             st.markdown(
                 f"""
-                <div class="reason-box">
-                    <b>추천사유</b><br>{reason_text}
-                </div>
-                <div class="reason-box">
-                    <b>주의사유</b><br>{caution_text}
-                </div>
-                <div class="reason-box">
-                    <b>자동판정근거</b><br>{basis_text}
-                </div>
-                <div class="reason-box">
-                    <b>변화요약</b><br>{change_text}
+                <div class="reason-box compact-reason-box">
+                    <b>핵심 추천 사유</b><br>{_clip_detail(reason_text, 110)}
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
+
+            with st.expander("상세 판정 근거 보기", expanded=False):
+                st.markdown(
+                    f"""
+                    <div class="reason-box"><b>추천사유</b><br>{reason_text}</div>
+                    <div class="reason-box"><b>주의사유</b><br>{caution_text}</div>
+                    <div class="reason-box"><b>자동판정근거</b><br>{basis_text}</div>
+                    <div class="reason-box"><b>변화요약</b><br>{change_text}</div>
+                    """,
+                    unsafe_allow_html=True,
+                )
         else:
             st.info("현재 필터 조건에 해당하는 후보가 없습니다.")
 
     st.markdown("</div>", unsafe_allow_html=True)
-
-
-# =========================================================
-# 10-3. 후보 구성 요약: 3칸 정렬 그래프
-# - 액션버킷별 후보 수 / 세그먼트별 평균 점수 / 세그먼트 분포를
-#   같은 라인에 3개 카드로 배치해 경계와 높이를 맞춘다.
-# =========================================================
-
-st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("### 🧭 후보군 운영 현황 요약")
-st.caption("현재 필터 조건에서 후보군이 어떤 검토 단계와 콘텐츠군으로 구성되어 있는지 요약합니다.")
-
-chart_col1, chart_col2, chart_col3 = st.columns(3)
-
-# ---------------------------------------------------------
-# 1) 액션버킷별 후보 수
-# ---------------------------------------------------------
-with chart_col1:
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 🚦 검토 단계별 후보 수")
-
-    if action_col and action_col in filtered.columns:
-        bucket_order = ["즉시검토", "성장관찰", "검증필요", "보류", "제외", "미분류"]
-
-        bucket_df = (
-            filtered[action_col]
-            .fillna("미분류")
-            .astype(str)
-            .value_counts()
-            .rename_axis("액션버킷")
-            .reset_index(name="후보수")
-        )
-
-        bucket_df["정렬순서"] = bucket_df["액션버킷"].apply(
-            lambda x: bucket_order.index(x) if x in bucket_order else 999
-        )
-        bucket_df = bucket_df.sort_values(["정렬순서", "후보수"], ascending=[True, False])
-
-        color_map_bucket = {
-            "즉시검토": "#19d3a2",
-            "성장관찰": "#636efa",
-            "검증필요": "#ef553b",
-            "보류": "#a0a7b8",
-            "제외": "#5b657a",
-            "미분류": "#8892a6",
-        }
-
-        fig_bucket = px.bar(
-            bucket_df,
-            x="후보수",
-            y="액션버킷",
-            orientation="h",
-            text="후보수",
-            template="plotly_dark",
-            height=360,
-            color="액션버킷",
-            color_discrete_map=color_map_bucket,
-        )
-
-        fig_bucket.update_traces(
-            textposition="outside",
-            cliponaxis=False,
-            hovertemplate="액션버킷=%{y}<br>후보수=%{x}명<extra></extra>",
-        )
-
-        fig_bucket.update_layout(
-            showlegend=False,
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=5, r=35, t=10, b=30),
-            xaxis_title="후보 수",
-            yaxis_title="",
-            yaxis=dict(
-                categoryorder="array",
-                categoryarray=list(reversed(bucket_df["액션버킷"].tolist())),
-            ),
-        )
-
-        st.plotly_chart(fig_bucket, use_container_width=True)
-        st.caption("즉시검토, 성장관찰, 검증필요, 보류, 제외 중 후보가 어디에 몰려 있는지 확인합니다.")
-    else:
-        st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# ---------------------------------------------------------
-# 2) 대표상위세그먼트별 평균 최종점수
-# ---------------------------------------------------------
-with chart_col2:
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### ✨ 콘텐츠군별 평균 영입 점수")
-
-    if segment_col and score_display_col and segment_col in filtered.columns and score_display_col in filtered.columns:
-        seg_score_df = filtered.copy()
-        seg_score_df["__score__"] = pd.to_numeric(seg_score_df[score_display_col], errors="coerce")
-        seg_score_df["__segment__"] = seg_score_df[segment_col].fillna("미분류").astype(str)
-
-        seg_summary = (
-            seg_score_df.groupby("__segment__", dropna=False)
-            .agg(
-                평균최종점수=("__score__", "mean"),
-                후보수=("__score__", "size"),
-            )
-            .reset_index()
-            .sort_values(["평균최종점수", "후보수"], ascending=[False, False])
-        )
-
-        fig_seg_score = px.bar(
-            seg_summary,
-            x="__segment__",
-            y="평균최종점수",
-            text="평균최종점수",
-            custom_data=["후보수"],
-            template="plotly_dark",
-            height=360,
-            color="__segment__",
-        )
-
-        fig_seg_score.update_traces(
-            texttemplate="%{y:.1f}",
-            textposition="outside",
-            cliponaxis=False,
-            hovertemplate=(
-                "대표상위세그먼트=%{x}<br>"
-                "평균최종점수=%{y:.1f}<br>"
-                "후보수=%{customdata[0]}명<extra></extra>"
-            ),
-        )
-
-        fig_seg_score.update_layout(
-            showlegend=False,
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=5, r=5, t=10, b=80),
-            xaxis_title="",
-            yaxis_title="평균 점수",
-            xaxis=dict(tickangle=-35),
-            yaxis=dict(range=[0, max(100, float(seg_summary["평균최종점수"].max(skipna=True) or 0) * 1.15)]),
-        )
-
-        st.plotly_chart(fig_seg_score, use_container_width=True)
-    else:
-        st.info("세그먼트 컬럼 또는 점수 컬럼이 없어 시각화를 만들 수 없습니다.")
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# ---------------------------------------------------------
-# 3) 세그먼트/액션버킷 분포 도넛
-# ---------------------------------------------------------
-with chart_col3:
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 🪐 콘텐츠군 구성 비율")
-
-    pie_col = action_col if action_col else segment_col
-
-    if pie_col:
-        pie_data = (
-            filtered[pie_col]
-            .fillna("미분류")
-            .astype(str)
-            .value_counts()
-            .reset_index()
-        )
-        pie_data.columns = ["구분", "후보수"]
-
-        fig_pie = px.pie(
-            pie_data,
-            names="구분",
-            values="후보수",
-            hole=0.55,
-            template="plotly_dark",
-            height=360,
-        )
-
-        fig_pie.update_traces(
-            textposition="inside",
-            textinfo="percent",
-            hovertemplate="구분=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>",
-        )
-
-        fig_pie.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=5, r=5, t=10, b=20),
-            legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.02),
-        )
-
-        st.plotly_chart(fig_pie, use_container_width=True)
-        st.caption("현재 후보군이 어떤 콘텐츠군 또는 검토 단계에 많이 분포하는지 확인합니다. 특정 영역 쏠림 여부를 점검하는 용도입니다.")
-    else:
-        st.info("세그먼트 분포를 만들 컬럼이 없습니다.")
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-
 # =========================================================
 # 10-4. 후보 클러스터 포지셔닝 맵
 # - 팬 반응 밀도와 라이브 전환 가능성을 기준으로 후보군을 운영형 클러스터로 해석
