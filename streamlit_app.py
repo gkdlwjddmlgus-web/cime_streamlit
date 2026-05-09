@@ -4483,14 +4483,27 @@ st.markdown(
             gap: 10px;
         }
 
+        .top5-grid .mini-candidate-card a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .top5-grid .mini-candidate-card a:hover {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
         .mini-candidate-card {
             position: relative;
-            min-height: 86px;
+            min-height: 92px;
             border-radius: 12px;
-            border: 1px solid rgba(135, 105, 232, .28);
-            background: linear-gradient(180deg, rgba(22, 24, 52, .80), rgba(13, 15, 36, .94));
-            padding: 12px 10px 10px 72px;
+            border: 1px solid rgba(135, 105, 232, .30);
+            background: linear-gradient(180deg, rgba(22, 24, 52, .84), rgba(13, 15, 36, .96));
+            padding: 13px 12px 11px 104px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
         }
 
         .mini-rank {
@@ -4512,23 +4525,57 @@ st.markdown(
 
         .mini-avatar-wrap {
             position: absolute;
-            left: 31px;
-            top: 18px;
-            width: 46px;
-            height: 46px;
+            left: 38px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 54px;
+            height: 54px;
             border-radius: 999px;
             overflow: hidden;
             background: radial-gradient(circle at 32% 28%, #fff, #8b5cf6 42%, #25154d 100%);
-            border: 2px solid rgba(255,255,255,.35);
-            box-shadow: 0 0 12px rgba(155, 109, 255, .34);
+            border: 2px solid rgba(255,255,255,.42);
+            box-shadow: 0 0 14px rgba(155, 109, 255, .38);
         }
 
         .mini-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display:block; }
         .mini-avatar-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:950; font-size:20px; }
-        .mini-name { color:#fff; font-size: 13px; font-weight: 950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top: 0px; }
-        .mini-score { color:#fff; font-size: 16px; font-weight: 950; margin-top: 1px; }
-        .mini-stage { display:inline-block; color:#b9ffe8; background: rgba(20, 152, 123, .28); border:1px solid rgba(64,226,190,.35); border-radius:999px; padding: 2px 8px; font-size: 10px; font-weight: 900; margin-top:3px; }
-        .mini-reason { color:#beb3d4; font-size: 10.5px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:4px; }
+        .mini-name {
+            color:#fff;
+            font-size: 13.5px;
+            font-weight: 950;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            margin-top: 0;
+            line-height: 1.15;
+            max-width: 100%;
+        }
+        .mini-score {
+            color:#fff;
+            font-size: 17px;
+            font-weight: 950;
+            margin-top: 3px;
+            line-height: 1.1;
+            white-space: nowrap;
+            letter-spacing: -0.02em;
+        }
+        .mini-stage {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width: fit-content;
+            max-width: 94px;
+            color:#b9ffe8;
+            background: rgba(20, 152, 123, .28);
+            border:1px solid rgba(64,226,190,.35);
+            border-radius:999px;
+            padding: 3px 9px;
+            font-size: 10px;
+            font-weight: 900;
+            margin-top:5px;
+            white-space: nowrap;
+        }
+        .mini-reason { display: none !important; }
 
         .mid-grid {
             display: grid;
@@ -4855,182 +4902,6 @@ if not mini_tracking_df.empty:
         mini_tracking_df["순위변동"] = pd.to_numeric(mini_tracking_df["순위변동"], errors="coerce")
         mini_tracking_df = mini_tracking_df.sort_values("순위변동", ascending=False)
 
-
-
-# =========================================================
-# 7-0-1. STAR SEED 상단 여백 최종 보정
-# - 레퍼런스 화면처럼 STAR SEED 타이틀이 화면 상단에 더 가깝게 보이도록 조정
-# - 사이드바/본문 구조는 유지하고, 스타시드 페이지의 상단 hero 영역만 위로 당김
-# =========================================================
-st.markdown(
-    clean_html(
-        """
-        <style>
-        /* Streamlit 기본 상단 여백 축소 */
-        .block-container {
-            padding-top: 0rem !important;
-        }
-
-        /* STAR SEED 관제보드 전체를 위로 당겨 상단 빈 공간 제거 */
-        .starseed-board {
-            padding-top: 0px !important;
-            margin-top: -58px !important;
-        }
-
-        /* 상단 타이틀/안내 카드 블록의 위아래 밀도 조정 */
-        .board-hero {
-            margin-top: 0px !important;
-            margin-bottom: 10px !important;
-            align-items: end !important;
-        }
-
-        .board-title {
-            margin-top: 0px !important;
-            margin-bottom: 8px !important;
-            line-height: 0.92 !important;
-        }
-
-        .board-subtitle {
-            margin-top: 0px !important;
-            margin-bottom: 0px !important;
-        }
-
-        .board-kpi-grid {
-            margin-top: 8px !important;
-        }
-
-        /* 브라우저/Streamlit 헤더 높이에 따라 너무 붙는 환경을 방지 */
-        @media (max-width: 1200px) {
-            .starseed-board {
-                margin-top: -34px !important;
-            }
-        }
-        </style>
-        """
-    ),
-    unsafe_allow_html=True,
-)
-
-
-# =========================================================
-# 9-1. KPI 카드 도움말 툴팁
-# - KPI 해석을 카드 내부 ? 아이콘 hover/click 영역으로 이동
-# - 하단 KPI 해석 방법 expander는 제거
-# =========================================================
-
-st.markdown(
-    clean_html(
-        """
-        <style>
-        .board-kpi-label-row {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            min-width: 0;
-        }
-
-        .board-kpi-help {
-            position: relative;
-            z-index: 8;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            border-radius: 999px;
-            border: 1px solid rgba(213, 190, 255, 0.72);
-            background: rgba(126, 82, 255, 0.20);
-            color: #f3eaff;
-            font-size: 10px;
-            font-weight: 950;
-            line-height: 1;
-            cursor: help;
-            box-shadow: 0 0 10px rgba(155, 103, 255, 0.22);
-        }
-
-        .board-kpi-help:focus {
-            outline: 2px solid rgba(191, 154, 255, 0.45);
-            outline-offset: 2px;
-        }
-
-        .board-kpi-tooltip {
-            position: absolute;
-            left: 50%;
-            top: 23px;
-            transform: translateX(-50%) translateY(4px);
-            width: 280px;
-            max-width: min(320px, 72vw);
-            padding: 12px 13px;
-            border-radius: 13px;
-            border: 1px solid rgba(185, 148, 255, 0.36);
-            background:
-                radial-gradient(circle at 12% 4%, rgba(164, 103, 255, 0.22), transparent 32%),
-                linear-gradient(180deg, rgba(30, 22, 62, 0.98), rgba(10, 12, 31, 0.98));
-            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.42), 0 0 22px rgba(142, 89, 255, 0.14);
-            color: #efeaff;
-            font-size: 11.5px;
-            line-height: 1.58;
-            font-weight: 650;
-            white-space: normal;
-            word-break: keep-all;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s ease;
-        }
-
-        .board-kpi-tooltip b {
-            display: block;
-            color: #ffffff;
-            font-size: 12.5px;
-            font-weight: 950;
-            margin-bottom: 5px;
-        }
-
-        .board-kpi-tooltip .formula {
-            display: block;
-            margin: 7px 0 5px 0;
-            padding: 7px 8px;
-            border-radius: 9px;
-            background: rgba(255,255,255,0.055);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: #d9ccff;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 10.5px;
-            line-height: 1.45;
-        }
-
-        .board-kpi-help:hover .board-kpi-tooltip,
-        .board-kpi-help:focus .board-kpi-tooltip,
-        .board-kpi-help:focus-within .board-kpi-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .board-kpi-card:nth-child(3) .board-kpi-tooltip {
-            width: 360px;
-            max-width: min(420px, 74vw);
-        }
-
-        .board-kpi-card:nth-child(4) .board-kpi-tooltip {
-            left: auto;
-            right: -4px;
-            transform: translateX(0) translateY(4px);
-        }
-
-        .board-kpi-card:nth-child(4) .board-kpi-help:hover .board-kpi-tooltip,
-        .board-kpi-card:nth-child(4) .board-kpi-help:focus .board-kpi-tooltip,
-        .board-kpi-card:nth-child(4) .board-kpi-help:focus-within .board-kpi-tooltip {
-            transform: translateX(0) translateY(0);
-        }
-        </style>
-        """
-    ),
-    unsafe_allow_html=True,
-)
-
 # ---------------------------------------------------------
 # 10. 상단 헤더 + KPI
 # ---------------------------------------------------------
@@ -5052,54 +4923,10 @@ html(
             </div>
         </div>
         <div class="board-kpi-grid">
-            <div class="board-kpi-card">
-                <div class="board-kpi-icon">👥</div>
-                <div class="board-kpi-content">
-                    <div class="board-kpi-label-row">
-                        <div class="board-kpi-label">전체 분석 후보</div>
-                        <span class="board-kpi-help" tabindex="0">?
-                            <span class="board-kpi-tooltip"><b>전체 분석 후보</b>수집·전처리 후 대시보드에 올라온 전체 후보 채널 수입니다. 필터 적용 전 모수 규모를 확인하는 기준 KPI입니다.</span>
-                        </span>
-                    </div>
-                    <div class="board-kpi-value">{_fmt_num(target_all_kpi['total'], 0, '명')}</div>{_delta_badge(delta_total, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span>
-                </div>
-            </div>
-            <div class="board-kpi-card">
-                <div class="board-kpi-icon">▾</div>
-                <div class="board-kpi-content">
-                    <div class="board-kpi-label-row">
-                        <div class="board-kpi-label">1차 선별 후보</div>
-                        <span class="board-kpi-help" tabindex="0">?
-                            <span class="board-kpi-tooltip"><b>1차 선별 후보</b>shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다. 전체 모수 중 운영 검토 대상으로 좁혀진 규모를 의미합니다.</span>
-                        </span>
-                    </div>
-                    <div class="board-kpi-value">{_fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{_delta_badge(delta_shortlist, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span>
-                </div>
-            </div>
-            <div class="board-kpi-card">
-                <div class="board-kpi-icon">★</div>
-                <div class="board-kpi-content">
-                    <div class="board-kpi-label-row">
-                        <div class="board-kpi-label">평균 추천 점수</div>
-                        <span class="board-kpi-help" tabindex="0">?
-                            <span class="board-kpi-tooltip"><b>평균 추천 점수</b>현재 필터 조건에 남은 후보들의 영입 적합도 평균입니다.<span class="formula">영입점수 = 0.22×채널력 + 0.28×성장성 + 0.22×팬밀도 + 0.15×라이브친화 + 0.13×실전성 - 리스크 감점</span>성장성은 신생 플랫폼 관점의 미래 확장성을 보기 위해 가장 크게 반영했고, 채널력·팬밀도는 기본 체급과 팬덤 결집력, 라이브친화·실전성은 실제 방송 전환 가능성과 운영 리스크를 보정합니다.</span>
-                        </span>
-                    </div>
-                    <div class="board-kpi-value">{_fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{_delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">지난 분석 대비</span>
-                </div>
-            </div>
-            <div class="board-kpi-card">
-                <div class="board-kpi-icon">◎</div>
-                <div class="board-kpi-content">
-                    <div class="board-kpi-label-row">
-                        <div class="board-kpi-label">즉시 검토 후보</div>
-                        <span class="board-kpi-help" tabindex="0">?
-                            <span class="board-kpi-tooltip"><b>즉시 검토 후보</b>현재 필터 조건에서 우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다. 최종 점수뿐 아니라 액션버킷과 리스크 판정이 함께 반영됩니다.</span>
-                        </span>
-                    </div>
-                    <div class="board-kpi-value">{_fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{_delta_badge(delta_high_priority, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span>
-                </div>
-            </div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">👥</div><div class="board-kpi-content"><div class="board-kpi-label">전체 분석 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['total'], 0, '명')}</div>{_delta_badge(delta_total, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">▾</div><div class="board-kpi-content"><div class="board-kpi-label">1차 선별 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{_delta_badge(delta_shortlist, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div class="board-kpi-content"><div class="board-kpi-label">평균 추천 점수</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{_delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">◎</div><div class="board-kpi-content"><div class="board-kpi-label">즉시 검토 후보</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{_delta_badge(delta_high_priority, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
         </div>
     </div>
     """
@@ -5115,7 +4942,6 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
     name = row.get(channel_name_col, "-") if channel_name_col else "-"
     score = row.get("_score_display", np.nan)
     action = row.get(action_col, "") if action_col else ""
-    reason = _short_text(_reason_short(row), 24)
     mini_cards.append(
         f"""
         <div class="mini-candidate-card">
@@ -5124,7 +4950,6 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
             <div class="mini-name">{_channel_link(name, row)}</div>
             <div class="mini-score">{_fmt_num(score, 1, '점')}</div>
             <span class="mini-stage">{_safe_html(action or '검토')}</span>
-            <div class="mini-reason">{_safe_html(reason)}</div>
         </div>
         """
     )
@@ -5397,6 +5222,18 @@ html('</div>')
 # 14. 상세 설명 드롭다운
 # ---------------------------------------------------------
 
+with st.expander("KPI 해석 방법", expanded=False):
+    st.markdown(
+        """
+        <div class="explain-box">
+        <b>전체 분석 후보</b>: 수집/전처리 후 대시보드에 올라온 전체 후보 수입니다.<br><br>
+        <b>1차 선별 후보</b>: shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다.<br><br>
+        <b>평균 추천 점수</b>: 현재 필터 조건에 남은 후보들의 평균 영입 점수입니다.<br><br>
+        <b>즉시 검토 후보</b>: 우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with st.expander("영입 점수 설명", expanded=False):
     st.markdown(
