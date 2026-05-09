@@ -1202,8 +1202,8 @@ st.markdown(
         .field-value { color: #EDE5FF; font-size: 12px; line-height: 1.5; }
         .empty-guide, .page-panel { margin-top: 22px; padding: 18px 20px; border-radius: 18px; background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.10); color: #D9CFE8; text-align: center; }
         .dashboard-mode-label { color: #98FFAB; font-size: 14px; font-weight: 900; letter-spacing: 1.4px; margin-bottom: 4px; }
-        .starseed-hero { text-align: center; padding: 12px 0 8px 0; }
-        .starseed-title { font-size: 52px; font-weight: 950; letter-spacing: 7px; color: #FFF8FF; text-shadow: 0 0 24px rgba(152,255,171,0.23); }
+        .starseed-hero { text-align: center; padding: 0 0 4px 0; margin-top: -18px; }
+        .starseed-title { font-size: 66px; font-weight: 950; letter-spacing: 9px; color: #FFF8FF; text-shadow: 0 0 30px rgba(152,255,171,0.30); }
         .starseed-subtitle { color: #C6BBD9; font-size: 17px; font-weight: 760; margin-top: 6px; }
         .starseed-banner { background: rgba(21,16,47,.72); border: 1px solid rgba(152,255,171,.22); border-radius: 20px; padding: 18px 24px; margin: 18px 0 20px 0; box-shadow: 0 0 30px rgba(125,66,255,.10); }
 
@@ -1369,6 +1369,183 @@ st.markdown(
             color: #d7cef8 !important;
             background: rgba(158, 104, 255, 0.12) !important;
             border-color: rgba(191, 154, 255, 0.20) !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+
+
+# =========================================================
+# 1-9. TOP 영입 후보 테이블 카드 스타일
+# - 기본 dataframe 대신 발표용 랭킹 보드 느낌의 HTML 테이블 사용
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        .priority-board-wrap {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 16px;
+            border: 1px solid rgba(118, 242, 226, 0.18);
+            background: linear-gradient(180deg, rgba(12, 22, 39, 0.94), rgba(7, 13, 26, 0.98));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.22);
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        .priority-board {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            color: #efffff;
+            font-size: 14px;
+        }
+
+        .priority-board thead th {
+            background: rgba(255,255,255,0.055);
+            color: #d9e8f2;
+            font-size: 13px;
+            font-weight: 850;
+            letter-spacing: -0.02em;
+            padding: 10px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .priority-board tbody td {
+            padding: 10px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.075);
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .priority-board tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .priority-board tbody tr:hover {
+            background: rgba(118, 242, 226, 0.055);
+        }
+
+        .priority-rank {
+            width: 44px;
+            color: #eafcff;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .priority-name {
+            text-align: left !important;
+            font-weight: 900;
+            color: #ffffff;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .priority-name a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .priority-name a:hover {
+            color: #78ffee;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .priority-sub {
+            display: block;
+            margin-top: 2px;
+            color: #9fb0c1;
+            font-size: 11px;
+            font-weight: 650;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .priority-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 74px;
+            max-width: 112px;
+            padding: 5px 9px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 900;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        .priority-pill-immediate {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.62), rgba(13, 148, 136, 0.42));
+            color: #dffff9;
+        }
+
+        .priority-pill-growth {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.66), rgba(91, 33, 182, 0.44));
+            color: #efe7ff;
+        }
+
+        .priority-pill-verify {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.66), rgba(180, 83, 9, 0.44));
+            color: #fff2d2;
+        }
+
+        .priority-pill-hold {
+            background: linear-gradient(135deg, rgba(100, 116, 139, 0.62), rgba(51, 65, 85, 0.44));
+            color: #e9f0f8;
+        }
+
+        .priority-pill-exclude {
+            background: linear-gradient(135deg, rgba(148, 85, 255, 0.52), rgba(76, 29, 149, 0.42));
+            color: #eee7ff;
+        }
+
+        .priority-score {
+            font-size: 16px;
+            font-weight: 950;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 10px rgba(95,255,232,0.20);
+        }
+
+        .priority-score-high { color: #ff69d2; }
+        .priority-score-mid { color: #7cfff1; }
+        .priority-score-low { color: #ffd166; }
+
+        .priority-note {
+            text-align: left !important;
+            color: #c4d1dc;
+            font-size: 12.5px;
+            line-height: 1.35;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .priority-board-top-chip {
+            display: inline-block;
+            padding: 7px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.95);
+            color: #111827;
+            font-size: 13px;
+            font-weight: 850;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+            margin: 2px 0 10px 0;
         }
         </style>
         """
@@ -3246,6 +3423,11 @@ with main_left:
         st.markdown("### 🛰️ 영입 우선순위 TOP")
         st.caption("현재 필터 조건에서 검토 우선순위가 높은 후보를 보여줍니다. 표의 순위는 전체 원본 순위가 아니라 현재 필터 결과 기준입니다.")
 
+        # -------------------------------------------------
+        # TOP 후보 표시 컬럼
+        # - shortlist 유형, 변화 요약은 운영 상세 컬럼이므로 TOP 테이블에서는 제외
+        # - '현재 필터 기준 순위'는 화면에서 '순위'로 축약 표시
+        # -------------------------------------------------
         display_cols = [
             "표시순위",
             channel_name_col,
@@ -3256,18 +3438,15 @@ with main_left:
             view_col,
             eng_col,
             action_col,
-            shortlist_type_col,
             recommend_col,
             caution_col,
-            change_col,
         ]
 
         display_cols = [c for c in display_cols if c and c in filtered.columns]
-
         table_df = filtered[display_cols].head(top_n).copy()
 
         display_rename_map = {
-            "표시순위": "현재 필터 기준 순위",
+            "표시순위": "순위",
             score_display_col: "영입 적합도 점수",
             channel_name_col: "채널명",
             segment_col: "주요 콘텐츠군",
@@ -3276,10 +3455,8 @@ with main_left:
             view_col: "최근 영상 평균 조회수",
             eng_col: "평균 참여율",
             action_col: "검토 단계",
-            shortlist_type_col: "shortlist 유형",
             recommend_col: "추천 사유",
             caution_col: "주의 사유",
-            change_col: "변화 요약",
         }
         display_rename_map = {k: v for k, v in display_rename_map.items() if k and k in table_df.columns}
         table_df = table_df.rename(columns=display_rename_map)
@@ -3287,10 +3464,290 @@ with main_left:
         if "영입 적합도 점수" in table_df.columns:
             table_df["영입 적합도 점수"] = pd.to_numeric(table_df["영입 적합도 점수"], errors="coerce").round(1)
 
-        st.dataframe(
-            table_df,
-            use_container_width=True,
-            hide_index=True,
+        def _plain_cell(value, default="-"):
+            if value is None:
+                return default
+            try:
+                if pd.isna(value):
+                    return default
+            except Exception:
+                pass
+            text_value = str(value).strip()
+            return text_value if text_value else default
+
+        def _safe_cell(value, default="-"):
+            return html_lib.escape(_plain_cell(value, default), quote=False)
+
+        def _short_text(value, limit=62):
+            text = _plain_cell(value, "")
+            if len(text) > limit:
+                return text[:limit].rstrip() + "…"
+            return text
+
+        def _score_class(value):
+            try:
+                score_v = float(value)
+            except Exception:
+                return "priority-score-low"
+            if score_v >= 75:
+                return "priority-score-high"
+            if score_v >= 65:
+                return "priority-score-mid"
+            return "priority-score-low"
+
+        # 주요 콘텐츠군 색상: 세부 콘텐츠 유형은 같은 계열의 더 짙은 색상으로 표시
+        def _segment_theme_class(text):
+            label = _plain_cell(text, "")
+            if any(k in label for k in ["버츄얼", "퍼포먼스", "버튜버", "VTuber"]):
+                return "seg-virtual"
+            if any(k in label for k in ["음악", "보이스", "커버", "성우", "더빙", "ASMR"]):
+                return "seg-music"
+            if any(k in label for k in ["창작", "비주얼", "코스프레", "일러스트"]):
+                return "seg-visual"
+            if any(k in label for k in ["게임", "실황", "롤", "로블록스", "발로란트"]):
+                return "seg-game"
+            if any(k in label for k in ["서브컬처", "토크", "팬덤"]):
+                return "seg-fandom"
+            return "seg-default"
+
+        def _segment_pill(text, kind="main"):
+            label = _safe_cell(text, "-")
+            raw = _plain_cell(text, "-")
+            base_cls = _segment_theme_class(raw)
+            depth_cls = "main-tag" if kind == "main" else "sub-tag"
+            return f'<span class="priority-tag {base_cls} {depth_cls}" title="{label}">{label}</span>'
+
+        def _action_pill(text):
+            label = _safe_cell(text, "-")
+            raw = _plain_cell(text, "-")
+            if "즉시" in raw:
+                cls = "action-immediate"
+            elif "성장" in raw:
+                cls = "action-growth"
+            elif "검증" in raw:
+                cls = "action-verify"
+            elif "제외" in raw:
+                cls = "action-exclude"
+            else:
+                cls = "action-hold"
+            return f'<span class="priority-action {cls}" title="{label}">{label}</span>'
+
+        def _make_note(row):
+            # 변화 요약/shortlist 유형은 TOP 테이블에서 제외. 비고는 추천/주의 사유 중심으로 축약.
+            rec = _short_text(row.get("추천 사유", ""), 72)
+            caution = _short_text(row.get("주의 사유", ""), 40)
+            if rec and caution:
+                return f"{rec} / 주의: {caution}"
+            if rec:
+                return rec
+            if caution:
+                return f"주의: {caution}"
+
+            seg_text = _plain_cell(row.get("주요 콘텐츠군", ""), "")
+            lower_text = _plain_cell(row.get("세부 콘텐츠 유형", ""), "")
+            view_text = _plain_cell(row.get("최근 영상 평균 조회수", ""), "")
+            eng_text = _plain_cell(row.get("평균 참여율", ""), "")
+            parts = []
+            if seg_text or lower_text:
+                parts.append(" · ".join([x for x in [seg_text, lower_text] if x]))
+            if view_text:
+                parts.append(f"최근 평균 조회수 {view_text}")
+            if eng_text:
+                parts.append(f"참여율 {eng_text}")
+            return " / ".join(parts) if parts else "필터 조건 기준 상위 후보"
+
+        st.markdown(
+            """
+            <style>
+            .priority-board-wrap {
+                width: 100%;
+                overflow: hidden;
+                border-radius: 16px;
+                border: 1px solid rgba(118, 242, 226, 0.18);
+                background: linear-gradient(180deg, rgba(12, 22, 39, 0.94), rgba(7, 13, 26, 0.98));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.22);
+                margin-top: 12px;
+                margin-bottom: 12px;
+            }
+            .priority-board {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                color: #efffff;
+                font-size: 13.5px;
+            }
+            .priority-board thead th {
+                background: rgba(255,255,255,0.055);
+                color: #d9e8f2;
+                font-size: 12.5px;
+                font-weight: 850;
+                padding: 9px 8px;
+                border-bottom: 1px solid rgba(255,255,255,0.10);
+                text-align: center;
+                white-space: nowrap;
+            }
+            .priority-board tbody td {
+                padding: 9px 8px;
+                border-bottom: 1px solid rgba(255,255,255,0.075);
+                vertical-align: middle;
+                text-align: center;
+            }
+            .priority-board tbody tr:last-child td { border-bottom: 0; }
+            .priority-board tbody tr:hover { background: rgba(118, 242, 226, 0.055); }
+            .priority-rank {
+                color: #eafcff;
+                font-weight: 950;
+                font-variant-numeric: tabular-nums;
+            }
+            .priority-name {
+                text-align: left !important;
+                font-weight: 900;
+                color: #ffffff;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+            .priority-name a { color: #ffffff; text-decoration: none; }
+            .priority-name a:hover { color: #78ffee; text-decoration: underline; text-underline-offset: 3px; }
+            .priority-score {
+                font-size: 16px;
+                font-weight: 950;
+                font-variant-numeric: tabular-nums;
+                text-shadow: 0 0 10px rgba(95,255,232,0.20);
+            }
+            .priority-score-high { color: #ff69d2; }
+            .priority-score-mid { color: #7cfff1; }
+            .priority-score-low { color: #ffd166; }
+            .priority-note {
+                text-align: left !important;
+                color: #c4d1dc;
+                font-size: 12px;
+                line-height: 1.35;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            .priority-board-top-chip {
+                display: inline-block;
+                padding: 7px 18px;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.95);
+                color: #111827;
+                font-size: 13px;
+                font-weight: 850;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+                margin: 2px 0 10px 0;
+            }
+            .priority-tag,
+            .priority-action {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                max-width: 150px;
+                padding: 5px 10px;
+                border-radius: 999px;
+                font-size: 11.5px;
+                font-weight: 900;
+                line-height: 1.05;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                border: 1px solid rgba(255,255,255,0.16);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 14px rgba(0,0,0,0.10);
+            }
+            .main-tag.seg-virtual { background: linear-gradient(135deg, rgba(245,158,11,.84), rgba(217,119,6,.58)); color:#fff4d8; }
+            .sub-tag.seg-virtual  { background: linear-gradient(135deg, rgba(180,83,9,.92), rgba(124,45,18,.72)); color:#ffe7bf; }
+            .main-tag.seg-music   { background: linear-gradient(135deg, rgba(99,102,241,.84), rgba(124,58,237,.58)); color:#eeeaff; }
+            .sub-tag.seg-music    { background: linear-gradient(135deg, rgba(76,29,149,.94), rgba(49,46,129,.75)); color:#e4dcff; }
+            .main-tag.seg-visual  { background: linear-gradient(135deg, rgba(236,72,153,.82), rgba(190,24,93,.58)); color:#ffe6f4; }
+            .sub-tag.seg-visual   { background: linear-gradient(135deg, rgba(157,23,77,.94), rgba(112,26,117,.72)); color:#ffd7ef; }
+            .main-tag.seg-game    { background: linear-gradient(135deg, rgba(14,165,233,.82), rgba(37,99,235,.58)); color:#e1f6ff; }
+            .sub-tag.seg-game     { background: linear-gradient(135deg, rgba(30,64,175,.94), rgba(15,23,42,.74)); color:#dbeafe; }
+            .main-tag.seg-fandom  { background: linear-gradient(135deg, rgba(20,184,166,.82), rgba(13,148,136,.58)); color:#dcfff8; }
+            .sub-tag.seg-fandom   { background: linear-gradient(135deg, rgba(15,118,110,.94), rgba(19,78,74,.74)); color:#ccfbf1; }
+            .main-tag.seg-default { background: linear-gradient(135deg, rgba(100,116,139,.78), rgba(51,65,85,.58)); color:#e9f0f8; }
+            .sub-tag.seg-default  { background: linear-gradient(135deg, rgba(71,85,105,.90), rgba(30,41,59,.76)); color:#e2e8f0; }
+            .priority-action { min-width: 64px; max-width: 95px; }
+            .action-immediate { background: linear-gradient(135deg, rgba(20,184,166,.70), rgba(13,148,136,.48)); color:#dffff9; }
+            .action-growth    { background: linear-gradient(135deg, rgba(124,58,237,.70), rgba(91,33,182,.48)); color:#efe7ff; }
+            .action-verify    { background: linear-gradient(135deg, rgba(245,158,11,.70), rgba(180,83,9,.48)); color:#fff2d2; }
+            .action-hold      { background: linear-gradient(135deg, rgba(100,116,139,.70), rgba(51,65,85,.48)); color:#e9f0f8; }
+            .action-exclude   { background: linear-gradient(135deg, rgba(148,85,255,.58), rgba(76,29,149,.46)); color:#eee7ff; }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        rows_html = []
+        for _, r in table_df.head(top_n).iterrows():
+            rank_text = _safe_cell(r.get("순위", "-"))
+            name_raw = _plain_cell(r.get("채널명", "-"), "-")
+            name_text = _safe_cell(name_raw)
+            channel_match = filtered[filtered[channel_name_col].astype(str) == str(name_raw)] if channel_name_col else pd.DataFrame()
+            channel_url = ""
+            if channel_url_col and not channel_match.empty and channel_url_col in channel_match.columns:
+                channel_url = str(channel_match.iloc[0].get(channel_url_col, "") or "").strip()
+            if is_valid_url(channel_url):
+                safe_url = html_lib.escape(channel_url, quote=True)
+                name_html = f'<a href="{safe_url}" target="_blank" rel="noopener noreferrer">{name_text}</a>'
+            else:
+                name_html = name_text
+
+            segment_html = _segment_pill(r.get("주요 콘텐츠군", "-"), kind="main")
+            lower_html = _segment_pill(r.get("세부 콘텐츠 유형", "-"), kind="sub")
+            action_html = _action_pill(r.get("검토 단계", "-"))
+            score_val = r.get("영입 적합도 점수", np.nan)
+            score_text = fmt_float(score_val, 1)
+            score_cls = _score_class(score_val)
+            note_text = html_lib.escape(_make_note(r), quote=False)
+
+            rows_html.append(
+                f"""
+                <tr>
+                    <td class="priority-rank">{rank_text}</td>
+                    <td class="priority-name">{name_html}</td>
+                    <td>{segment_html}</td>
+                    <td>{lower_html}</td>
+                    <td>{action_html}</td>
+                    <td class="priority-score {score_cls}">{score_text}</td>
+                    <td class="priority-note">{note_text}</td>
+                </tr>
+                """
+            )
+
+        st.markdown(
+            f"""
+            <div class="priority-board-top-chip">top 1~{min(top_n, len(table_df))}</div>
+            <div class="priority-board-wrap">
+                <table class="priority-board">
+                    <colgroup>
+                        <col style="width: 6%;">
+                        <col style="width: 17%;">
+                        <col style="width: 16%;">
+                        <col style="width: 15%;">
+                        <col style="width: 11%;">
+                        <col style="width: 10%;">
+                        <col style="width: 25%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>스트리머명</th>
+                            <th>주요 콘텐츠군</th>
+                            <th>세부 콘텐츠 유형</th>
+                            <th>검토단계</th>
+                            <th>점수</th>
+                            <th>비고</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {''.join(rows_html)}
+                    </tbody>
+                </table>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
         with st.expander("📘 테이블 읽는 법과 도출 가능한 인사이트", expanded=False):
@@ -3300,7 +3757,7 @@ with main_left:
                     <b>테이블 읽는 법</b><br>
                     현재 필터 조건에서 <b>검토 우선순위가 높은 후보</b>를 위에서부터 보여줍니다.
                     순위는 전체 후보군 고정 순위가 아니라, 사이드바 필터가 적용된 뒤 다시 매긴 <b>현재 화면 기준 순위</b>입니다.
-                    영입 적합도 점수뿐 아니라 주요 콘텐츠군, 세부 콘텐츠 유형, 구독자 수, 최근 영상 평균 조회수, 평균 참여율을 함께 보며 후보의 성격을 판단합니다.
+                    주요 콘텐츠군과 세부 콘텐츠 유형은 같은 계열 색상으로 묶어 표시하며, 세부 유형은 더 짙은 색으로 표시해 소속 관계를 빠르게 볼 수 있습니다.
                     <br><br>
                     <b>도출 가능한 인사이트</b><br>
                     상위권에 반복적으로 나타나는 콘텐츠군은 CIME가 우선 검토할 만한 후보 풀이 두꺼운 영역입니다.
