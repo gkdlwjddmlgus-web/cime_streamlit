@@ -5012,11 +5012,9 @@ selected_name = selected_options[0] if selected_options else None
 left_col, right_col = st.columns([0.58, 0.42], gap="small")
 
 with left_col:
-    title_col, switch_col = st.columns([0.38, 0.62], gap="small")
-    with title_col:
-        html('<div class="priority-inline-title">🏆 영입 우선순위 TOP</div>')
+    title_col, switch_col = st.columns([0.43, 0.57], gap="small")
     with switch_col:
-        st.markdown('<div class="priority-view-switch">', unsafe_allow_html=True)
+        st.markdown('<div class="priority-view-switch priority-view-switch-inline">', unsafe_allow_html=True)
         priority_view_mode = st.radio(
             "영입 우선순위 표 선택",
             ["영입 우선순위 TOP", "최근 순위 상승 후보"],
@@ -5026,6 +5024,10 @@ with left_col:
             label_visibility="collapsed",
         )
         st.markdown('</div>', unsafe_allow_html=True)
+
+    priority_title_label = "🏆 영입 우선순위 TOP" if priority_view_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
+    with title_col:
+        html(f'<div class="priority-inline-title">{priority_title_label}</div>')
 
     if priority_view_mode == "영입 우선순위 TOP":
         html(
@@ -5545,3 +5547,81 @@ with st.expander("영입 점수 설명", expanded=False):
         """,
         unsafe_allow_html=True,
     )
+# =========================================================
+# 추가 수정: 영입 우선순위/최근 상승 후보 전환 타이틀 동기화 + 같은 행 정렬 보정
+# =========================================================
+st.markdown(
+    """
+    <style>
+    .priority-inline-title {
+        min-height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 0 0 6px 2px !important;
+        margin: 0 !important;
+        color: #fff7ff !important;
+        font-size: 20px !important;
+        font-weight: 950 !important;
+        letter-spacing: -0.03em !important;
+        white-space: nowrap !important;
+    }
+
+    .priority-view-switch-inline,
+    .priority-view-switch {
+        min-height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        margin: 0 0 6px 0 !important;
+    }
+
+    .priority-view-switch-inline div[role="radiogroup"],
+    .priority-view-switch div[role="radiogroup"],
+    .priority-view-switch-inline .stRadio > div,
+    .priority-view-switch .stRadio > div {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .priority-view-switch-inline label,
+    .priority-view-switch label {
+        min-width: 150px !important;
+        max-width: 210px !important;
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 7px 14px !important;
+        border-radius: 999px !important;
+        background: rgba(255,255,255,0.055) !important;
+        border: 1px solid rgba(145,116,233,0.30) !important;
+        color: #ded7f5 !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+    }
+
+    .priority-view-switch-inline label:has(input:checked),
+    .priority-view-switch label:has(input:checked) {
+        background: linear-gradient(135deg, rgba(143,84,255,0.92), rgba(207,71,178,0.70)) !important;
+        border-color: rgba(221,160,255,0.56) !important;
+        box-shadow: 0 0 16px rgba(145, 93, 255, 0.24) !important;
+    }
+
+    .priority-view-switch-inline label p,
+    .priority-view-switch label p {
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
