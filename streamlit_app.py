@@ -3204,20 +3204,20 @@ add_section_divider()
 # =====================================================
 # 후보 운영 그래프 선택형 뷰
 # - 상위 콘텐츠별 점수 분포 / 검토 단계별 후보 수 /
-#   콘텐츠군별 평균 점수 / 콘텐츠군 구성 비율 중 1개만 표시
+#   콘텐츠군 평균 점수 / 콘텐츠군 구성 비율 중 1개만 표시
 # - 상위 콘텐츠군이 미분류인 후보는 콘텐츠 비교 그래프에서 제외
 # =====================================================
 
 st.markdown('<div class="section-card">', unsafe_allow_html=True)
 st.markdown("### 🌌 후보 운영 그래프")
-st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 넓게 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
+st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
 
 graph_view = st.radio(
     "그래프 유형 선택",
     [
         "상위 콘텐츠별 영입 후보 점수 분포",
         "검토 단계별 후보 수",
-        "콘텐츠군별 평균 영입 점수",
+        "콘텐츠군 평균 영입 점수",
         "콘텐츠군 구성 비율",
     ],
     index=0,
@@ -3426,8 +3426,8 @@ elif graph_view == "검토 단계별 후보 수":
     else:
         st.info("액션버킷 컬럼이 없어 시각화를 만들 수 없습니다.")
 
-elif graph_view == "콘텐츠군별 평균 영입 점수":
-    st.markdown("#### ✨ 콘텐츠군별 평균 영입 점수")
+elif graph_view == "콘텐츠군 평균 영입 점수":
+    st.markdown("#### ✨ 콘텐츠군 평균 영입 점수")
     if segment_col and score_display_col and segment_col in classified_filtered.columns and score_display_col in classified_filtered.columns and not classified_filtered.empty:
         seg_score_df = classified_filtered.copy()
         seg_score_df["__score__"] = pd.to_numeric(seg_score_df[score_display_col], errors="coerce")
@@ -3469,7 +3469,7 @@ elif graph_view == "콘텐츠군별 평균 영입 점수":
         st.plotly_chart(fig_seg_score, use_container_width=True)
         st.caption(f"해석 포인트: 어떤 상위 콘텐츠군이 평균적으로 높은 영입 적합도를 보이는지 비교합니다. 단, 후보 수가 적은 콘텐츠군은 평균이 쉽게 흔들릴 수 있습니다. 미분류 후보 {unclassified_filtered_count:,}명은 제외했습니다.")
     else:
-        st.info("콘텐츠군별 평균 점수를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
+        st.info("콘텐츠군 평균 점수를 만들기 위해서는 대표상위세그먼트 컬럼과 최종점수 컬럼이 필요합니다.")
 
 elif graph_view == "콘텐츠군 구성 비율":
     st.markdown("#### 🪐 콘텐츠군 구성 비율")
