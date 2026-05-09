@@ -4923,7 +4923,7 @@ with main_left:
             """
         )
 
-        with st.expander("📘 테이블 읽는 법과 도출 가능한 인사이트", expanded=False):
+        with st.expander("📘 테이블 설명", expanded=False):
             st.markdown(
                 """
                 <div class="guide-box">
@@ -5046,7 +5046,7 @@ with main_right:
 
 st.markdown("<br>", unsafe_allow_html=True)
 add_section_divider()
-st.markdown("### 📊 후보군 비교 그래프")
+st.markdown("### 📊 종합 분석 그래프")
 st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 넓게 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
 
 graph_view = st.radio(
