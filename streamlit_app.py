@@ -2464,64 +2464,6 @@ channel_name_col = first_existing(df, ["채널명", "channel_title", "채널명_
 channel_thumbnail_col = first_existing(df, ["channel_thumbnail_url", "채널썸네일URL", "채널프로필이미지URL", "thumbnail_url"])
 channel_url_col = first_existing(df, ["channel_url", "채널URL", "youtube_channel_url", "유튜브채널URL"])
 
-# 배포 후 썸네일 적용 상태 확인용. 기본은 접힘 상태라 화면을 방해하지 않는다.
-with st.sidebar.expander("썸네일 적용 상태", expanded=False):
-    st.write("후보 CSV 경로:", str(CANDIDATE_DASHBOARD_PATH))
-    st.write("썸네일 컬럼:", channel_thumbnail_col or "없음")
-    st.write("채널 URL 컬럼:", channel_url_col or "없음")
-    if channel_thumbnail_col and channel_thumbnail_col in df.columns:
-        thumb_count = df[channel_thumbnail_col].astype(str).str.startswith(("http://", "https://"), na=False).sum()
-        st.write(f"썸네일 URL 보유 행: {thumb_count:,} / {len(df):,}")
-        sample_urls = df.loc[df[channel_thumbnail_col].astype(str).str.startswith(("http://", "https://"), na=False), channel_thumbnail_col].head(3).tolist()
-        if sample_urls:
-            st.caption("샘플 URL")
-            for u in sample_urls:
-                st.code(str(u)[:120] + ("..." if len(str(u)) > 120 else ""), language=None)
-    else:
-        st.warning("현재 읽힌 후보 CSV에 channel_thumbnail_url 컬럼이 없습니다. 배포 repo의 10_dashboard/data/dashboard_candidate_table.csv를 다시 확인하세요.")
-
-rank_col = first_existing(df, ["운영우선순위", "최종순위", "rank", "순위"])
-score_col = first_existing(df, ["최종점수", "위성점수_log_minmax", "final_score", "score"])
-action_col = first_existing(df, ["액션버킷", "action_bucket"])
-segment_col = first_existing(df, ["대표상위세그먼트", "대표세그먼트", "segment", "대표상위세그먼트명"])
-lower_segment_col = first_existing(df, ["대표하위세그먼트", "sub_segment", "대표하위세그먼트명"])
-shortlist_col = first_existing(df, ["shortlist_선정여부", "shortlist", "shortlisted"])
-shortlist_type_col = first_existing(df, ["shortlist_유형", "shortlist_type"])
-
-subs_col = first_existing(df, ["채널구독자수", "subscriber_count", "구독자수"])
-view_col = first_existing(df, ["최근영상조회수평균", "avg_recent_views", "최근조회수평균"])
-eng_col = first_existing(df, ["최근영상참여율평균", "avg_engagement_rate", "참여율"])
-growth_col = first_existing(df, ["성장성점수", "growth_score"])
-fan_col = first_existing(df, ["팬밀도점수", "fan_density_score"])
-live_col = first_existing(df, ["라이브친화점수", "live_fit_score"])
-practical_col = first_existing(df, ["실전성점수", "practical_score"])
-channel_power_col = first_existing(df, ["채널력점수", "channel_power_score"])
-
-recommend_col = first_existing(df, ["추천사유", "recommend_reason"])
-caution_col = first_existing(df, ["주의사유", "caution_reason"])
-basis_col = first_existing(df, ["자동판정근거", "판정근거"])
-change_col = first_existing(df, ["변화요약", "change_summary"])
-
-risk_col = first_existing(df, ["운영제외리스크", "operation_exclusion_risk"])
-verify_risk_col = first_existing(df, ["검증필요리스크", "verification_risk"])
-
-numeric_candidates = [
-    rank_col,
-    score_col,
-    subs_col,
-    view_col,
-    eng_col,
-    growth_col,
-    fan_col,
-    live_col,
-    practical_col,
-    channel_power_col,
-    risk_col,
-    verify_risk_col,
-]
-
-df = to_numeric_if_exists(df, numeric_candidates)
-
 # =========================================================
 # 최종점수 100점 기준 표시 컬럼 생성
 # - 원본 최종점수가 0~1이면 100점 환산
@@ -2583,7 +2525,7 @@ search_text = ""
 
 def _filter_widget_container():
     """스타시드 필터용 드롭다운 컨테이너."""
-    return st.sidebar.expander("🌱 스타시드 필터", expanded=False)
+    return st.sidebar.expander("스타시드 필터", expanded=False)
 
 with _filter_widget_container() as filter_panel:
     filter_panel.caption("상위 콘텐츠군, 검토 단계, 점수·규모 조건으로 후보군을 좁혀봅니다.")
@@ -2693,7 +2635,7 @@ filtered["표시순위"] = np.arange(1, len(filtered) + 1)
 # =========================================================
 
 st.sidebar.markdown("---")
-change_panel = st.sidebar.expander("🛰 변화 추적 기준", expanded=False)
+change_panel = st.sidebar.expander("변화 추적 기준", expanded=False)
 change_panel.caption("snapshot 기준 시점과 현재/비교 시점을 선택해 후보 변화량을 계산합니다.")
 
 tracking_base_df = pd.DataFrame()
@@ -2783,22 +2725,6 @@ if not snapshot_prepared_df.empty:
 else:
     change_panel.warning("snapshot 파일이 없거나 날짜 컬럼을 찾지 못했습니다.")
 
-st.sidebar.markdown("---")
-if st.sidebar.button("데이터 새로고침"):
-    st.cache_data.clear()
-    st.rerun()
-
-with st.sidebar.expander("최신 파이프라인 결과 반영 방법", expanded=False):
-    st.markdown(
-        """
-        1. 로컬 원본 프로젝트에서 최신 파이프라인을 실행합니다.  
-        2. 생성된 `10_dashboard/data/*.csv`, `11_final/core_output/*.csv`, `09_intermediate/snapshots/*.csv`를 배포용 repo에 복사합니다.  
-        3. GitHub에 commit/push합니다.  
-        4. Streamlit Cloud에서 자동 재배포 후, 필요 시 `데이터 새로고침`으로 캐시를 비웁니다.  
-
-        이 대시보드는 API를 직접 실행하지 않고, 파이프라인 산출 CSV를 읽는 조회형 구조입니다.
-        """
-    )
 
 
 # =========================================================
