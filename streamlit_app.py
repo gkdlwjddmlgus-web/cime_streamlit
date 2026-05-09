@@ -1429,6 +1429,40 @@ st.markdown(
             filter: drop-shadow(0 0 10px rgba(255,255,255,0.35));
         }
 
+        .content-avatar-img {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .content-avatar.has-profile-img {
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, rgba(95,255,232,0.20), rgba(72,18,167,0.30));
+            border: 1px solid rgba(95,255,232,0.46);
+            box-shadow: 0 0 24px rgba(95,255,232,0.22), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+
+        .content-avatar.has-profile-img::before,
+        .content-avatar.has-profile-img::after {
+            display: none;
+        }
+
+        .candidate-name a,
+        .detail-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .candidate-name a:hover,
+        .detail-title a:hover {
+            color: #78ffee;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
         .avatar-voice { background: linear-gradient(135deg, #5fffe8 0%, #3b82f6 55%, #6d5dfc 100%); }
         .avatar-cover { background: linear-gradient(135deg, #9dffb0 0%, #21d4a7 50%, #1b7ef3 100%); }
         .avatar-vtuber { background: linear-gradient(135deg, #c084fc 0%, #7c3aed 50%, #f472b6 100%); }
@@ -1964,6 +1998,42 @@ def get_content_avatar_html(segment, lower_segment):
     return f'<div class="content-avatar {css_class}" title="{safe_label}"><span class="content-avatar-icon">{icon}</span></div>'
 
 
+def is_valid_url(value) -> bool:
+    if pd.isna(value):
+        return False
+    text_value = str(value).strip()
+    if not text_value or text_value.lower() in ["nan", "none", "null", "-"]:
+        return False
+    return text_value.startswith("http://") or text_value.startswith("https://")
+
+
+def get_candidate_avatar_html(row, segment_col=None, lower_segment_col=None, thumbnail_col=None):
+    """
+    후보 카드 이미지 HTML 생성.
+    1순위: YouTube 채널 프로필 이미지 URL(channel_thumbnail_url)
+    2순위: 세부 콘텐츠 유형 기반 fallback 아이콘
+    """
+    thumbnail_url = row.get(thumbnail_col, "") if thumbnail_col else ""
+
+    if is_valid_url(thumbnail_url):
+        safe_url = html_lib.escape(str(thumbnail_url).strip(), quote=True)
+        return f'<div class="content-avatar has-profile-img" title="YouTube 채널 프로필 이미지"><img src="{safe_url}" class="content-avatar-img" loading="lazy" referrerpolicy="no-referrer"></div>'
+
+    segment = row.get(segment_col, "-") if segment_col else "-"
+    lower_segment = row.get(lower_segment_col, "") if lower_segment_col else ""
+    return get_content_avatar_html(segment, lower_segment)
+
+
+def make_channel_name_html(name, url=""):
+    safe_name = html_lib.escape(str(name) if str(name).strip() else "-", quote=False)
+
+    if is_valid_url(url):
+        safe_url = html_lib.escape(str(url).strip(), quote=True)
+        return f'<a href="{safe_url}" target="_blank" rel="noopener noreferrer" title="YouTube 채널 열기">{safe_name}</a>'
+
+    return safe_name
+
+
 def color_by_segment(seg):
     s = str(seg)
     if "영입제한" in s:
@@ -2361,6 +2431,8 @@ df = candidate_df.copy()
 
 channel_id_col = first_existing(df, ["채널ID", "channel_id"])
 channel_name_col = first_existing(df, ["채널명", "channel_title", "채널명_clean"])
+channel_thumbnail_col = first_existing(df, ["channel_thumbnail_url", "채널썸네일URL", "채널프로필이미지URL", "thumbnail_url"])
+channel_url_col = first_existing(df, ["channel_url", "채널URL", "youtube_channel_url", "유튜브채널URL"])
 rank_col = first_existing(df, ["운영우선순위", "최종순위", "rank", "순위"])
 score_col = first_existing(df, ["최종점수", "위성점수_log_minmax", "final_score", "score"])
 action_col = first_existing(df, ["액션버킷", "action_bucket"])
@@ -2931,14 +3003,16 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
 
         pill_text = action if str(action).strip() else segment
         sub_pill = lower_segment if str(lower_segment).strip() else segment
-        avatar_html = get_content_avatar_html(segment, lower_segment)
+        avatar_html = get_candidate_avatar_html(row, segment_col, lower_segment_col, channel_thumbnail_col)
+        channel_url = row.get(channel_url_col, "") if channel_url_col else ""
+        candidate_name_html = make_channel_name_html(name, channel_url)
 
         st.markdown(
             f"""
             <div class="candidate-card">
                 <div class="rank-badge">{fmt_int(rank_value)}</div>
                 {avatar_html}
-                <div class="candidate-name">{name}</div>
+                <div class="candidate-name">{candidate_name_html}</div>
                 <div style="text-align:center;">
                     <span class="segment-pill">{pill_text}</span>
                 </div>
@@ -3075,9 +3149,12 @@ with main_right:
                         text_value = "-"
                     return text_value if len(text_value) <= limit else text_value[:limit].rstrip() + "..."
 
+                selected_channel_url = selected_row.get(channel_url_col, "") if channel_url_col else ""
+                selected_name_html = make_channel_name_html(selected_row.get(channel_name_col, "-"), selected_channel_url)
+
                 st.markdown(
                     f"""
-                    <div class="detail-title">{selected_row.get(channel_name_col, '-')}</div>
+                    <div class="detail-title">{selected_name_html}</div>
                     """,
                     unsafe_allow_html=True,
                 )
