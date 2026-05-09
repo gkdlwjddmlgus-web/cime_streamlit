@@ -1202,10 +1202,10 @@ st.markdown(
         .field-value { color: #EDE5FF; font-size: 12px; line-height: 1.5; }
         .empty-guide, .page-panel { margin-top: 22px; padding: 18px 20px; border-radius: 18px; background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.10); color: #D9CFE8; text-align: center; }
         .dashboard-mode-label { color: #98FFAB; font-size: 14px; font-weight: 900; letter-spacing: 1.4px; margin-bottom: 4px; }
-        .starseed-hero { text-align: center; padding: 0 0 0 0; margin-top: -34px; margin-bottom: 8px; }
-        .starseed-title { font-size: 72px; font-weight: 950; letter-spacing: 10px; color: #FFF8FF; text-shadow: 0 0 30px rgba(152,255,171,0.30); line-height: 1.02; }
-        .starseed-subtitle { color: #C6BBD9; font-size: 18px; font-weight: 760; margin-top: 8px; }
-        .starseed-banner { display: none !important; }
+        .starseed-hero { text-align: center; padding: 0 0 4px 0; margin-top: -18px; }
+        .starseed-title { font-size: 66px; font-weight: 950; letter-spacing: 9px; color: #FFF8FF; text-shadow: 0 0 30px rgba(152,255,171,0.30); }
+        .starseed-subtitle { color: #C6BBD9; font-size: 17px; font-weight: 760; margin-top: 6px; }
+        .starseed-banner { background: rgba(21,16,47,.72); border: 1px solid rgba(152,255,171,.22); border-radius: 20px; padding: 18px 24px; margin: 18px 0 20px 0; box-shadow: 0 0 30px rgba(125,66,255,.10); }
 
         @media (max-width: 1100px) {
             .hero-title { font-size: 42px; letter-spacing: 5px; }
@@ -1553,57 +1553,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-# =========================================================
-# 1-10. 상단 헤더 및 섹션 여백 압축
-# - STAR SEED 타이틀/부제만 남긴 상태에서 전체 세로 여백을 줄임
-# =========================================================
-
-st.markdown(
-    clean_html(
-        """
-        <style>
-        .block-container {
-            padding-top: 0.85rem !important;
-            padding-bottom: 2.2rem !important;
-        }
-
-        .starseed-hero {
-            margin-top: -38px !important;
-            margin-bottom: 8px !important;
-            padding-bottom: 0 !important;
-        }
-
-        .starseed-title {
-            font-size: 72px !important;
-            line-height: 1.02 !important;
-            margin-bottom: 0 !important;
-        }
-
-        .starseed-subtitle {
-            margin-top: 8px !important;
-            margin-bottom: 4px !important;
-        }
-
-        .section-divider {
-            margin: 16px 0 12px 0 !important;
-        }
-
-        .section-card {
-            padding-top: 18px !important;
-            padding-bottom: 18px !important;
-        }
-
-        div[data-testid="stVerticalBlock"] > div:has(> .element-container .section-divider) {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-        }
-        </style>
-        """
-    ),
-    unsafe_allow_html=True,
-)
-
 st.markdown(
     f'<div class="star-layer">{st.session_state.bg_html}</div><div class="orbit-bg"></div>',
     unsafe_allow_html=True,
@@ -1751,6 +1700,44 @@ st.markdown(
             border-color: rgba(118,242,226,0.20) !important;
             background: rgba(7,18,34,0.46) !important;
             border-radius: 18px !important;
+        }
+
+        .selected-profile-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 16px 0 8px 0;
+        }
+
+        .selected-profile-img-wrap {
+            width: 104px;
+            height: 104px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid rgba(95,255,232,0.50);
+            box-shadow: 0 0 28px rgba(95,255,232,0.22), inset 0 1px 0 rgba(255,255,255,0.20);
+            background: radial-gradient(circle at 35% 30%, rgba(95,255,232,0.28), rgba(72,18,167,0.38));
+        }
+
+        .selected-profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .selected-profile-fallback {
+            width: 104px;
+            height: 104px;
+            transform: scale(1.18);
+            margin: 0 auto;
+        }
+
+        .detail-title-centered {
+            text-align: center;
+            font-size: 28px !important;
+            margin: 10px 0 16px 0 !important;
         }
 
         </style>
@@ -2443,6 +2430,24 @@ def get_candidate_avatar_html(row, segment_col=None, lower_segment_col=None, thu
     segment = row.get(segment_col, "-") if segment_col else "-"
     lower_segment = row.get(lower_segment_col, "") if lower_segment_col else ""
     return get_content_avatar_html(segment, lower_segment)
+
+
+def get_selected_profile_html(row, segment_col=None, lower_segment_col=None, thumbnail_col=None):
+    """
+    선택 후보 상세용 프로필 이미지 HTML.
+    1순위는 YouTube 채널 프로필 이미지, 없으면 콘텐츠 유형 fallback 아이콘을 가운데 표시한다.
+    """
+    thumbnail_url = row.get(thumbnail_col, "") if thumbnail_col else ""
+    if is_valid_url(thumbnail_url):
+        safe_url = html_lib.escape(str(thumbnail_url).strip(), quote=True)
+        return (
+            '<div class="selected-profile-img-wrap" title="YouTube 채널 프로필 이미지">'
+            f'<img src="{safe_url}" class="selected-profile-img" loading="lazy" referrerpolicy="no-referrer">'
+            '</div>'
+        )
+
+    fallback_html = get_candidate_avatar_html(row, segment_col, lower_segment_col, thumbnail_col=None)
+    return f'<div class="selected-profile-fallback">{fallback_html}</div>'
 
 
 def make_channel_name_html(name, url=""):
@@ -3181,11 +3186,20 @@ else:
 # 7. 헤더
 # =========================================================
 
+now_kst = datetime.now(ZoneInfo("Asia/Seoul"))
 st.markdown(
-    """
+    f"""
     <div class="starseed-hero">
+        <div class="dashboard-mode-label">PHASE 02 · STAR SEED</div>
         <div class="starseed-title">STAR SEED</div>
         <div class="starseed-subtitle">유튜브 기반 잠재 후보군 영입 분석 대시보드</div>
+    </div>
+    <div class="starseed-banner">
+        <div class="mission-desc" style="max-width: 980px; margin: 0 auto; text-align: center;">
+            YouTube Data API 기반 후보 데이터를 바탕으로 성장성, 팬 반응, 라이브 전환 가능성, 영입 현실성을 종합해
+            CIME가 검토할 잠재 스트리머 후보를 탐색합니다.<br>
+            <span class="mission-time-pill" style="margin-top: 12px; display: inline-block;">🟢 데이터 정상 로드 · 마지막 화면 갱신(KST): {now_kst.strftime('%Y-%m-%d %H:%M:%S')}</span>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -3527,15 +3541,8 @@ with main_left:
             return text
 
         def _score_class(value):
-            try:
-                score_v = float(value)
-            except Exception:
-                return "priority-score-low"
-            if score_v >= 75:
-                return "priority-score-high"
-            if score_v >= 65:
-                return "priority-score-mid"
-            return "priority-score-low"
+            # 점수 색상은 전체 순위에서 동일한 강조색으로 통일한다.
+            return "priority-score-main"
 
         # 주요 콘텐츠군 색상: 세부 콘텐츠 유형은 같은 계열의 더 짙은 색상으로 표시
         def _segment_theme_class(text):
@@ -3616,7 +3623,7 @@ with main_left:
                 border-collapse: collapse;
                 table-layout: fixed;
                 color: #efffff;
-                font-size: 13.5px;
+                font-size: 13.2px;
             }
             .priority-board thead th {
                 background: rgba(255,255,255,0.055);
@@ -3629,7 +3636,7 @@ with main_left:
                 white-space: nowrap;
             }
             .priority-board tbody td {
-                padding: 9px 8px;
+                padding: 10px 8px;
                 border-bottom: 1px solid rgba(255,255,255,0.075);
                 vertical-align: middle;
                 text-align: center;
@@ -3655,11 +3662,13 @@ with main_left:
                 font-size: 16px;
                 font-weight: 950;
                 font-variant-numeric: tabular-nums;
-                text-shadow: 0 0 10px rgba(95,255,232,0.20);
+                color: #7cfff1;
+                text-shadow: 0 0 10px rgba(95,255,232,0.32);
             }
-            .priority-score-high { color: #ff69d2; }
-            .priority-score-mid { color: #7cfff1; }
-            .priority-score-low { color: #ffd166; }
+            .priority-score-main,
+            .priority-score-high,
+            .priority-score-mid,
+            .priority-score-low { color: #7cfff1; }
             .priority-note {
                 text-align: left !important;
                 color: #c4d1dc;
@@ -3686,7 +3695,7 @@ with main_left:
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                max-width: 150px;
+                max-width: 138px;
                 padding: 5px 10px;
                 border-radius: 999px;
                 font-size: 11.5px;
@@ -3742,8 +3751,6 @@ with main_left:
             score_val = r.get("영입 적합도 점수", np.nan)
             score_text = fmt_float(score_val, 1)
             score_cls = _score_class(score_val)
-            note_text = html_lib.escape(_make_note(r), quote=False)
-
             rows_html.append(
                 f"""
                 <tr>
@@ -3753,24 +3760,22 @@ with main_left:
                     <td>{lower_html}</td>
                     <td>{action_html}</td>
                     <td class="priority-score {score_cls}">{score_text}</td>
-                    <td class="priority-note">{note_text}</td>
                 </tr>
                 """
             )
 
-        st.markdown(
+        html(
             f"""
             <div class="priority-board-top-chip">top 1~{min(top_n, len(table_df))}</div>
             <div class="priority-board-wrap">
                 <table class="priority-board">
                     <colgroup>
-                        <col style="width: 6%;">
+                        <col style="width: 7%;">
+                        <col style="width: 21%;">
+                        <col style="width: 20%;">
+                        <col style="width: 20%;">
                         <col style="width: 17%;">
-                        <col style="width: 16%;">
                         <col style="width: 15%;">
-                        <col style="width: 11%;">
-                        <col style="width: 10%;">
-                        <col style="width: 25%;">
                     </colgroup>
                     <thead>
                         <tr>
@@ -3780,7 +3785,6 @@ with main_left:
                             <th>세부 콘텐츠 유형</th>
                             <th>검토단계</th>
                             <th>점수</th>
-                            <th>비고</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3788,8 +3792,7 @@ with main_left:
                     </tbody>
                 </table>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
         with st.expander("📘 테이블 읽는 법과 도출 가능한 인사이트", expanded=False):
@@ -3845,12 +3848,15 @@ with main_right:
 
                 selected_channel_url = selected_row.get(channel_url_col, "") if channel_url_col else ""
                 selected_name_html = make_channel_name_html(selected_row.get(channel_name_col, "-"), selected_channel_url)
+                selected_profile_html = get_selected_profile_html(selected_row, segment_col, lower_segment_col, channel_thumbnail_col)
 
-                st.markdown(
+                html(
                     f"""
-                    <div class="detail-title">{selected_name_html}</div>
-                    """,
-                    unsafe_allow_html=True,
+                    <div class="selected-profile-area">
+                        {selected_profile_html}
+                    </div>
+                    <div class="detail-title detail-title-centered">{selected_name_html}</div>
+                    """
                 )
 
                 metric_cols = st.columns(2)
