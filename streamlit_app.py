@@ -1222,6 +1222,125 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+
+# =========================================================
+# 1-7. KPI / Sidebar filter color refinement
+# - 필터 선택 태그·체크박스·슬라이더의 붉은색을 보라 계열로 통일
+# - KPI 카드 하단 설명 제거 후 라벨/값/증감 표시를 크게 조정
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        /* KPI card: 하단 설명이 사라진 만큼 라벨/값을 키우고 여백 재정렬 */
+        .kpi-card {
+            min-height: 158px !important;
+            padding: 25px 26px 22px 26px !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .kpi-label {
+            font-size: 15.5px !important;
+            font-weight: 850 !important;
+            color: #d6e6f0 !important;
+            margin-bottom: 13px !important;
+        }
+
+        .kpi-value {
+            font-size: 43px !important;
+            line-height: 1.05 !important;
+            font-weight: 950 !important;
+            margin: 0 0 14px 0 !important;
+            letter-spacing: -0.04em;
+        }
+
+        .kpi-delta {
+            width: fit-content;
+            margin-top: 0 !important;
+            padding: 5px 10px !important;
+            font-size: 13px !important;
+            border-radius: 999px;
+            background: rgba(158, 104, 255, 0.16) !important;
+            border: 1px solid rgba(191, 154, 255, 0.22);
+        }
+
+        .kpi-up {
+            color: #f2c7ff !important;
+        }
+
+        .kpi-down {
+            color: #b7a4ff !important;
+        }
+
+        .kpi-flat {
+            color: #d7cef8 !important;
+        }
+
+        /* Streamlit multiselect 선택 태그: 기본 빨강 제거 → 보라/라벤더 계열 */
+        section[data-testid="stSidebar"] [data-baseweb="tag"] {
+            background: linear-gradient(135deg, rgba(130, 83, 255, 0.95), rgba(184, 98, 255, 0.92)) !important;
+            border: 1px solid rgba(224, 195, 255, 0.45) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 12px rgba(151, 93, 255, 0.18) !important;
+        }
+
+        section[data-testid="stSidebar"] [data-baseweb="tag"] span,
+        section[data-testid="stSidebar"] [data-baseweb="tag"] svg,
+        section[data-testid="stSidebar"] [data-baseweb="tag"] path {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+
+        /* multiselect clear / dropdown icon 영역도 보라 톤에 맞춤 */
+        section[data-testid="stSidebar"] [data-baseweb="select"] svg,
+        section[data-testid="stSidebar"] [data-baseweb="select"] path {
+            color: #e8ddff !important;
+            fill: #e8ddff !important;
+        }
+
+        /* 체크박스 선택 색상 보정 */
+        section[data-testid="stSidebar"] [data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"] {
+            background-color: #8b5cf6 !important;
+            border-color: #c4b5fd !important;
+        }
+
+        section[data-testid="stSidebar"] [data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"] svg,
+        section[data-testid="stSidebar"] [data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"] path {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+
+        /* slider accent: 가능한 Streamlit/Baseweb 구조를 넓게 커버 */
+        section[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div {
+            border-color: rgba(183, 148, 255, 0.62) !important;
+        }
+
+        section[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="slider"] {
+            background-color: #a78bfa !important;
+            border-color: #ddd6fe !important;
+            box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.20), 0 0 12px rgba(167, 139, 250, 0.30) !important;
+        }
+
+        section[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div {
+            background-color: rgba(167, 139, 250, 0.70) !important;
+        }
+
+        /* number input plus/minus button 보라 톤 유지 */
+        section[data-testid="stSidebar"] .stNumberInput button {
+            background: linear-gradient(135deg, rgba(63, 39, 122, 0.98), rgba(25, 18, 62, 0.98)) !important;
+            border-color: rgba(167, 139, 250, 0.50) !important;
+            color: #f4f0ff !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
 st.markdown(
     f'<div class="star-layer">{st.session_state.bg_html}</div><div class="orbit-bg"></div>',
     unsafe_allow_html=True,
@@ -1972,7 +2091,6 @@ def render_kpi_card(label, value, sub, delta=None, value_suffix="", value_ndigit
             <div class="kpi-label">{label}</div>
             <div class="kpi-value">{value_text}</div>
             {delta_html}
-            <div class="kpi-sub">{sub}</div>
         </div>
         """,
         unsafe_allow_html=True,
