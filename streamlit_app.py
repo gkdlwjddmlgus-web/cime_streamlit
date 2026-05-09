@@ -3716,7 +3716,7 @@ with main_left:
                 """
             )
 
-        st.markdown(
+        html(
             f"""
             <div class="priority-board-top-chip">top 1~{min(top_n, len(table_df))}</div>
             <div class="priority-board-wrap">
@@ -3746,8 +3746,7 @@ with main_left:
                     </tbody>
                 </table>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
         with st.expander("📘 테이블 읽는 법과 도출 가능한 인사이트", expanded=False):
