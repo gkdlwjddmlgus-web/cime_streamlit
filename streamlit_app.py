@@ -5469,6 +5469,46 @@ st.markdown(
     .graph-header-title + div {
         margin: 0 !important;
     }
+
+    /* 후보군 비교 그래프: 상단 여백 축소 + 설명 텍스트 가독성 보강 */
+    div[data-testid="stHorizontalBlock"]:has(.graph-header-title) {
+        margin-top: -18px !important;
+        margin-bottom: 4px !important;
+    }
+
+    div[data-testid="stHorizontalBlock"]:has(.graph-header-title) + div {
+        margin-top: 0 !important;
+    }
+
+    .graph-explain {
+        padding: 16px 8px 4px 8px !important;
+        min-height: 258px !important;
+        box-sizing: border-box !important;
+    }
+
+    .graph-explain-title {
+        color: #fff8ff !important;
+        font-size: 22px !important;
+        font-weight: 950 !important;
+        line-height: 1.25 !important;
+        margin: 0 0 18px 0 !important;
+        letter-spacing: -0.04em !important;
+        text-shadow: 0 0 12px rgba(180, 120, 255, 0.28) !important;
+    }
+
+    .graph-explain-text {
+        color: #c9c0dc !important;
+        font-size: 13.5px !important;
+        line-height: 1.9 !important;
+        font-weight: 650 !important;
+        word-break: keep-all !important;
+        max-width: 245px !important;
+    }
+
+    /* Plotly 차트 카드와 설명 영역의 높이감을 맞추고 하단 공백을 줄임 */
+    .stPlotlyChart {
+        min-height: 282px !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
