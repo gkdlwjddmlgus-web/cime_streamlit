@@ -5921,15 +5921,15 @@ st.markdown(
     """
     <style>
     .candidate-select-top-spacer {
-        height: 18px !important;
-        min-height: 18px !important;
+        height: 6px !important;
+        min-height: 6px !important;
         margin: 0 !important;
         padding: 0 !important;
     }
 
     div.element-container:has(.candidate-select-top-spacer) {
-        height: 18px !important;
-        min-height: 18px !important;
+        height: 6px !important;
+        min-height: 6px !important;
         margin: 0 !important;
         padding: 0 !important;
     }
