@@ -1304,7 +1304,7 @@ st.markdown(
         """
         <style>
         .compact-detail-card {
-            min-height: 620px;
+            min-height: 0px;
         }
 
         .compact-detail-card div[data-testid="stMetric"] {
@@ -1362,6 +1362,12 @@ st.markdown(
             height: 1px;
             background: linear-gradient(90deg, transparent, rgba(152,255,171,0.42), rgba(199,168,255,0.24), transparent);
             margin: 24px 0 18px 0;
+        }
+
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            border-color: rgba(118,242,226,0.20) !important;
+            background: rgba(7,18,34,0.46) !important;
+            border-radius: 18px !important;
         }
 
         </style>
@@ -2840,159 +2846,151 @@ st.markdown("<br>", unsafe_allow_html=True)
 add_section_divider()
 # =========================================================
 # 10. 본문 레이아웃
+# - 좌측에는 영입 우선순위 TOP 표
+# - 우측에는 선택 후보 상세를 같은 높이 라인에 배치
+# - 기존처럼 빈 section-card div가 먼저 렌더링되는 문제를 피하기 위해
+#   우측 상세는 st.container(border=True)로 직접 감싼다.
 # =========================================================
 
-main_left, main_right = st.columns([0.68, 0.32])
+main_left, main_right = st.columns([0.68, 0.32], gap="large")
 
 
 # =========================================================
-# 10-1. 좌측: 테이블 + 세그먼트별 점수 분포
+# 10-1. 좌측: 영입 우선순위 TOP 표
 # =========================================================
 
 with main_left:
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown("### 🛰️ 영입 우선순위 TOP")
-    st.caption("현재 필터 조건에서 검토 우선순위가 높은 후보를 보여줍니다. 표의 순위는 전체 원본 순위가 아니라 현재 필터 결과 기준입니다.")
+    with st.container(border=True):
+        st.markdown("### 🛰️ 영입 우선순위 TOP")
+        st.caption("현재 필터 조건에서 검토 우선순위가 높은 후보를 보여줍니다. 표의 순위는 전체 원본 순위가 아니라 현재 필터 결과 기준입니다.")
 
-    display_cols = [
-        "표시순위",
-        channel_name_col,
-        segment_col,
-        lower_segment_col,
-        score_display_col,
-        subs_col,
-        view_col,
-        eng_col,
-        action_col,
-        shortlist_type_col,
-        recommend_col,
-        caution_col,
-        change_col,
-    ]
+        display_cols = [
+            "표시순위",
+            channel_name_col,
+            segment_col,
+            lower_segment_col,
+            score_display_col,
+            subs_col,
+            view_col,
+            eng_col,
+            action_col,
+            shortlist_type_col,
+            recommend_col,
+            caution_col,
+            change_col,
+        ]
 
-    display_cols = [c for c in display_cols if c and c in filtered.columns]
+        display_cols = [c for c in display_cols if c and c in filtered.columns]
 
-    table_df = filtered[display_cols].head(top_n).copy()
+        table_df = filtered[display_cols].head(top_n).copy()
 
-    display_rename_map = {
-        "표시순위": "현재 필터 기준 순위",
-        score_display_col: "영입 적합도 점수",
-        channel_name_col: "채널명",
-        segment_col: "주요 콘텐츠군",
-        lower_segment_col: "세부 콘텐츠 유형",
-        subs_col: "구독자 수",
-        view_col: "최근 영상 평균 조회수",
-        eng_col: "평균 참여율",
-        action_col: "검토 단계",
-        shortlist_type_col: "shortlist 유형",
-        recommend_col: "추천 사유",
-        caution_col: "주의 사유",
-        change_col: "변화 요약",
-    }
-    display_rename_map = {k: v for k, v in display_rename_map.items() if k and k in table_df.columns}
-    table_df = table_df.rename(columns=display_rename_map)
+        display_rename_map = {
+            "표시순위": "현재 필터 기준 순위",
+            score_display_col: "영입 적합도 점수",
+            channel_name_col: "채널명",
+            segment_col: "주요 콘텐츠군",
+            lower_segment_col: "세부 콘텐츠 유형",
+            subs_col: "구독자 수",
+            view_col: "최근 영상 평균 조회수",
+            eng_col: "평균 참여율",
+            action_col: "검토 단계",
+            shortlist_type_col: "shortlist 유형",
+            recommend_col: "추천 사유",
+            caution_col: "주의 사유",
+            change_col: "변화 요약",
+        }
+        display_rename_map = {k: v for k, v in display_rename_map.items() if k and k in table_df.columns}
+        table_df = table_df.rename(columns=display_rename_map)
 
-    if "영입 적합도 점수" in table_df.columns:
-        table_df["영입 적합도 점수"] = pd.to_numeric(table_df["영입 적합도 점수"], errors="coerce").round(1)
+        if "영입 적합도 점수" in table_df.columns:
+            table_df["영입 적합도 점수"] = pd.to_numeric(table_df["영입 적합도 점수"], errors="coerce").round(1)
 
-    st.dataframe(
-        table_df,
-        use_container_width=True,
-        hide_index=True,
-    )
+        st.dataframe(
+            table_df,
+            use_container_width=True,
+            hide_index=True,
+        )
 
-    csv_download = table_df.to_csv(index=False, encoding="utf-8-sig")
-    st.download_button(
-        "현재 TOP 후보 CSV 다운로드",
-        data=csv_download,
-        file_name="cime_top_candidates.csv",
-        mime="text/csv",
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
+        csv_download = table_df.to_csv(index=False, encoding="utf-8-sig")
+        st.download_button(
+            "현재 TOP 후보 CSV 다운로드",
+            data=csv_download,
+            file_name="cime_top_candidates.csv",
+            mime="text/csv",
+        )
 
 
 # =========================================================
-# 10-2. 우측: 후보 상세
-# - 영입 우선순위 TOP 표 높이와 맞도록 핵심 정보만 압축 표시
-# - 세부 판정 문구는 접힘 영역으로 이동
+# 10-2. 우측: 선택 후보 상세
+# - 빈 박스가 따로 생기지 않도록 section-card HTML wrapper 제거
+# - 상세 판정 근거 expander 제거
+# - TOP 표와 비슷한 높이에서 끝나도록 핵심 지표와 압축 사유만 표시
 # =========================================================
 
 with main_right:
-    st.markdown('<div class="section-card compact-detail-card">', unsafe_allow_html=True)
-    st.markdown("### 🔭 선택 후보 상세")
+    with st.container(border=True):
+        st.markdown("### 🔭 선택 후보 상세")
 
-    if channel_name_col:
-        candidate_names = filtered[channel_name_col].dropna().astype(str).tolist()
+        if channel_name_col:
+            candidate_names = filtered[channel_name_col].dropna().astype(str).tolist()
 
-        if candidate_names:
-            selected_name = st.selectbox("후보 선택", candidate_names, index=0)
-            selected_row = filtered[filtered[channel_name_col].astype(str) == selected_name].iloc[0]
+            if candidate_names:
+                selected_name = st.selectbox("후보 선택", candidate_names, index=0)
+                selected_row = filtered[filtered[channel_name_col].astype(str) == selected_name].iloc[0]
 
-            def _clip_detail(value, limit=92):
-                text_value = "-" if pd.isna(value) else str(value).strip()
-                if not text_value:
-                    text_value = "-"
-                return text_value if len(text_value) <= limit else text_value[:limit].rstrip() + "..."
+                def _clip_detail(value, limit=80):
+                    text_value = "-" if pd.isna(value) else str(value).strip()
+                    if not text_value:
+                        text_value = "-"
+                    return text_value if len(text_value) <= limit else text_value[:limit].rstrip() + "..."
 
-            st.markdown(
-                f"""
-                <div class="detail-title">{selected_row.get(channel_name_col, '-')}</div>
-                <div class="small-muted compact-channel-id">{selected_row.get(channel_id_col, '') if channel_id_col else ''}</div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-            metric_cols = st.columns(2)
-            with metric_cols[0]:
-                st.metric("점수(100점)", fmt_float(selected_row.get(score_display_col), 1) if score_col else "-")
-                st.metric("구독자 수", fmt_int(selected_row.get(subs_col)) if subs_col else "-")
-                st.metric("최근 조회수 평균", fmt_int(selected_row.get(view_col)) if view_col else "-")
-            with metric_cols[1]:
-                st.metric("성장성", fmt_float(selected_row.get(growth_col), 3) if growth_col else "-")
-                st.metric("팬밀도", fmt_float(selected_row.get(fan_col), 3) if fan_col else "-")
-                st.metric("라이브친화", fmt_float(selected_row.get(live_col), 3) if live_col else "-")
-
-            st.markdown(
-                f"""
-                <div style="margin-top:8px;">
-                    <span class="segment-pill">{selected_row.get(segment_col, '-') if segment_col else '-'}</span>
-                    <span class="segment-pill">{selected_row.get(action_col, '-') if action_col else '-'}</span>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-            reason_text = selected_row.get(recommend_col, "-") if recommend_col else "-"
-            caution_text = selected_row.get(caution_col, "-") if caution_col else "-"
-            basis_text = selected_row.get(basis_col, "-") if basis_col else "-"
-            change_text = selected_row.get(change_col, "-") if change_col else "-"
-
-            st.markdown(
-                f"""
-                <div class="reason-box compact-reason-box">
-                    <b>핵심 추천 사유</b><br>{_clip_detail(reason_text, 110)}
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-            with st.expander("상세 판정 근거 보기", expanded=False):
                 st.markdown(
                     f"""
-                    <div class="reason-box"><b>추천사유</b><br>{reason_text}</div>
-                    <div class="reason-box"><b>주의사유</b><br>{caution_text}</div>
-                    <div class="reason-box"><b>자동판정근거</b><br>{basis_text}</div>
-                    <div class="reason-box"><b>변화요약</b><br>{change_text}</div>
+                    <div class="detail-title">{selected_row.get(channel_name_col, '-')}</div>
+                    <div class="small-muted compact-channel-id">{selected_row.get(channel_id_col, '') if channel_id_col else ''}</div>
                     """,
                     unsafe_allow_html=True,
                 )
-        else:
-            st.info("현재 필터 조건에 해당하는 후보가 없습니다.")
 
-    st.markdown("</div>", unsafe_allow_html=True)
+                metric_cols = st.columns(2)
+                with metric_cols[0]:
+                    st.metric("점수(100점)", fmt_float(selected_row.get(score_display_col), 1) if score_col else "-")
+                    st.metric("구독자 수", fmt_int(selected_row.get(subs_col)) if subs_col else "-")
+                    st.metric("최근 조회수 평균", fmt_int(selected_row.get(view_col)) if view_col else "-")
+                with metric_cols[1]:
+                    st.metric("성장성", fmt_float(selected_row.get(growth_col), 3) if growth_col else "-")
+                    st.metric("팬밀도", fmt_float(selected_row.get(fan_col), 3) if fan_col else "-")
+                    st.metric("라이브친화", fmt_float(selected_row.get(live_col), 3) if live_col else "-")
+
+                st.markdown(
+                    f"""
+                    <div style="margin-top:8px;">
+                        <span class="segment-pill">{selected_row.get(segment_col, '-') if segment_col else '-'}</span>
+                        <span class="segment-pill">{selected_row.get(action_col, '-') if action_col else '-'}</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+                reason_text = selected_row.get(recommend_col, "-") if recommend_col else "-"
+                caution_text = selected_row.get(caution_col, "-") if caution_col else "-"
+                change_text = selected_row.get(change_col, "-") if change_col else "-"
+
+                st.markdown(
+                    f"""
+                    <div class="reason-box compact-reason-box">
+                        <b>핵심 추천 사유</b><br>{_clip_detail(reason_text, 92)}
+                    </div>
+                    <div class="reason-box compact-reason-box" style="max-height:76px;">
+                        <b>주의/변화 요약</b><br>{_clip_detail(caution_text, 48)} / {_clip_detail(change_text, 48)}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.info("현재 필터 조건에 해당하는 후보가 없습니다.")
+        else:
+            st.info("후보명을 표시할 수 있는 컬럼을 찾지 못했습니다.")
 
 
 # =========================================================
