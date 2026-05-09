@@ -4965,6 +4965,9 @@ html(
 
 # ---------------------------------------------------------
 # 12. 영입 우선순위 TOP + 선택 후보 상세
+# - 최근 순위 상승 후보 테이블을 영입 우선순위 TOP 영역 내부 선택 탭으로 이동
+# - 기존 하단 그래프 영역의 최근 순위 상승 후보 중복 노출 제거
+# - 의미가 약한 "전체 순위 보기" 바 제거
 # ---------------------------------------------------------
 
 priority_df = filtered.head(8).copy()
@@ -4972,7 +4975,6 @@ priority_rows = []
 for i, (_, row) in enumerate(priority_df.iterrows()):
     name = row.get(channel_name_col, "-") if channel_name_col else "-"
     segment = row.get(segment_col, "-") if segment_col else "-"
-    lower_segment = row.get(lower_segment_col, "-") if lower_segment_col else "-"
     action = row.get(action_col, "-") if action_col else "-"
     score = row.get("_score_display", np.nan)
     priority_rows.append(
@@ -4987,26 +4989,79 @@ for i, (_, row) in enumerate(priority_df.iterrows()):
         """
     )
 
+recent_priority_rows = []
+if not mini_tracking_df.empty:
+    recent_priority_df = mini_tracking_df.head(8).copy()
+    for _, r in recent_priority_df.iterrows():
+        recent_priority_rows.append(
+            f"""
+            <tr>
+                <td class="name" style="width:28%;">{_safe_html(_short_text(r.get('채널명', '-'), 18))}</td>
+                <td style="width:13%;">{_fmt_num(r.get('이전순위', np.nan), 0, '')}</td>
+                <td style="width:13%;">{_fmt_num(r.get('현재순위', np.nan), 0, '')}</td>
+                <td class="recent-up" style="width:17%;">▲ {_fmt_num(abs(float(r.get('순위변동', 0) or 0)), 0, '')}</td>
+                <td class="priority-score" style="width:13%;">{_fmt_num(r.get('현재점수', np.nan), 1, '')}</td>
+                <td style="width:16%;">{_action_tag(r.get('현재단계', '-'))}</td>
+            </tr>
+            """
+        )
+
 selected_options = priority_df[channel_name_col].astype(str).tolist() if channel_name_col and not priority_df.empty else []
 selected_name = selected_options[0] if selected_options else None
 
 left_col, right_col = st.columns([0.58, 0.42], gap="small")
 
 with left_col:
-    html(
-        f"""
-        <div class="board-panel" style="min-height:228px;">
-            <div class="board-panel-title">🏆 영입 우선순위 TOP</div>
-            <table class="priority-table">
-                <thead>
-                    <tr><th>순위</th><th>스트리머명</th><th>주요 콘텐츠군</th><th>검토단계</th><th>점수</th></tr>
-                </thead>
-                <tbody>{''.join(priority_rows)}</tbody>
-            </table>
-            <div class="view-more-bar">전체 순위 보기 〉</div>
-        </div>
-        """
-    )
+    title_col, switch_col = st.columns([0.52, 0.48], gap="small")
+    with title_col:
+        html('<div class="priority-inline-title">🏆 영입 우선순위 TOP</div>')
+    with switch_col:
+        st.markdown('<div class="priority-view-switch">', unsafe_allow_html=True)
+        priority_view_mode = st.radio(
+            "영입 우선순위 표 선택",
+            ["영입 우선순위 TOP", "최근 순위 상승 후보"],
+            index=0,
+            horizontal=True,
+            key="priority_table_view_mode",
+            label_visibility="collapsed",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    if priority_view_mode == "영입 우선순위 TOP":
+        html(
+            f"""
+            <div class="board-panel priority-table-panel" style="min-height:228px;">
+                <table class="priority-table">
+                    <thead>
+                        <tr><th>순위</th><th>스트리머명</th><th>주요 콘텐츠군</th><th>검토단계</th><th>점수</th></tr>
+                    </thead>
+                    <tbody>{''.join(priority_rows)}</tbody>
+                </table>
+            </div>
+            """
+        )
+    else:
+        if recent_priority_rows:
+            html(
+                f"""
+                <div class="board-panel priority-table-panel" style="min-height:228px;">
+                    <table class="priority-table recent-priority-table">
+                        <thead>
+                            <tr><th>후보</th><th>이전</th><th>현재</th><th>상승</th><th>점수</th><th>단계</th></tr>
+                        </thead>
+                        <tbody>{''.join(recent_priority_rows)}</tbody>
+                    </table>
+                </div>
+                """
+            )
+        else:
+            html(
+                """
+                <div class="board-panel priority-table-panel" style="min-height:228px;">
+                    <div class="board-info-text">비교 가능한 최근 순위 상승 후보 데이터가 없습니다.</div>
+                </div>
+                """
+            )
 
 with right_col:
     if selected_options:
@@ -5118,6 +5173,60 @@ st.markdown(
             font-weight: 900 !important;
         }
 
+        .priority-inline-title {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            color: #fff7ff;
+            font-size: 18px;
+            font-weight: 950;
+            padding: 0 0 4px 2px;
+            letter-spacing: -0.02em;
+        }
+
+        .priority-view-switch {
+            margin: 0 0 6px 0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .priority-view-switch div[role="radiogroup"] {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .priority-view-switch label {
+            min-width: 128px;
+            justify-content: center;
+            padding: 7px 11px !important;
+            border-radius: 999px !important;
+            background: rgba(255,255,255,0.055) !important;
+            border: 1px solid rgba(145,116,233,0.28) !important;
+            color: #d9d2ef !important;
+            font-weight: 900 !important;
+        }
+
+        .priority-view-switch label:has(input:checked) {
+            background: linear-gradient(135deg, rgba(143,84,255,0.92), rgba(207,71,178,0.70)) !important;
+            border-color: rgba(221,160,255,0.52) !important;
+            box-shadow: 0 0 16px rgba(145, 93, 255, 0.24) !important;
+        }
+
+        .priority-view-switch label p {
+            font-size: 11px !important;
+            font-weight: 900 !important;
+        }
+
+        .priority-table-panel {
+            padding-top: 16px !important;
+        }
+
+        .recent-priority-table th,
+        .recent-priority-table td {
+            white-space: nowrap;
+        }
+
         .graph-output-card {
             min-height: 282px;
             border-radius: 13px;
@@ -5170,7 +5279,6 @@ GRAPH_OPTIONS = [
     "콘텐츠 유형별 추천 점수",
     "검토 단계별 후보 분포",
     "후보군 콘텐츠 비율",
-    "최근 순위 상승 후보",
 ]
 
 html(
@@ -5203,10 +5311,8 @@ with graph_left:
         html('<div class="graph-explain"><div class="graph-explain-title">콘텐츠 유형별 추천 점수</div><div class="graph-explain-text">어떤 콘텐츠군의 후보가 평균적으로 높은 추천 점수를 받는지 비교합니다. 점수가 높은 콘텐츠군은 우선 탐색 영역으로 볼 수 있습니다.</div></div>')
     elif graph_view == "검토 단계별 후보 분포":
         html('<div class="graph-explain"><div class="graph-explain-title">검토 단계별 후보 분포</div><div class="graph-explain-text">즉시검토, 성장관찰, 검증필요 등 운영 단계별 후보 수를 비교합니다. 검증필요가 많으면 리스크 검토 공수가 큽니다.</div></div>')
-    elif graph_view == "후보군 콘텐츠 비율":
-        html('<div class="graph-explain"><div class="graph-explain-title">후보군 콘텐츠 비율</div><div class="graph-explain-text">현재 후보 풀이 특정 콘텐츠군에 쏠려 있는지 확인합니다. 쏠림이 크면 수집 키워드와 필터 편향을 점검합니다.</div></div>')
     else:
-        html('<div class="graph-explain"><div class="graph-explain-title">최근 순위 상승 후보</div><div class="graph-explain-text">기준 시점 대비 현재 순위가 크게 오른 후보를 보여줍니다. 점수와 단계가 함께 개선된 후보는 후속 검토 우선순위가 높습니다.</div></div>')
+        html('<div class="graph-explain"><div class="graph-explain-title">후보군 콘텐츠 비율</div><div class="graph-explain-text">현재 후보 풀이 특정 콘텐츠군에 쏠려 있는지 확인합니다. 쏠림이 크면 수집 키워드와 필터 편향을 점검합니다.</div></div>')
 
 with graph_right:
     if graph_view == "콘텐츠 유형별 추천 점수":
@@ -5290,7 +5396,7 @@ with graph_right:
         else:
             st.info("검토 단계 컬럼이 없어 그래프를 만들 수 없습니다.")
 
-    elif graph_view == "후보군 콘텐츠 비율":
+    else:
         if segment_col and segment_col in classified_filtered.columns and not classified_filtered.empty:
             pie_df = classified_filtered[segment_col].fillna("미분류").astype(str).value_counts().reset_index()
             pie_df.columns = ["구분", "후보수"]
@@ -5321,36 +5427,6 @@ with graph_right:
             st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("콘텐츠군 구성 비율을 만들 수 없습니다.")
-
-    else:
-        if not mini_tracking_df.empty:
-            mt = mini_tracking_df.head(5).copy()
-            rows = []
-            for _, r in mt.iterrows():
-                rows.append(
-                    f"""
-                    <tr>
-                        <td>{_safe_html(r.get('채널명', '-'))}</td>
-                        <td>{_fmt_num(r.get('이전순위', np.nan), 0, '')}</td>
-                        <td>{_fmt_num(r.get('현재순위', np.nan), 0, '')}</td>
-                        <td class="recent-up">▲ {_fmt_num(abs(float(r.get('순위변동', 0) or 0)), 0, '')}</td>
-                        <td>{_fmt_num(r.get('현재점수', np.nan), 1, '')}</td>
-                        <td>{_action_tag(r.get('현재단계', '-'))}</td>
-                    </tr>
-                    """
-                )
-            html(
-                f"""
-                <div class="graph-table-card">
-                    <table class="recent-mini-table">
-                        <thead><tr><th>후보</th><th>이전</th><th>현재</th><th>상승</th><th>점수</th><th>단계</th></tr></thead>
-                        <tbody>{''.join(rows)}</tbody>
-                    </table>
-                </div>
-                """
-            )
-        else:
-            st.info("비교 가능한 변화 추적 데이터가 없습니다.")
 
 # ---------------------------------------------------------
 # 14. 상세 설명 드롭다운
