@@ -3912,6 +3912,164 @@ else:
 
 
 
+
+# =========================================================
+# 6-9. 최종 디자인 피드백 반영
+# - STAR SEED 상단 폰트/정렬을 메인 프론트와 맞춤
+# - KPI/후보/표/그래프 카드 배경을 더 불투명하게 조정
+# - Plotly 그래프 배경과 카드 배경을 분리해 별빛/반짝임과 헷갈리지 않게 함
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        /* 전체 컨테이너 폭/상단 간격: 메인 대시보드와 유사한 밀도 */
+        .block-container {
+            max-width: 1540px !important;
+            padding-top: 1.25rem !important;
+        }
+
+        /* STAR SEED 상단: 홈 화면의 큰 타이틀 톤과 정렬을 유지 */
+        .starseed-hero {
+            width: 100% !important;
+            text-align: center !important;
+            padding: 4px 0 26px 0 !important;
+            margin: -10px auto 12px auto !important;
+            position: relative;
+            z-index: 2;
+        }
+
+        .starseed-title {
+            font-family: 'Orbitron', sans-serif !important;
+            font-size: clamp(78px, 7.9vw, 108px) !important;
+            font-weight: 950 !important;
+            letter-spacing: 17px !important;
+            line-height: 0.96 !important;
+            color: #fff8ff !important;
+            text-align: center !important;
+            text-shadow:
+                0 0 10px rgba(255,255,255,0.28),
+                0 0 24px rgba(214,182,255,0.34),
+                0 0 46px rgba(125,66,255,0.18) !important;
+            margin: 0 !important;
+        }
+
+        .starseed-subtitle {
+            font-size: clamp(20px, 1.65vw, 27px) !important;
+            font-weight: 850 !important;
+            letter-spacing: -0.035em !important;
+            color: #d7cded !important;
+            text-align: center !important;
+            margin-top: 24px !important;
+            margin-bottom: 0 !important;
+            line-height: 1.25 !important;
+            text-shadow: 0 0 16px rgba(198,168,255,0.16) !important;
+        }
+
+        /* 카드 배경: 기존보다 불투명하게 하여 별빛과 내부 콘텐츠 분리 */
+        .kpi-card,
+        .candidate-card,
+        .section-card,
+        .priority-board-wrap,
+        .tracking-board-wrap,
+        .detail-box,
+        .reason-box,
+        .explain-box,
+        .guide-box,
+        div[data-testid="stExpander"] {
+            background:
+                linear-gradient(180deg, rgba(9, 22, 42, 0.98), rgba(5, 13, 28, 0.985)) !important;
+            border: 1px solid rgba(118, 242, 226, 0.22) !important;
+            box-shadow:
+                0 16px 36px rgba(0,0,0,0.38),
+                inset 0 1px 0 rgba(255,255,255,0.055) !important;
+            backdrop-filter: blur(2px) !important;
+        }
+
+        /* KPI 카드는 메인 대시보드 카드 톤으로 통일 */
+        .kpi-card {
+            background:
+                linear-gradient(180deg, rgba(8, 24, 45, 0.985), rgba(5, 13, 28, 0.995)) !important;
+            border-color: rgba(89, 219, 210, 0.26) !important;
+        }
+
+        /* TOP 후보 카드도 투명감을 줄이고 내부 정보 가독성 강화 */
+        .candidate-card {
+            background:
+                linear-gradient(180deg, rgba(8, 24, 45, 0.985), rgba(5, 13, 28, 0.995)) !important;
+            border-color: rgba(89, 219, 210, 0.24) !important;
+        }
+
+        /* HTML 랭킹/변화 테이블: 배경을 완전히 분리 */
+        .priority-board-wrap,
+        .tracking-board-wrap {
+            background:
+                linear-gradient(180deg, rgba(9, 19, 35, 0.995), rgba(4, 10, 22, 0.998)) !important;
+            border-color: rgba(118, 242, 226, 0.20) !important;
+        }
+
+        .priority-board,
+        .tracking-board {
+            background: rgba(4, 10, 22, 0.99) !important;
+        }
+
+        .priority-board thead th,
+        .tracking-board thead th {
+            background: rgba(22, 35, 54, 0.98) !important;
+        }
+
+        .priority-board tbody td,
+        .tracking-board tbody td {
+            background: rgba(5, 13, 27, 0.92) !important;
+        }
+
+        .priority-board tbody tr:hover td,
+        .tracking-board tbody tr:hover td {
+            background: rgba(22, 47, 70, 0.95) !important;
+        }
+
+        /* Plotly 그래프 외곽 영역: 투명 배경 대신 어두운 패널감을 부여 */
+        .js-plotly-plot,
+        .stPlotlyChart {
+            background: rgba(7, 16, 32, 0.94) !important;
+            border-radius: 16px !important;
+        }
+
+        .js-plotly-plot .plotly,
+        .js-plotly-plot .main-svg {
+            border-radius: 16px !important;
+        }
+
+        /* Streamlit dataframe도 별빛 배경과 분리 */
+        div[data-testid="stDataFrame"] {
+            background: rgba(5, 12, 24, 0.98) !important;
+            border-color: rgba(118, 242, 226, 0.20) !important;
+            box-shadow: 0 14px 32px rgba(0,0,0,0.34) !important;
+        }
+
+        /* 그래프/설명 사이 경계가 더 선명하게 보이도록 조정 */
+        .section-divider {
+            margin: 24px 0 18px 0 !important;
+            background: linear-gradient(90deg, transparent, rgba(95,255,232,0.42), rgba(170,112,255,0.30), transparent) !important;
+        }
+
+        @media (max-width: 900px) {
+            .starseed-title {
+                font-size: 52px !important;
+                letter-spacing: 9px !important;
+            }
+            .starseed-subtitle {
+                font-size: 18px !important;
+                margin-top: 16px !important;
+            }
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
 # =========================================================
 # 7. 헤더
 # =========================================================
@@ -4830,8 +4988,8 @@ if graph_view == "상위 콘텐츠별 영입 후보 점수 분포":
         fig.update_layout(
             template="plotly_dark",
             height=460,
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(7, 16, 32, 0.96)",
+            plot_bgcolor="rgba(7, 16, 32, 0.96)",
             margin=dict(l=10, r=10, t=30, b=80),
             legend_title_text="상위 콘텐츠군",
             xaxis=dict(
@@ -4892,8 +5050,8 @@ elif graph_view == "검토 단계별 후보 수":
         fig_bucket.update_traces(textposition="outside", cliponaxis=False, hovertemplate="액션버킷=%{y}<br>후보수=%{x}명<extra></extra>")
         fig_bucket.update_layout(
             showlegend=False,
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(7, 16, 32, 0.96)",
+            plot_bgcolor="rgba(7, 16, 32, 0.96)",
             margin=dict(l=5, r=35, t=20, b=45),
             xaxis_title="후보 수",
             yaxis_title="",
@@ -4936,8 +5094,8 @@ elif graph_view == "콘텐츠군별 평균 영입 점수":
         )
         fig_seg_score.update_layout(
             showlegend=False,
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(7, 16, 32, 0.96)",
+            plot_bgcolor="rgba(7, 16, 32, 0.96)",
             margin=dict(l=5, r=5, t=20, b=90),
             xaxis_title="상위 콘텐츠군",
             yaxis_title="평균 점수",
@@ -4963,8 +5121,8 @@ elif graph_view == "콘텐츠군 구성 비율":
         fig_pie = px.pie(pie_data, names="구분", values="후보수", hole=0.55, template="plotly_dark", height=460)
         fig_pie.update_traces(textposition="inside", textinfo="percent", hovertemplate="상위 콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>")
         fig_pie.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(7, 16, 32, 0.96)",
+            plot_bgcolor="rgba(7, 16, 32, 0.96)",
             margin=dict(l=5, r=5, t=20, b=20),
             legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.02),
         )
