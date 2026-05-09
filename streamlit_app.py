@@ -3918,6 +3918,56 @@ else:
 
 st.markdown(
     """
+    <style>
+    /* STAR SEED 페이지 상단 헤더 정렬/크기 조정 */
+    .starseed-hero {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0 30px 0;
+        margin: 0 auto 18px auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .starseed-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(68px, 7.2vw, 96px);
+        font-weight: 950;
+        letter-spacing: 16px;
+        line-height: 0.98;
+        color: #FFF8FF;
+        text-align: center;
+        text-shadow:
+            0 0 14px rgba(255,255,255,0.22),
+            0 0 30px rgba(198,168,255,0.28);
+        margin: 0;
+    }
+
+    .starseed-subtitle {
+        font-size: clamp(20px, 1.7vw, 28px);
+        font-weight: 850;
+        letter-spacing: -0.035em;
+        color: #D7CDED;
+        text-align: center;
+        margin-top: 24px;
+        line-height: 1.25;
+    }
+
+    @media (max-width: 900px) {
+        .starseed-hero {
+            padding-top: 8px;
+            padding-bottom: 22px;
+        }
+        .starseed-title {
+            font-size: 48px;
+            letter-spacing: 8px;
+        }
+        .starseed-subtitle {
+            font-size: 18px;
+            margin-top: 16px;
+        }
+    }
+    </style>
     <div class="starseed-hero">
         <div class="starseed-title">STAR SEED</div>
         <div class="starseed-subtitle">유튜브 기반 잠재 후보군 영입 분석 대시보드</div>
