@@ -4048,6 +4048,29 @@ st.markdown(
             border-radius: 16px !important;
         }
 
+
+        /* 후보 운영 그래프: 테이블/드롭다운과 동일한 패널 테두리 적용 */
+        .stPlotlyChart {
+            background: linear-gradient(180deg, rgba(8, 18, 34, 0.985), rgba(5, 12, 24, 0.995)) !important;
+            border: 1px solid rgba(118, 242, 226, 0.20) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255,255,255,0.045) !important;
+            padding: 10px 12px 8px 12px !important;
+            overflow: hidden !important;
+        }
+
+        .stPlotlyChart:hover {
+            border-color: rgba(118, 242, 226, 0.34) !important;
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255,255,255,0.065) !important;
+        }
+
+        .stPlotlyChart .js-plotly-plot,
+        .stPlotlyChart .plotly,
+        .stPlotlyChart .main-svg {
+            background: transparent !important;
+            border-radius: 16px !important;
+        }
+
         /* Streamlit dataframe도 별빛 배경과 분리 */
         div[data-testid="stDataFrame"] {
             background: rgba(5, 12, 24, 0.98) !important;
@@ -4844,9 +4867,9 @@ with main_right:
 # =========================================================
 # 10-3. 후보 운영 그래프 선택형 뷰
 # - 우측 후보 상세와 겹치지 않도록 TOP 표/상세 아래의 전체 폭 영역으로 배치
+# - 상단 빈 구분 박스는 제거하고, 그래프 패널 테두리를 다른 박스류와 통일
 # =========================================================
 
-add_section_divider()
 # =====================================================
 # 후보 운영 그래프 선택형 뷰
 # - 상위 콘텐츠별 점수 분포 / 검토 단계별 후보 수 /
@@ -4998,8 +5021,8 @@ if graph_view == "상위 콘텐츠별 영입 후보 점수 분포":
         fig.update_layout(
             template="plotly_dark",
             height=460,
-            paper_bgcolor="rgba(7, 16, 32, 0.96)",
-            plot_bgcolor="rgba(7, 16, 32, 0.96)",
+            paper_bgcolor="rgba(5, 12, 24, 0.00)",
+            plot_bgcolor="rgba(5, 12, 24, 0.00)",
             margin=dict(l=10, r=10, t=30, b=80),
             legend_title_text="상위 콘텐츠군",
             xaxis=dict(
@@ -5060,8 +5083,8 @@ elif graph_view == "검토 단계별 후보 수":
         fig_bucket.update_traces(textposition="outside", cliponaxis=False, hovertemplate="액션버킷=%{y}<br>후보수=%{x}명<extra></extra>")
         fig_bucket.update_layout(
             showlegend=False,
-            paper_bgcolor="rgba(7, 16, 32, 0.96)",
-            plot_bgcolor="rgba(7, 16, 32, 0.96)",
+            paper_bgcolor="rgba(5, 12, 24, 0.00)",
+            plot_bgcolor="rgba(5, 12, 24, 0.00)",
             margin=dict(l=5, r=35, t=20, b=45),
             xaxis_title="후보 수",
             yaxis_title="",
@@ -5104,8 +5127,8 @@ elif graph_view == "콘텐츠군별 평균 영입 점수":
         )
         fig_seg_score.update_layout(
             showlegend=False,
-            paper_bgcolor="rgba(7, 16, 32, 0.96)",
-            plot_bgcolor="rgba(7, 16, 32, 0.96)",
+            paper_bgcolor="rgba(5, 12, 24, 0.00)",
+            plot_bgcolor="rgba(5, 12, 24, 0.00)",
             margin=dict(l=5, r=5, t=20, b=90),
             xaxis_title="상위 콘텐츠군",
             yaxis_title="평균 점수",
@@ -5131,8 +5154,8 @@ elif graph_view == "콘텐츠군 구성 비율":
         fig_pie = px.pie(pie_data, names="구분", values="후보수", hole=0.55, template="plotly_dark", height=460)
         fig_pie.update_traces(textposition="inside", textinfo="percent", hovertemplate="상위 콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>")
         fig_pie.update_layout(
-            paper_bgcolor="rgba(7, 16, 32, 0.96)",
-            plot_bgcolor="rgba(7, 16, 32, 0.96)",
+            paper_bgcolor="rgba(5, 12, 24, 0.00)",
+            plot_bgcolor="rgba(5, 12, 24, 0.00)",
             margin=dict(l=5, r=5, t=20, b=20),
             legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.02),
         )
