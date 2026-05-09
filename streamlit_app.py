@@ -5012,7 +5012,16 @@ selected_name = selected_options[0] if selected_options else None
 left_col, right_col = st.columns([0.58, 0.42], gap="small")
 
 with left_col:
-    title_col, switch_col = st.columns([0.43, 0.57], gap="small")
+    # 표 제목과 전환 필터를 같은 행에 배치합니다.
+    # 왼쪽에는 현재 선택된 표 제목, 오른쪽에는 표 전환 필터가 위치합니다.
+    title_col, switch_col = st.columns([0.40, 0.60], gap="small")
+
+    with title_col:
+        # st.radio 선택값이 아직 생성되기 전 첫 렌더링에서도 안전하게 기본값을 사용합니다.
+        current_priority_mode = st.session_state.get("priority_table_view_mode", "영입 우선순위 TOP")
+        priority_title_label = "🏆 영입 우선순위 TOP" if current_priority_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
+        html(f'<div class="priority-inline-title">{priority_title_label}</div>')
+
     with switch_col:
         st.markdown('<div class="priority-view-switch priority-view-switch-inline">', unsafe_allow_html=True)
         priority_view_mode = st.radio(
@@ -5026,8 +5035,6 @@ with left_col:
         st.markdown('</div>', unsafe_allow_html=True)
 
     priority_title_label = "🏆 영입 우선순위 TOP" if priority_view_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
-    with title_col:
-        html(f'<div class="priority-inline-title">{priority_title_label}</div>')
 
     if priority_view_mode == "영입 우선순위 TOP":
         html(
@@ -5620,6 +5627,105 @@ st.markdown(
         font-weight: 900 !important;
         line-height: 1 !important;
         white-space: nowrap !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# =========================================================
+# 추가 수정: 영입 우선순위 TOP 제목-필터 같은 행 고정 보정
+# - 제목 왼쪽, 표 전환 필터 오른쪽을 같은 기준선에 맞춤
+# - st.radio 기본 상단 여백을 제거해 필터가 아래로 떨어지지 않게 함
+# =========================================================
+st.markdown(
+    """
+    <style>
+    .priority-inline-title {
+        height: 52px !important;
+        min-height: 52px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 0 0 0 2px !important;
+        margin: 0 !important;
+        color: #fff7ff !important;
+        font-size: 22px !important;
+        font-weight: 950 !important;
+        letter-spacing: -0.035em !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }
+
+    .priority-view-switch-inline,
+    .priority-view-switch {
+        height: 52px !important;
+        min-height: 52px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .priority-view-switch-inline [data-testid="stRadio"],
+    .priority-view-switch [data-testid="stRadio"] {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .priority-view-switch-inline [data-testid="stRadio"] > div,
+    .priority-view-switch [data-testid="stRadio"] > div,
+    .priority-view-switch-inline div[role="radiogroup"],
+    .priority-view-switch div[role="radiogroup"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 14px !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .priority-view-switch-inline label,
+    .priority-view-switch label {
+        min-width: 170px !important;
+        max-width: 230px !important;
+        height: 42px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 8px 16px !important;
+        border-radius: 999px !important;
+        background: rgba(255,255,255,0.055) !important;
+        border: 1px solid rgba(145,116,233,0.32) !important;
+        color: #ded7f5 !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+    }
+
+    .priority-view-switch-inline label:has(input:checked),
+    .priority-view-switch label:has(input:checked) {
+        background: linear-gradient(135deg, rgba(143,84,255,0.92), rgba(207,71,178,0.70)) !important;
+        border-color: rgba(221,160,255,0.58) !important;
+        box-shadow: 0 0 16px rgba(145, 93, 255, 0.26) !important;
+    }
+
+    .priority-view-switch-inline label p,
+    .priority-view-switch label p {
+        font-size: 13px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }
+
+    /* 제목/필터 행과 표 사이 간격을 안정화 */
+    .priority-table-panel {
+        margin-top: 6px !important;
     }
     </style>
     """,
