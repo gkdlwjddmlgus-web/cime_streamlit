@@ -21,6 +21,7 @@ from zoneinfo import ZoneInfo
 
 import random
 import textwrap
+import html as html_lib
 
 import numpy as np
 import pandas as pd
@@ -1377,6 +1378,73 @@ st.markdown(
 )
 
 
+# =========================================================
+# 1-6. TOP 후보 카드: 세부 콘텐츠 유형별 아이콘 아바타
+# - 채널명 첫 글자 대신 콘텐츠 성격을 직관적으로 보여주는 아이콘형 이미지로 표시
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        .content-avatar {
+            width: 76px;
+            height: 76px;
+            border-radius: 26px;
+            margin: 16px auto 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.35);
+            box-shadow: 0 0 24px rgba(95,255,232,0.18), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+
+        .content-avatar::before {
+            content: "";
+            position: absolute;
+            inset: -35%;
+            background:
+                radial-gradient(circle at 30% 25%, rgba(255,255,255,0.74), transparent 15%),
+                radial-gradient(circle at 70% 72%, rgba(255,255,255,0.22), transparent 18%),
+                linear-gradient(135deg, rgba(255,255,255,0.24), transparent 42%);
+            transform: rotate(-18deg);
+            opacity: 0.82;
+        }
+
+        .content-avatar::after {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .content-avatar-icon {
+            position: relative;
+            z-index: 2;
+            font-size: 36px;
+            line-height: 1;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.35));
+        }
+
+        .avatar-voice { background: linear-gradient(135deg, #5fffe8 0%, #3b82f6 55%, #6d5dfc 100%); }
+        .avatar-cover { background: linear-gradient(135deg, #9dffb0 0%, #21d4a7 50%, #1b7ef3 100%); }
+        .avatar-vtuber { background: linear-gradient(135deg, #c084fc 0%, #7c3aed 50%, #f472b6 100%); }
+        .avatar-cosplay { background: linear-gradient(135deg, #ff8bd1 0%, #fb7185 45%, #facc15 100%); }
+        .avatar-game { background: linear-gradient(135deg, #7dd3fc 0%, #2563eb 50%, #0f172a 100%); }
+        .avatar-asmr { background: linear-gradient(135deg, #a7f3d0 0%, #14b8a6 50%, #0e7490 100%); }
+        .avatar-music { background: linear-gradient(135deg, #fde68a 0%, #f59e0b 45%, #ef4444 100%); }
+        .avatar-talk { background: linear-gradient(135deg, #f0abfc 0%, #a855f7 48%, #22d3ee 100%); }
+        .avatar-default { background: linear-gradient(135deg, #94a3b8 0%, #475569 50%, #111827 100%); }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+
 def render_planet_home():
     html(
         """
@@ -1861,6 +1929,39 @@ def get_initial(name):
     if pd.isna(name) or not str(name).strip():
         return "?"
     return str(name).strip()[0]
+
+
+
+
+
+def get_content_avatar_spec(segment, lower_segment):
+    """
+    TOP 후보 카드에서 채널명 첫 글자 대신 세부 콘텐츠 유형에 맞는 아이콘을 보여준다.
+    외부 이미지 파일 없이 emoji + CSS 카드로 구성해 Streamlit Cloud에서도 별도 asset 없이 동작한다.
+    """
+    raw = f"{segment} {lower_segment}".lower()
+
+    rules = [
+        (("성우", "더빙", "voice", "보이스"), ("🎙️", "avatar-voice", "성우/더빙")),
+        (("커버", "노래", "보컬", "j-pop", "jpop", "애니송", "음악"), ("🎧", "avatar-cover", "음악/커버")),
+        (("버튜버", "vtuber", "버츄얼", "virtual"), ("🪐", "avatar-vtuber", "버튜버")),
+        (("코스프레", "cosplay"), ("🎭", "avatar-cosplay", "코스프레")),
+        (("게임", "롤", "로블록스", "발로란트", "valorant", "roblox", "원신", "마인크래프트"), ("🎮", "avatar-game", "게임")),
+        (("asmr", "에이에스엠알"), ("🎧", "avatar-asmr", "ASMR")),
+        (("댄스", "퍼포먼스", "아이돌", "무대"), ("✨", "avatar-music", "퍼포먼스")),
+        (("토크", "팬덤", "라디오", "소통"), ("💬", "avatar-talk", "토크/팬덤")),
+    ]
+
+    for keywords, spec in rules:
+        if any(k in raw for k in keywords):
+            return spec
+    return ("🌱", "avatar-default", "기타 콘텐츠")
+
+
+def get_content_avatar_html(segment, lower_segment):
+    icon, css_class, label = get_content_avatar_spec(segment, lower_segment)
+    safe_label = html_lib.escape(label)
+    return f'<div class="content-avatar {css_class}" title="{safe_label}"><span class="content-avatar-icon">{icon}</span></div>'
 
 
 def color_by_segment(seg):
@@ -2830,12 +2931,13 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
 
         pill_text = action if str(action).strip() else segment
         sub_pill = lower_segment if str(lower_segment).strip() else segment
+        avatar_html = get_content_avatar_html(segment, lower_segment)
 
         st.markdown(
             f"""
             <div class="candidate-card">
                 <div class="rank-badge">{fmt_int(rank_value)}</div>
-                <div class="candidate-avatar">{get_initial(name)}</div>
+                {avatar_html}
                 <div class="candidate-name">{name}</div>
                 <div style="text-align:center;">
                     <span class="segment-pill">{pill_text}</span>
