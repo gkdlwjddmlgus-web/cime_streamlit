@@ -4483,14 +4483,27 @@ st.markdown(
             gap: 10px;
         }
 
+        .top5-grid .mini-candidate-card a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .top5-grid .mini-candidate-card a:hover {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
         .mini-candidate-card {
             position: relative;
-            min-height: 86px;
+            min-height: 92px;
             border-radius: 12px;
-            border: 1px solid rgba(135, 105, 232, .28);
-            background: linear-gradient(180deg, rgba(22, 24, 52, .80), rgba(13, 15, 36, .94));
-            padding: 12px 10px 10px 72px;
+            border: 1px solid rgba(135, 105, 232, .30);
+            background: linear-gradient(180deg, rgba(22, 24, 52, .84), rgba(13, 15, 36, .96));
+            padding: 13px 12px 11px 104px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
         }
 
         .mini-rank {
@@ -4512,23 +4525,57 @@ st.markdown(
 
         .mini-avatar-wrap {
             position: absolute;
-            left: 31px;
-            top: 18px;
-            width: 46px;
-            height: 46px;
+            left: 38px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 54px;
+            height: 54px;
             border-radius: 999px;
             overflow: hidden;
             background: radial-gradient(circle at 32% 28%, #fff, #8b5cf6 42%, #25154d 100%);
-            border: 2px solid rgba(255,255,255,.35);
-            box-shadow: 0 0 12px rgba(155, 109, 255, .34);
+            border: 2px solid rgba(255,255,255,.42);
+            box-shadow: 0 0 14px rgba(155, 109, 255, .38);
         }
 
         .mini-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display:block; }
         .mini-avatar-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:950; font-size:20px; }
-        .mini-name { color:#fff; font-size: 13px; font-weight: 950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top: 0px; }
-        .mini-score { color:#fff; font-size: 16px; font-weight: 950; margin-top: 1px; }
-        .mini-stage { display:inline-block; color:#b9ffe8; background: rgba(20, 152, 123, .28); border:1px solid rgba(64,226,190,.35); border-radius:999px; padding: 2px 8px; font-size: 10px; font-weight: 900; margin-top:3px; }
-        .mini-reason { color:#beb3d4; font-size: 10.5px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:4px; }
+        .mini-name {
+            color:#fff;
+            font-size: 13.5px;
+            font-weight: 950;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            margin-top: 0;
+            line-height: 1.15;
+            max-width: 100%;
+        }
+        .mini-score {
+            color:#fff;
+            font-size: 17px;
+            font-weight: 950;
+            margin-top: 3px;
+            line-height: 1.1;
+            white-space: nowrap;
+            letter-spacing: -0.02em;
+        }
+        .mini-stage {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width: fit-content;
+            max-width: 94px;
+            color:#b9ffe8;
+            background: rgba(20, 152, 123, .28);
+            border:1px solid rgba(64,226,190,.35);
+            border-radius:999px;
+            padding: 3px 9px;
+            font-size: 10px;
+            font-weight: 900;
+            margin-top:5px;
+            white-space: nowrap;
+        }
+        .mini-reason { display: none !important; }
 
         .mid-grid {
             display: grid;
@@ -4895,7 +4942,6 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
     name = row.get(channel_name_col, "-") if channel_name_col else "-"
     score = row.get("_score_display", np.nan)
     action = row.get(action_col, "") if action_col else ""
-    reason = _short_text(_reason_short(row), 24)
     mini_cards.append(
         f"""
         <div class="mini-candidate-card">
@@ -4904,7 +4950,6 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
             <div class="mini-name">{_channel_link(name, row)}</div>
             <div class="mini-score">{_fmt_num(score, 1, '점')}</div>
             <span class="mini-stage">{_safe_html(action or '검토')}</span>
-            <div class="mini-reason">{_safe_html(reason)}</div>
         </div>
         """
     )
