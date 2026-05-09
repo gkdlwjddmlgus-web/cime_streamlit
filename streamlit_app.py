@@ -2947,7 +2947,6 @@ with main_right:
                 st.markdown(
                     f"""
                     <div class="detail-title">{selected_row.get(channel_name_col, '-')}</div>
-                    <div class="small-muted compact-channel-id">{selected_row.get(channel_id_col, '') if channel_id_col else ''}</div>
                     """,
                     unsafe_allow_html=True,
                 )
@@ -2973,16 +2972,11 @@ with main_right:
                 )
 
                 reason_text = selected_row.get(recommend_col, "-") if recommend_col else "-"
-                caution_text = selected_row.get(caution_col, "-") if caution_col else "-"
-                change_text = selected_row.get(change_col, "-") if change_col else "-"
 
                 st.markdown(
                     f"""
                     <div class="reason-box compact-reason-box">
                         <b>핵심 추천 사유</b><br>{_clip_detail(reason_text, 92)}
-                    </div>
-                    <div class="reason-box compact-reason-box" style="max-height:76px;">
-                        <b>주의/변화 요약</b><br>{_clip_detail(caution_text, 48)} / {_clip_detail(change_text, 48)}
                     </div>
                     """,
                     unsafe_allow_html=True,
