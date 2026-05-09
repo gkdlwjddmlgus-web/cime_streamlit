@@ -4537,7 +4537,6 @@ with main_left:
 
         html(
             f"""
-            <div class="priority-board-top-chip">top 1~{min(top_n, len(table_df))}</div>
             <div class="priority-board-wrap">
                 <table class="priority-board">
                     <colgroup>
@@ -5024,7 +5023,7 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
         with tracking_filter_cols[2]:
             only_rank_up = st.checkbox("순위상승", value=False)
         with tracking_filter_cols[3]:
-            max_tracking_rows = st.number_input("표시 행 수", min_value=10, max_value=500, value=100, step=10)
+            max_tracking_rows = st.number_input("표시 행 수", min_value=10, max_value=500, value=10, step=10)
 
         tracking_view = dynamic_tracking_df.copy()
 
@@ -5244,7 +5243,6 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
 
         html(
             f"""
-            <div class="tracking-chip">top 1~{min(int(max_tracking_rows), len(tracking_display))}</div>
             <div class="priority-board-wrap tracking-board-wrap">
                 <table class="priority-board tracking-board">
                     <colgroup>
