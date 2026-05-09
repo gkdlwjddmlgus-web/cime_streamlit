@@ -1855,6 +1855,37 @@ def clean_display_text(series: pd.Series) -> pd.Series:
     return series.replace(["None", "nan", "NaN", "", None], pd.NA).fillna("미분류")
 
 
+def is_unclassified_value(series: pd.Series) -> pd.Series:
+    """상위 콘텐츠군 미확인 값을 판정한다."""
+    return (
+        series.astype(str)
+        .str.strip()
+        .isin(["", "미분류", "None", "none", "nan", "NaN", "NULL", "null", "<NA>"])
+    )
+
+
+def apply_unclassified_hold_rule(data: pd.DataFrame, seg_col: str | None, action_col_name: str | None, output_col: str = "검토단계_표시") -> pd.DataFrame:
+    """
+    상위 콘텐츠군이 미분류인 후보는 점수와 관계없이 화면/변화추적 기준 검토 단계를 보류로 보정한다.
+    - 원본 액션버킷은 보존하고, output_col에 표시/운영용 검토 단계를 만든다.
+    - 이유: 미분류는 콘텐츠군이 확인되지 않은 데이터 품질 이슈이므로 즉시검토로 보이면 해석 모순이 발생한다.
+    """
+    out = data.copy()
+
+    if action_col_name and action_col_name in out.columns:
+        out[output_col] = out[action_col_name]
+    else:
+        out[output_col] = pd.NA
+
+    out[output_col] = out[output_col].replace(["None", "nan", "NaN", "", None], pd.NA).fillna("미분류")
+
+    if seg_col and seg_col in out.columns:
+        unclassified_mask = is_unclassified_value(out[seg_col])
+        out.loc[unclassified_mask, output_col] = "보류"
+
+    return out
+
+
 # =========================================================
 # 3-1. Snapshot 기반 변화 추적 유틸
 # =========================================================
@@ -1986,6 +2017,12 @@ def standardize_for_tracking(source: pd.DataFrame, prefix: str) -> pd.DataFrame:
     keep[f"{prefix}_대표상위세그먼트"] = src[upper_col] if upper_col else pd.NA
     keep[f"{prefix}_대표하위세그먼트"] = src[lower_col] if lower_col else pd.NA
 
+    # 상위 콘텐츠군 미분류 후보는 변화 추적에서도 즉시검토/성장관찰로 보이지 않도록 보류 처리
+    # 원본 snapshot이 과거 로직으로 즉시검토를 갖고 있어도 표시 기준은 보류가 맞다.
+    if f"{prefix}_대표상위세그먼트" in keep.columns:
+        unclassified_mask = is_unclassified_value(keep[f"{prefix}_대표상위세그먼트"])
+        keep.loc[unclassified_mask, f"{prefix}_액션버킷"] = "보류"
+
     return keep.drop_duplicates(subset=["채널ID"], keep="first")
 
 
@@ -2089,6 +2126,19 @@ def build_tracking_between(base_df: pd.DataFrame, target_df: pd.DataFrame, base_
             pass
 
         merged["비교_대표하위세그먼트"] = merged["비교_대표하위세그먼트"].fillna("미분류")
+
+    # -----------------------------------------------------
+    # 변화 추적 검토 단계 보정
+    # - 상위 콘텐츠군이 미분류이면 점수 상승 여부와 관계없이 현재/이전 검토 단계를 보류로 표시
+    # - 즉시검토 후보로 보이면 TOP 후보 표와 변화 추적 표의 해석이 충돌하기 때문
+    # -----------------------------------------------------
+    for prefix in ["기준", "비교"]:
+        seg_c = f"{prefix}_대표상위세그먼트"
+        action_c = f"{prefix}_액션버킷"
+        if seg_c in merged.columns and action_c in merged.columns:
+            unclassified_mask = is_unclassified_value(merged[seg_c])
+            merged.loc[unclassified_mask, action_c] = "보류"
+
     merged["운영우선순위변동"] = merged["기준_운영우선순위"] - merged["비교_운영우선순위"]
     merged["최종점수변동"] = merged["비교_최종점수"] - merged["기준_최종점수"]
     merged["신규진입여부"] = merged["기준_운영우선순위"].isna()
@@ -2238,6 +2288,15 @@ else:
     df["_score_display"] = np.nan
 
 score_display_col = "최종점수_100점"
+
+# =========================================================
+# 표시/운영용 검토 단계 보정
+# - 상위 콘텐츠군이 미분류인 후보는 점수가 높아도 즉시검토로 해석하지 않고 보류 처리
+# - 원본 액션버킷은 보존하고, 화면 필터/표/그래프에서는 검토단계_표시를 사용
+# =========================================================
+original_action_col = action_col
+df = apply_unclassified_hold_rule(df, segment_col, original_action_col, output_col="검토단계_표시")
+action_col = "검토단계_표시"
 
 if rank_col is not None:
     df = df.sort_values(rank_col, ascending=True, na_position="last")
