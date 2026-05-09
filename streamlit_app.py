@@ -4100,70 +4100,237 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+
 # =========================================================
-# 7. 헤더
+# 6-9. STAR SEED Mission Board 레이아웃 보정
+# - 첨부 레퍼런스처럼 STAR SEED 페이지를 관제보드형으로 재배치
 # =========================================================
 
 st.markdown(
     """
     <style>
-    /* STAR SEED 페이지 상단 헤더 정렬/크기 조정 */
-    .starseed-hero {
-        width: 100%;
-        text-align: center;
-        padding: 10px 0 30px 0;
-        margin: 0 auto 18px auto;
-        position: relative;
-        z-index: 2;
+    .block-container {
+        max-width: 1520px !important;
+        padding-top: 1.0rem !important;
     }
 
-    .starseed-title {
+    .starseed-dashboard-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+        gap: 22px;
+        align-items: stretch;
+        margin: 8px 0 18px 0;
+    }
+
+    .starseed-head-left {
+        min-height: 132px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 10px;
+    }
+
+    .starseed-title-mini {
         font-family: 'Orbitron', sans-serif;
-        font-size: clamp(68px, 7.2vw, 96px);
+        font-size: clamp(54px, 5.5vw, 76px);
         font-weight: 950;
-        letter-spacing: 16px;
-        line-height: 0.98;
+        letter-spacing: 8px;
+        line-height: 0.95;
         color: #FFF8FF;
-        text-align: center;
-        text-shadow:
-            0 0 14px rgba(255,255,255,0.22),
-            0 0 30px rgba(198,168,255,0.28);
+        text-shadow: 0 0 22px rgba(180, 108, 255, 0.56), 0 0 8px rgba(255,255,255,0.24);
+        margin: 0 0 14px 0;
+    }
+
+    .starseed-subtitle-mini {
+        font-size: 20px;
+        font-weight: 850;
+        letter-spacing: -0.035em;
+        color: #D8CDEF;
         margin: 0;
     }
 
-    .starseed-subtitle {
-        font-size: clamp(20px, 1.7vw, 28px);
-        font-weight: 850;
-        letter-spacing: -0.035em;
-        color: #D7CDED;
-        text-align: center;
-        margin-top: 24px;
-        line-height: 1.25;
+    .starseed-info-card {
+        border: 1px solid rgba(165, 103, 255, 0.40);
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(39, 20, 83, 0.86), rgba(12, 18, 42, 0.94));
+        box-shadow: 0 16px 38px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06);
+        padding: 22px 26px;
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 18px;
+        align-items: center;
     }
 
-    @media (max-width: 900px) {
-        .starseed-hero {
-            padding-top: 8px;
-            padding-bottom: 22px;
-        }
-        .starseed-title {
-            font-size: 48px;
-            letter-spacing: 8px;
-        }
-        .starseed-subtitle {
-            font-size: 18px;
-            margin-top: 16px;
-        }
+    .starseed-info-icon {
+        width: 62px;
+        height: 62px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+        font-size: 30px;
+        background: radial-gradient(circle at 35% 28%, rgba(255,255,255,0.28), rgba(136,73,255,0.90));
+        border: 1px solid rgba(230, 210, 255, 0.34);
+        box-shadow: 0 0 26px rgba(142, 78, 255, 0.45);
+    }
+
+    .starseed-info-title {
+        color: #F8F2FF;
+        font-size: 18px;
+        font-weight: 900;
+        margin-bottom: 7px;
+    }
+
+    .starseed-info-text {
+        color: #C9BEDC;
+        font-size: 13.5px;
+        line-height: 1.55;
+        word-break: keep-all;
+    }
+
+    .kpi-card {
+        min-height: 112px !important;
+        padding: 18px 24px !important;
+        border-radius: 16px !important;
+        background: linear-gradient(180deg, rgba(13,24,49,.95), rgba(8,14,31,.97)) !important;
+        border-color: rgba(139, 92, 246, 0.42) !important;
+    }
+    .kpi-card::before { display:none !important; }
+    .kpi-label { font-size: 13.5px !important; color:#d4cbec !important; }
+    .kpi-value { font-size: 30px !important; margin-top: 6px !important; }
+    .kpi-delta { margin-top: 6px !important; }
+
+    .top-cards-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 19px;
+        font-weight: 900;
+        color: #F8F2FF;
+        margin: 8px 0 12px 0;
+    }
+
+    .candidate-card {
+        min-height: 172px !important;
+        padding: 16px 14px 14px !important;
+        border-radius: 15px !important;
+        background: linear-gradient(180deg, rgba(18,21,52,.88), rgba(9,14,31,.95)) !important;
+        border-color: rgba(139,92,246,.34) !important;
+    }
+    .candidate-avatar, .content-avatar {
+        width: 58px !important;
+        height: 58px !important;
+        margin: 8px auto 8px auto !important;
+    }
+    .content-avatar-img { width: 58px !important; height: 58px !important; }
+    .rank-badge {
+        top: 10px !important;
+        left: 10px !important;
+        min-width: 21px;
+        height: 21px;
+        padding: 0 6px !important;
+        display:flex; align-items:center; justify-content:center;
+        border-radius: 6px !important;
+        font-size: 12px !important;
+        background: rgba(255, 214, 95, .16) !important;
+        border: 1px solid rgba(255, 214, 95, .85) !important;
+        color: #FFD76A !important;
+    }
+    .candidate-name { font-size: 15px !important; margin-bottom: 5px !important; }
+    .score-text { font-size: 22px !important; margin-top: 5px !important; color:#F0E9FF !important; }
+    .candidate-card .small-muted { display:none; }
+    .candidate-card .segment-pill { font-size: 11px !important; padding: 3px 8px !important; }
+
+    .priority-board-wrap {
+        background: rgba(9, 14, 31, 0.72);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+    .priority-board th {
+        background: rgba(255,255,255,0.055) !important;
+        color: #EDE8FF !important;
+        font-size: 12.5px !important;
+    }
+    .priority-board td {
+        font-size: 12.5px !important;
+        padding-top: 7px !important;
+        padding-bottom: 7px !important;
+    }
+    .priority-tag, .priority-action {
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+        min-height: 21px;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-color: rgba(139, 92, 246, 0.28) !important;
+        background: rgba(8, 14, 31, 0.50) !important;
+        border-radius: 16px !important;
+    }
+
+    .selected-profile-img-wrap, .selected-profile-fallback .content-avatar {
+        width: 106px !important;
+        height: 106px !important;
+        margin: 2px auto 12px auto !important;
+    }
+    .selected-profile-img {
+        width: 106px !important;
+        height: 106px !important;
+        border-radius: 999px !important;
+        object-fit: cover;
+        border: 2px solid rgba(230, 210, 255, 0.50);
+        box-shadow: 0 0 22px rgba(139,92,246,.32);
+    }
+    .detail-title-centered { text-align:center !important; font-size: 24px !important; }
+    div[data-testid="stMetric"] { padding: 9px 10px !important; }
+    div[data-testid="stMetric"] label { font-size: 12px !important; }
+    div[data-testid="stMetric"] [data-testid="stMetricValue"] { font-size: 20px !important; }
+
+    .stPlotlyChart {
+        background: linear-gradient(180deg, rgba(8, 13, 29, 0.96), rgba(4, 10, 22, 0.98)) !important;
+        border: 1px solid rgba(139, 92, 246, 0.28) !important;
+        border-radius: 16px !important;
+    }
+
+    .mock-chart-tabs [data-testid="stRadio"] label {
+        border-radius: 999px !important;
+    }
+
+    @media (max-width: 1100px) {
+        .starseed-dashboard-hero { grid-template-columns: 1fr; }
+        .starseed-title-mini { font-size: 48px; letter-spacing: 6px; }
     }
     </style>
-    <div class="starseed-hero">
-        <div class="starseed-title">STAR SEED</div>
-        <div class="starseed-subtitle">유튜브 기반 잠재 후보군 영입 분석 대시보드</div>
-    </div>
     """,
     unsafe_allow_html=True,
 )
 
+# =========================================================
+# 7. 헤더
+# =========================================================
+
+html(
+    """
+    <div class="starseed-dashboard-hero">
+        <div class="starseed-head-left">
+            <div class="starseed-title-mini">STAR SEED</div>
+            <div class="starseed-subtitle-mini">외부 반응 속 성장 가능성이 보이는 후보군을 찾습니다</div>
+        </div>
+        <div class="starseed-info-card">
+            <div class="starseed-info-icon">✦</div>
+            <div>
+                <div class="starseed-info-title">스타시드는 무엇을 찾나요?</div>
+                <div class="starseed-info-text">
+                    YouTube Data API 기반 후보군 중 최근 성장세, 팬덤 반응, 콘텐츠 적합성, 영입 리스크를 함께 검토해 CIME에서 성장 가능성이 높은 후보를 선별합니다.
+                </div>
+            </div>
+        </div>
+    </div>
+    """
+)
 
 # =========================================================
 # 8. KPI 카드
@@ -4376,7 +4543,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # =========================================================
 
 add_section_divider()
-st.markdown("### ⭐ TOP 영입 후보")
+html('<div class="top-cards-title">⭐ 오늘의 추천 후보 TOP 5</div>')
 
 top_candidates = filtered.head(5).copy()
 
@@ -4879,7 +5046,7 @@ with main_right:
 
 st.markdown("<br>", unsafe_allow_html=True)
 add_section_divider()
-st.markdown("### 🌌 후보군 종합 분석 그래프")
+st.markdown("### 📊 후보군 비교 그래프")
 st.caption("아래 선택지에서 그래프 유형을 고르면, 선택한 그래프 1개만 넓게 표시됩니다. 콘텐츠군 비교 그래프에서는 `미분류` 후보를 제외합니다.")
 
 graph_view = st.radio(
