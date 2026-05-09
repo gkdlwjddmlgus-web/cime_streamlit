@@ -5012,7 +5012,7 @@ selected_name = selected_options[0] if selected_options else None
 left_col, right_col = st.columns([0.58, 0.42], gap="small")
 
 with left_col:
-    title_col, switch_col = st.columns([0.52, 0.48], gap="small")
+    title_col, switch_col = st.columns([0.38, 0.62], gap="small")
     with title_col:
         html('<div class="priority-inline-title">🏆 영입 우선순위 TOP</div>')
     with switch_col:
@@ -5063,6 +5063,29 @@ with left_col:
                 """
             )
 
+
+    with st.expander("Table 설명", expanded=False):
+        if priority_view_mode == "영입 우선순위 TOP":
+            st.markdown(
+                """
+                <div class="explain-box">
+                <b>읽는 법</b>: 현재 필터 조건에서 영입 우선순위가 높은 후보를 순위대로 보여줍니다. 점수뿐 아니라 주요 콘텐츠군과 검토단계를 함께 확인해야 합니다.<br><br>
+                <b>도출 가능한 인사이트</b>: 상위권에 반복적으로 등장하는 콘텐츠군은 우선 탐색 풀이 두꺼운 영역입니다. 점수가 높고 검토단계가 즉시검토인 후보는 우선 컨택 또는 수기 검증 대상으로 볼 수 있습니다.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                """
+                <div class="explain-box">
+                <b>읽는 법</b>: 이전 시점 대비 현재 순위가 크게 상승한 후보를 보여줍니다. 상승 폭, 현재 점수, 현재 검토단계를 함께 확인합니다.<br><br>
+                <b>도출 가능한 인사이트</b>: 순위가 크게 오른 후보는 최근 데이터 반영 이후 주목도가 상승한 후보입니다. 다만 현재 단계가 보류라면 수치 상승 원인과 리스크 플래그를 먼저 검토하는 것이 좋습니다.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
 with right_col:
     if selected_options:
         selected_name = st.selectbox(
@@ -5088,11 +5111,11 @@ with right_col:
         reason_html = "".join([f'<div class="reason-bullet">{_safe_html(_short_text(b, 22))}</div>' for b in bullets])
         html(
             f"""
-            <div class="board-panel" style="min-height:228px;">
+            <div class="board-panel detail-panel-v2" style="min-height:286px;">
                 <div class="board-panel-title">👥 선택 후보 상세</div>
-                <div class="detail-card-inner">
-                    <div>{_avatar_big(selected_row)}</div>
-                    <div>
+                <div class="detail-card-inner detail-card-inner-v2">
+                    <div class="detail-avatar-area">{_avatar_big(selected_row)}</div>
+                    <div class="detail-content-area">
                         <div class="detail-name-row"><div class="detail-name-main">{_channel_link(sel_name, selected_row)}</div>{_action_tag(sel_action)}</div>
                         <div class="detail-metric-grid">
                             <div class="detail-metric-box"><div class="detail-metric-label">추천 점수</div><div class="detail-metric-value">{_fmt_num(sel_score, 1, '점')}</div></div>
@@ -5101,7 +5124,7 @@ with right_col:
                             <div class="detail-metric-box"><div class="detail-metric-label">팬밀도</div><div class="detail-metric-value">{_fmt_num(sel_fan, 3, '')}</div></div>
                         </div>
                     </div>
-                    <div class="reason-panel">
+                    <div class="reason-panel detail-reason-bottom">
                         <div class="reason-title">핵심 추천 사유</div>
                         {reason_html}
                     </div>
@@ -5253,6 +5276,77 @@ st.markdown(
             background: rgba(7, 10, 24, 0.62);
             padding: 10px;
         }
+
+        /* 영입 우선순위 표 선택 필터: 같은 줄에 가로 배치 */
+        .priority-view-switch div[role="radiogroup"],
+        .priority-view-switch .stRadio > div {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 8px !important;
+        }
+        .priority-view-switch label {
+            min-width: 118px !important;
+            max-width: 168px !important;
+            margin-bottom: 0 !important;
+            white-space: nowrap !important;
+        }
+        .priority-view-switch label p {
+            white-space: nowrap !important;
+        }
+
+        /* 선택 후보 상세: 이름 줄바꿈 방지 + 추천 사유 하단 배치 */
+        .detail-panel-v2 {
+            min-height: 286px !important;
+        }
+        .detail-card-inner-v2 {
+            display: grid !important;
+            grid-template-columns: 124px minmax(0, 1fr) !important;
+            grid-template-areas:
+                "avatar content"
+                "reason reason" !important;
+            gap: 14px 16px !important;
+            align-items: center !important;
+        }
+        .detail-avatar-area { grid-area: avatar; }
+        .detail-content-area { grid-area: content; min-width: 0; }
+        .detail-reason-bottom {
+            grid-area: reason;
+            min-height: auto !important;
+            padding: 10px 13px !important;
+        }
+        .detail-name-row {
+            flex-wrap: nowrap !important;
+            min-width: 0 !important;
+        }
+        .detail-name-main {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        .detail-name-main a {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            display: block !important;
+        }
+        .detail-reason-bottom .reason-bullet {
+            display: inline-block;
+            margin-right: 14px;
+            white-space: nowrap;
+        }
+
+        /* Plotly 위에 생기는 빈 wrapper 방지: 실제 차트 자체만 패널처럼 정리 */
+        .stPlotlyChart {
+            border-radius: 13px !important;
+            border: 1px solid rgba(133, 103, 229, 0.22) !important;
+            background: rgba(7, 10, 24, 0.62) !important;
+            padding: 8px 10px !important;
+        }
         </style>
         """
     ),
@@ -5355,9 +5449,7 @@ with graph_right:
                 yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")),
                 font=dict(color="#eee8ff"),
             )
-            st.markdown('<div class="graph-output-card">', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("콘텐츠군별 점수를 만들 수 있는 컬럼이 부족합니다.")
 
@@ -5390,9 +5482,7 @@ with graph_right:
                 yaxis=dict(tickfont=dict(color="#d7cdeb")),
                 font=dict(color="#eee8ff"),
             )
-            st.markdown('<div class="graph-output-card">', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("검토 단계 컬럼이 없어 그래프를 만들 수 없습니다.")
 
@@ -5422,9 +5512,7 @@ with graph_right:
                 legend=dict(font=dict(size=12, color="#eee8ff"), title_font=dict(size=12, color="#eee8ff"), x=1.02, y=.5, yanchor="middle"),
                 font=dict(color="#eee8ff"),
             )
-            st.markdown('<div class="graph-output-card">', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("콘텐츠군 구성 비율을 만들 수 없습니다.")
 
