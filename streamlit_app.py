@@ -3739,11 +3739,11 @@ if not tracking_base_df.empty and not tracking_target_df.empty:
         tracking_filter_cols = st.columns([0.25, 0.25, 0.25, 0.25])
 
         with tracking_filter_cols[0]:
-            only_new = st.checkbox("신규진입만", value=False)
+            only_bucket_changed = st.checkbox("버킷변경", value=True)
         with tracking_filter_cols[1]:
-            only_bucket_changed = st.checkbox("버킷변경만", value=False)
+            only_new = st.checkbox("신규진입", value=False)
         with tracking_filter_cols[2]:
-            only_rank_up = st.checkbox("순위상승만", value=False)
+            only_rank_up = st.checkbox("순위상승", value=False)
         with tracking_filter_cols[3]:
             max_tracking_rows = st.number_input("표시 행 수", min_value=10, max_value=500, value=100, step=10)
 
