@@ -1702,6 +1702,44 @@ st.markdown(
             border-radius: 18px !important;
         }
 
+        .selected-profile-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 16px 0 8px 0;
+        }
+
+        .selected-profile-img-wrap {
+            width: 104px;
+            height: 104px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid rgba(95,255,232,0.50);
+            box-shadow: 0 0 28px rgba(95,255,232,0.22), inset 0 1px 0 rgba(255,255,255,0.20);
+            background: radial-gradient(circle at 35% 30%, rgba(95,255,232,0.28), rgba(72,18,167,0.38));
+        }
+
+        .selected-profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .selected-profile-fallback {
+            width: 104px;
+            height: 104px;
+            transform: scale(1.18);
+            margin: 0 auto;
+        }
+
+        .detail-title-centered {
+            text-align: center;
+            font-size: 28px !important;
+            margin: 10px 0 16px 0 !important;
+        }
+
         </style>
         """
     ),
@@ -2392,6 +2430,24 @@ def get_candidate_avatar_html(row, segment_col=None, lower_segment_col=None, thu
     segment = row.get(segment_col, "-") if segment_col else "-"
     lower_segment = row.get(lower_segment_col, "") if lower_segment_col else ""
     return get_content_avatar_html(segment, lower_segment)
+
+
+def get_selected_profile_html(row, segment_col=None, lower_segment_col=None, thumbnail_col=None):
+    """
+    선택 후보 상세용 프로필 이미지 HTML.
+    1순위는 YouTube 채널 프로필 이미지, 없으면 콘텐츠 유형 fallback 아이콘을 가운데 표시한다.
+    """
+    thumbnail_url = row.get(thumbnail_col, "") if thumbnail_col else ""
+    if is_valid_url(thumbnail_url):
+        safe_url = html_lib.escape(str(thumbnail_url).strip(), quote=True)
+        return (
+            '<div class="selected-profile-img-wrap" title="YouTube 채널 프로필 이미지">'
+            f'<img src="{safe_url}" class="selected-profile-img" loading="lazy" referrerpolicy="no-referrer">'
+            '</div>'
+        )
+
+    fallback_html = get_candidate_avatar_html(row, segment_col, lower_segment_col, thumbnail_col=None)
+    return f'<div class="selected-profile-fallback">{fallback_html}</div>'
 
 
 def make_channel_name_html(name, url=""):
@@ -3485,15 +3541,8 @@ with main_left:
             return text
 
         def _score_class(value):
-            try:
-                score_v = float(value)
-            except Exception:
-                return "priority-score-low"
-            if score_v >= 75:
-                return "priority-score-high"
-            if score_v >= 65:
-                return "priority-score-mid"
-            return "priority-score-low"
+            # 점수 색상은 전체 순위에서 동일한 강조색으로 통일한다.
+            return "priority-score-main"
 
         # 주요 콘텐츠군 색상: 세부 콘텐츠 유형은 같은 계열의 더 짙은 색상으로 표시
         def _segment_theme_class(text):
@@ -3574,7 +3623,7 @@ with main_left:
                 border-collapse: collapse;
                 table-layout: fixed;
                 color: #efffff;
-                font-size: 13.5px;
+                font-size: 13.2px;
             }
             .priority-board thead th {
                 background: rgba(255,255,255,0.055);
@@ -3587,7 +3636,7 @@ with main_left:
                 white-space: nowrap;
             }
             .priority-board tbody td {
-                padding: 9px 8px;
+                padding: 10px 8px;
                 border-bottom: 1px solid rgba(255,255,255,0.075);
                 vertical-align: middle;
                 text-align: center;
@@ -3613,11 +3662,13 @@ with main_left:
                 font-size: 16px;
                 font-weight: 950;
                 font-variant-numeric: tabular-nums;
-                text-shadow: 0 0 10px rgba(95,255,232,0.20);
+                color: #7cfff1;
+                text-shadow: 0 0 10px rgba(95,255,232,0.32);
             }
-            .priority-score-high { color: #ff69d2; }
-            .priority-score-mid { color: #7cfff1; }
-            .priority-score-low { color: #ffd166; }
+            .priority-score-main,
+            .priority-score-high,
+            .priority-score-mid,
+            .priority-score-low { color: #7cfff1; }
             .priority-note {
                 text-align: left !important;
                 color: #c4d1dc;
@@ -3644,7 +3695,7 @@ with main_left:
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                max-width: 150px;
+                max-width: 138px;
                 padding: 5px 10px;
                 border-radius: 999px;
                 font-size: 11.5px;
@@ -3700,8 +3751,6 @@ with main_left:
             score_val = r.get("영입 적합도 점수", np.nan)
             score_text = fmt_float(score_val, 1)
             score_cls = _score_class(score_val)
-            note_text = html_lib.escape(_make_note(r), quote=False)
-
             rows_html.append(
                 f"""
                 <tr>
@@ -3711,7 +3760,6 @@ with main_left:
                     <td>{lower_html}</td>
                     <td>{action_html}</td>
                     <td class="priority-score {score_cls}">{score_text}</td>
-                    <td class="priority-note">{note_text}</td>
                 </tr>
                 """
             )
@@ -3722,13 +3770,12 @@ with main_left:
             <div class="priority-board-wrap">
                 <table class="priority-board">
                     <colgroup>
-                        <col style="width: 6%;">
+                        <col style="width: 7%;">
+                        <col style="width: 21%;">
+                        <col style="width: 20%;">
+                        <col style="width: 20%;">
                         <col style="width: 17%;">
-                        <col style="width: 16%;">
                         <col style="width: 15%;">
-                        <col style="width: 11%;">
-                        <col style="width: 10%;">
-                        <col style="width: 25%;">
                     </colgroup>
                     <thead>
                         <tr>
@@ -3738,7 +3785,6 @@ with main_left:
                             <th>세부 콘텐츠 유형</th>
                             <th>검토단계</th>
                             <th>점수</th>
-                            <th>비고</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3802,12 +3848,15 @@ with main_right:
 
                 selected_channel_url = selected_row.get(channel_url_col, "") if channel_url_col else ""
                 selected_name_html = make_channel_name_html(selected_row.get(channel_name_col, "-"), selected_channel_url)
+                selected_profile_html = get_selected_profile_html(selected_row, segment_col, lower_segment_col, channel_thumbnail_col)
 
-                st.markdown(
+                html(
                     f"""
-                    <div class="detail-title">{selected_name_html}</div>
-                    """,
-                    unsafe_allow_html=True,
+                    <div class="selected-profile-area">
+                        {selected_profile_html}
+                    </div>
+                    <div class="detail-title detail-title-centered">{selected_name_html}</div>
+                    """
                 )
 
                 metric_cols = st.columns(2)
