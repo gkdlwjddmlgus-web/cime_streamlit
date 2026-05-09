@@ -4317,7 +4317,7 @@ html(
     <div class="starseed-dashboard-hero">
         <div class="starseed-head-left">
             <div class="starseed-title-mini">STAR SEED</div>
-            <div class="starseed-subtitle-mini">외부 반응 속 성장 가능성이 보이는 후보군을 찾습니다</div>
+            <div class="starseed-subtitle-mini"> 외부 반응 속 성장 가능성이 보이는 후보군을 찾습니다</div>
         </div>
         <div class="starseed-info-card">
             <div class="starseed-info-icon">✦</div>
