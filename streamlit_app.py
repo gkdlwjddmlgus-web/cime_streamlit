@@ -5013,14 +5013,19 @@ left_col, right_col = st.columns([0.58, 0.42], gap="small")
 
 with left_col:
     # 표 제목과 전환 필터를 같은 행에 고정 배치합니다.
-    # nested column 환경에서 radio가 아래로 밀리지 않도록 vertical_alignment와 전용 wrapper를 함께 사용합니다.
+    # st.radio가 nested column에서 아래로 밀리는 문제가 있어 버튼형 토글로 전환했습니다.
     current_priority_mode = st.session_state.get("priority_table_view_mode", "영입 우선순위 TOP")
+    if current_priority_mode not in ["영입 우선순위 TOP", "최근 순위 상승 후보"]:
+        current_priority_mode = "영입 우선순위 TOP"
+        st.session_state["priority_table_view_mode"] = current_priority_mode
+
     priority_title_label = "🏆 영입 우선순위 TOP" if current_priority_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
 
+    st.markdown('<div class="priority-tight-anchor"></div>', unsafe_allow_html=True)
     try:
-        title_col, switch_col = st.columns([0.36, 0.64], gap="small", vertical_alignment="center")
+        title_col, mode_col_1, mode_col_2 = st.columns([0.42, 0.29, 0.29], gap="small", vertical_alignment="center")
     except TypeError:
-        title_col, switch_col = st.columns([0.36, 0.64], gap="small")
+        title_col, mode_col_1, mode_col_2 = st.columns([0.42, 0.29, 0.29], gap="small")
 
     with title_col:
         st.markdown(
@@ -5028,18 +5033,27 @@ with left_col:
             unsafe_allow_html=True,
         )
 
-    with switch_col:
-        st.markdown('<div class="priority-header-switch">', unsafe_allow_html=True)
-        priority_view_mode = st.radio(
-            "영입 우선순위 표 선택",
-            ["영입 우선순위 TOP", "최근 순위 상승 후보"],
-            index=0,
-            horizontal=True,
-            key="priority_table_view_mode",
-            label_visibility="collapsed",
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+    with mode_col_1:
+        if st.button(
+            "영입 우선순위 TOP",
+            key="priority_mode_top_button",
+            use_container_width=True,
+            type="primary" if current_priority_mode == "영입 우선순위 TOP" else "secondary",
+        ):
+            st.session_state["priority_table_view_mode"] = "영입 우선순위 TOP"
+            current_priority_mode = "영입 우선순위 TOP"
 
+    with mode_col_2:
+        if st.button(
+            "최근 순위 상승 후보",
+            key="priority_mode_recent_button",
+            use_container_width=True,
+            type="primary" if current_priority_mode == "최근 순위 상승 후보" else "secondary",
+        ):
+            st.session_state["priority_table_view_mode"] = "최근 순위 상승 후보"
+            current_priority_mode = "최근 순위 상승 후보"
+
+    priority_view_mode = current_priority_mode
     priority_title_label = "🏆 영입 우선순위 TOP" if priority_view_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
 
     if priority_view_mode == "영입 우선순위 TOP":
@@ -5823,6 +5837,72 @@ st.markdown(
     /* 기존 priority-view-switch 보정 CSS가 남아 있더라도 새 header 클래스에는 영향을 주지 않도록 분리 */
     .priority-table-panel {
         margin-top: 10px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
+# 추가 보정: 영입 우선순위 헤더-테이블 세로 여백 최소화
+# - TOP5 카드 하단과 우선순위 헤더 사이의 공백 축소
+# - 헤더/필터 행과 테이블 사이의 공백 축소
+# =========================================================
+st.markdown(
+    """
+    <style>
+    div.element-container:has(.top5-grid) {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    div.element-container:has(.priority-tight-anchor) {
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: -8px 0 0 0 !important;
+        padding: 0 !important;
+    }
+
+    div.element-container:has(.priority-header-title) {
+        margin-top: -10px !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .priority-header-title {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        align-items: center !important;
+    }
+
+    div[data-testid="column"]:has(button[kind="primary"]),
+    div[data-testid="column"]:has(button[kind="secondary"]) {
+        padding-top: 0 !important;
+    }
+
+    button[kind="primary"][data-testid="baseButton-primary"],
+    button[kind="secondary"][data-testid="baseButton-secondary"] {
+        min-height: 38px !important;
+        height: 38px !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        border-radius: 999px !important;
+    }
+
+    div.element-container:has(.priority-table-panel) {
+        margin-top: -8px !important;
+        padding-top: 0 !important;
+    }
+
+    .priority-table-panel {
+        margin-top: 0 !important;
+        padding-top: 10px !important;
     }
     </style>
     """,
