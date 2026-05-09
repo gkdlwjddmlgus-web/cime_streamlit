@@ -5006,20 +5006,30 @@ if not mini_tracking_df.empty:
             """
         )
 
-selected_options = priority_df[channel_name_col].astype(str).tolist() if channel_name_col and not priority_df.empty else []
+# 선택 후보 드롭다운은 현재 사이드바/화면 필터가 적용된 전체 1차 선별 후보 풀을 사용합니다.
+# 단, 상단 우선순위 표는 기존처럼 TOP 8만 보여줍니다.
+candidate_select_df = filtered.copy()
+if channel_name_col and not candidate_select_df.empty:
+    candidate_select_df = candidate_select_df[candidate_select_df[channel_name_col].notna()].copy()
+    candidate_select_df[channel_name_col] = candidate_select_df[channel_name_col].astype(str)
+    candidate_select_df = candidate_select_df.drop_duplicates(subset=[channel_name_col], keep="first")
+    selected_options = candidate_select_df[channel_name_col].tolist()
+else:
+    selected_options = []
 selected_name = selected_options[0] if selected_options else None
 
 left_col, right_col = st.columns([0.58, 0.42], gap="small")
 
 with left_col:
     # 표 제목과 전환 필터를 같은 행에 고정 배치합니다.
-    # st.radio가 nested column에서 아래로 밀리는 문제가 있어 버튼형 토글로 전환했습니다.
+    # 버튼 클릭 직후 title/table이 한 번에 바뀌도록 on_click 콜백으로 session_state를 먼저 갱신합니다.
+    def _set_priority_mode(mode: str) -> None:
+        st.session_state["priority_table_view_mode"] = mode
+
     current_priority_mode = st.session_state.get("priority_table_view_mode", "영입 우선순위 TOP")
     if current_priority_mode not in ["영입 우선순위 TOP", "최근 순위 상승 후보"]:
         current_priority_mode = "영입 우선순위 TOP"
         st.session_state["priority_table_view_mode"] = current_priority_mode
-
-    priority_title_label = "🏆 영입 우선순위 TOP" if current_priority_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
 
     st.markdown('<div class="priority-tight-anchor"></div>', unsafe_allow_html=True)
     try:
@@ -5027,34 +5037,37 @@ with left_col:
     except TypeError:
         title_col, mode_col_1, mode_col_2 = st.columns([0.42, 0.29, 0.29], gap="small")
 
+    with mode_col_1:
+        st.button(
+            "영입 우선순위 TOP",
+            key="priority_mode_top_button",
+            use_container_width=True,
+            type="primary" if current_priority_mode == "영입 우선순위 TOP" else "secondary",
+            on_click=_set_priority_mode,
+            args=("영입 우선순위 TOP",),
+        )
+
+    with mode_col_2:
+        st.button(
+            "최근 순위 상승 후보",
+            key="priority_mode_recent_button",
+            use_container_width=True,
+            type="primary" if current_priority_mode == "최근 순위 상승 후보" else "secondary",
+            on_click=_set_priority_mode,
+            args=("최근 순위 상승 후보",),
+        )
+
+    priority_view_mode = st.session_state.get("priority_table_view_mode", "영입 우선순위 TOP")
+    if priority_view_mode not in ["영입 우선순위 TOP", "최근 순위 상승 후보"]:
+        priority_view_mode = "영입 우선순위 TOP"
+        st.session_state["priority_table_view_mode"] = priority_view_mode
+    priority_title_label = "🏆 영입 우선순위 TOP" if priority_view_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
+
     with title_col:
         st.markdown(
             f'<div class="priority-header-title">{priority_title_label}</div>',
             unsafe_allow_html=True,
         )
-
-    with mode_col_1:
-        if st.button(
-            "영입 우선순위 TOP",
-            key="priority_mode_top_button",
-            use_container_width=True,
-            type="primary" if current_priority_mode == "영입 우선순위 TOP" else "secondary",
-        ):
-            st.session_state["priority_table_view_mode"] = "영입 우선순위 TOP"
-            current_priority_mode = "영입 우선순위 TOP"
-
-    with mode_col_2:
-        if st.button(
-            "최근 순위 상승 후보",
-            key="priority_mode_recent_button",
-            use_container_width=True,
-            type="primary" if current_priority_mode == "최근 순위 상승 후보" else "secondary",
-        ):
-            st.session_state["priority_table_view_mode"] = "최근 순위 상승 후보"
-            current_priority_mode = "최근 순위 상승 후보"
-
-    priority_view_mode = current_priority_mode
-    priority_title_label = "🏆 영입 우선순위 TOP" if priority_view_mode == "영입 우선순위 TOP" else "📈 최근 순위 상승 후보"
 
     if priority_view_mode == "영입 우선순위 TOP":
         html(
@@ -5120,14 +5133,17 @@ with right_col:
         # 좌측의 우선순위 제목/필터 행과 시각적 기준선을 맞추기 위해
         # 선택 후보 드롭다운 위에 소폭 여백을 둡니다.
         st.markdown('<div class="candidate-select-top-spacer"></div>', unsafe_allow_html=True)
+        previous_selected = st.session_state.get("mock_selected_candidate")
+        selected_index = selected_options.index(previous_selected) if previous_selected in selected_options else 0
         selected_name = st.selectbox(
             "선택 후보",
             options=selected_options,
-            index=0,
+            index=selected_index,
             key="mock_selected_candidate",
             label_visibility="collapsed",
         )
-        selected_row = priority_df[priority_df[channel_name_col].astype(str) == str(selected_name)].iloc[0]
+        selected_match = candidate_select_df[candidate_select_df[channel_name_col].astype(str) == str(selected_name)]
+        selected_row = selected_match.iloc[0] if not selected_match.empty else candidate_select_df.iloc[0]
         sel_name = selected_row.get(channel_name_col, "-") if channel_name_col else "-"
         sel_action = selected_row.get(action_col, "-") if action_col else "-"
         sel_segment = selected_row.get(segment_col, "-") if segment_col else "-"
@@ -5166,6 +5182,24 @@ with right_col:
         )
     else:
         html('<div class="board-panel"><div class="board-panel-title">👥 선택 후보 상세</div><div class="board-info-text">표시할 후보가 없습니다.</div></div>')
+
+
+# 선택 후보 드롭다운/우선순위 토글 동기화 보정
+st.markdown(
+    clean_html(
+        """
+        <style>
+        .priority-header-title {
+            white-space: nowrap !important;
+        }
+        div[data-testid="column"] .stButton > button {
+            white-space: nowrap !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
 
 
 
@@ -5942,4 +5976,3 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
