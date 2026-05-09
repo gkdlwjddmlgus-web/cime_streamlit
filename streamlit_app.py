@@ -5057,6 +5057,99 @@ with right_col:
     else:
         html('<div class="board-panel"><div class="board-panel-title">👥 선택 후보 상세</div><div class="board-info-text">표시할 후보가 없습니다.</div></div>')
 
+
+
+# =========================================================
+# 12-1. 요청 반영: 상단 여백 최소 조정 + 그래프 영역 정렬 보정
+# - TOP5 카드 내부 간격은 건드리지 않고, 전체 STAR SEED 본문만 위로 당김
+# - 그래프/테이블 출력 위치가 동일한 우측 출력 영역에 고정되도록 보정
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        /* 상단 여백만 조정: 카드 내부 높이/프로필 이미지 위치는 유지 */
+        .block-container {
+            padding-top: 0.35rem !important;
+        }
+
+        .starseed-dashboard-hero {
+            margin-top: -10px !important;
+            margin-bottom: 14px !important;
+        }
+
+        /* 하단 그래프 영역: 타이틀 → 선택 필터 → 설명/출력 순서로 고정 */
+        .bottom-panel {
+            margin-top: 14px !important;
+            padding: 18px 20px 20px 20px !important;
+        }
+
+        .graph-radio-wrap {
+            margin: 8px 0 14px 0;
+        }
+
+        .graph-radio-wrap div[role="radiogroup"] {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .graph-radio-wrap label {
+            min-width: 168px;
+            justify-content: center;
+            padding: 8px 14px !important;
+            border-radius: 999px !important;
+            background: rgba(255,255,255,0.055) !important;
+            border: 1px solid rgba(145,116,233,0.26) !important;
+            color: #d9d2ef !important;
+            font-weight: 900 !important;
+        }
+
+        .graph-radio-wrap label:has(input:checked) {
+            background: linear-gradient(135deg, rgba(143,84,255,0.92), rgba(207,71,178,0.70)) !important;
+            border-color: rgba(221,160,255,0.52) !important;
+            box-shadow: 0 0 16px rgba(145, 93, 255, 0.24) !important;
+        }
+
+        .graph-radio-wrap label p {
+            font-size: 12px !important;
+            font-weight: 900 !important;
+        }
+
+        .graph-output-card {
+            min-height: 282px;
+            border-radius: 13px;
+            border: 1px solid rgba(133, 103, 229, 0.22);
+            background: rgba(7, 10, 24, 0.62);
+            padding: 8px 10px;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .graph-output-card .stPlotlyChart {
+            width: 100%;
+            min-height: 250px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .graph-table-card {
+            min-height: 282px;
+            border-radius: 13px;
+            border: 1px solid rgba(133, 103, 229, 0.22);
+            background: rgba(7, 10, 24, 0.62);
+            padding: 10px;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
 # ---------------------------------------------------------
 # 13. 하단 후보군 비교 그래프
 # ---------------------------------------------------------
@@ -5080,6 +5173,16 @@ GRAPH_OPTIONS = [
     "최근 순위 상승 후보",
 ]
 
+html(
+    """
+    <div class="board-panel bottom-panel">
+        <div class="board-panel-title">📊 후보군 비교 그래프</div>
+    </div>
+    """
+)
+
+# 필터는 타이틀 아래에 한 번만 표시한다. 기존 mock-tab 중복 표시는 제거.
+st.markdown('<div class="graph-radio-wrap">', unsafe_allow_html=True)
 graph_view = st.radio(
     "후보군 비교 그래프 선택",
     GRAPH_OPTIONS,
@@ -5088,20 +5191,9 @@ graph_view = st.radio(
     key="mock_graph_view",
     label_visibility="collapsed",
 )
+st.markdown('</div>', unsafe_allow_html=True)
 
-active_tabs = []
-for opt in GRAPH_OPTIONS:
-    active_tabs.append(f'<div class="mock-tab {"active" if opt == graph_view else ""}">{_safe_html(opt)}</div>')
-
-html(
-    f"""
-    <div class="board-panel bottom-panel">
-        <div class="board-panel-title">📊 후보군 비교 그래프</div>
-        <div class="mock-tabs">{''.join(active_tabs)}</div>
-    """
-)
-
-# Streamlit은 HTML div가 컴포넌트 사이를 정확히 감싸지 못하므로, 그래프 부분은 컬럼으로 배치한다.
+# 모든 그래프/테이블은 같은 2열 구조의 우측 출력 박스에 표시한다.
 graph_left, graph_right = st.columns([0.23, 0.77], gap="small")
 
 COSMIC_COLORS = ["#8b5cf6", "#5b7cfa", "#c94ea2", "#33c7b1", "#f09a4a", "#8fb4ff", "#b48cff"]
@@ -5138,23 +5230,28 @@ with graph_right:
                 color="__segment__",
                 color_discrete_sequence=COSMIC_COLORS,
                 template="plotly_dark",
-                height=250,
+                height=282,
             )
-            fig.update_traces(texttemplate="%{y:.1f}", textposition="outside", cliponaxis=False, hovertemplate="콘텐츠군=%{x}<br>추천점수=%{y:.1f}<br>후보수=%{customdata[0]}명<extra></extra>")
+            fig.update_traces(
+                texttemplate="%{y:.1f}",
+                textposition="outside",
+                cliponaxis=False,
+                hovertemplate="콘텐츠군=%{x}<br>추천점수=%{y:.1f}<br>후보수=%{customdata[0]}명<extra></extra>",
+            )
             fig.update_layout(
                 showlegend=False,
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=12, r=12, t=12, b=50),
+                margin=dict(l=12, r=12, t=16, b=54),
                 xaxis_title="",
                 yaxis_title="추천 점수",
                 xaxis=dict(tickangle=0, tickfont=dict(size=10, color="#d7cdeb")),
                 yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")),
                 font=dict(color="#eee8ff"),
             )
-            html('<div class="plot-shell">')
+            st.markdown('<div class="graph-output-card">', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
-            html('</div>')
+            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("콘텐츠군별 점수를 만들 수 있는 컬럼이 부족합니다.")
 
@@ -5164,12 +5261,32 @@ with graph_right:
             bucket_df = filtered[action_col].fillna("미분류").astype(str).value_counts().rename_axis("검토단계").reset_index(name="후보수")
             bucket_df["정렬"] = bucket_df["검토단계"].apply(lambda x: bucket_order.index(x) if x in bucket_order else 999)
             bucket_df = bucket_df.sort_values(["정렬", "후보수"], ascending=[True, False])
-            fig = px.bar(bucket_df, x="후보수", y="검토단계", orientation="h", text="후보수", color="검토단계", color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=250)
+            fig = px.bar(
+                bucket_df,
+                x="후보수",
+                y="검토단계",
+                orientation="h",
+                text="후보수",
+                color="검토단계",
+                color_discrete_sequence=COSMIC_COLORS,
+                template="plotly_dark",
+                height=282,
+            )
             fig.update_traces(textposition="outside", cliponaxis=False, hovertemplate="검토단계=%{y}<br>후보수=%{x}명<extra></extra>")
-            fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8,r=32,t=8,b=30), xaxis_title="", yaxis_title="", xaxis=dict(gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")), yaxis=dict(tickfont=dict(color="#d7cdeb")), font=dict(color="#eee8ff"))
-            html('<div class="plot-shell">')
+            fig.update_layout(
+                showlegend=False,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=8, r=32, t=12, b=30),
+                xaxis_title="",
+                yaxis_title="",
+                xaxis=dict(gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")),
+                yaxis=dict(tickfont=dict(color="#d7cdeb")),
+                font=dict(color="#eee8ff"),
+            )
+            st.markdown('<div class="graph-output-card">', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
-            html('</div>')
+            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("검토 단계 컬럼이 없어 그래프를 만들 수 없습니다.")
 
@@ -5177,12 +5294,31 @@ with graph_right:
         if segment_col and segment_col in classified_filtered.columns and not classified_filtered.empty:
             pie_df = classified_filtered[segment_col].fillna("미분류").astype(str).value_counts().reset_index()
             pie_df.columns = ["구분", "후보수"]
-            fig = px.pie(pie_df, names="구분", values="후보수", hole=.58, color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=250)
-            fig.update_traces(textposition="inside", textinfo="percent", marker=dict(line=dict(color="rgba(7,10,24,.85)", width=2)), hovertemplate="콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>")
-            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=6,r=6,t=6,b=6), legend=dict(font=dict(size=12, color="#eee8ff"), title_font=dict(size=12, color="#eee8ff"), x=1.02, y=.5, yanchor="middle"), font=dict(color="#eee8ff"))
-            html('<div class="plot-shell">')
+            fig = px.pie(
+                pie_df,
+                names="구분",
+                values="후보수",
+                hole=.58,
+                color_discrete_sequence=COSMIC_COLORS,
+                template="plotly_dark",
+                height=282,
+            )
+            fig.update_traces(
+                textposition="inside",
+                textinfo="percent",
+                marker=dict(line=dict(color="rgba(7,10,24,.85)", width=2)),
+                hovertemplate="콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>",
+            )
+            fig.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=6, r=6, t=6, b=6),
+                legend=dict(font=dict(size=12, color="#eee8ff"), title_font=dict(size=12, color="#eee8ff"), x=1.02, y=.5, yanchor="middle"),
+                font=dict(color="#eee8ff"),
+            )
+            st.markdown('<div class="graph-output-card">', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
-            html('</div>')
+            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("콘텐츠군 구성 비율을 만들 수 없습니다.")
 
@@ -5205,7 +5341,7 @@ with graph_right:
                 )
             html(
                 f"""
-                <div class="plot-shell" style="padding:10px;">
+                <div class="graph-table-card">
                     <table class="recent-mini-table">
                         <thead><tr><th>후보</th><th>이전</th><th>현재</th><th>상승</th><th>점수</th><th>단계</th></tr></thead>
                         <tbody>{''.join(rows)}</tbody>
@@ -5215,8 +5351,6 @@ with graph_right:
             )
         else:
             st.info("비교 가능한 변화 추적 데이터가 없습니다.")
-
-html('</div>')
 
 # ---------------------------------------------------------
 # 14. 상세 설명 드롭다운
