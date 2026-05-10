@@ -3228,6 +3228,147 @@ elif st.session_state.page == "스타트레일":
 # 스타시드 선택 시 아래의 기존 유튜브 API 기반 영입후보 대시보드가 이어서 실행됩니다.
 
 # =========================================================
+# 1-5. 스타시드 첫 진입 로딩 패널
+# - 홈에서 스타시드로 이동할 때 분석 데이터 로딩/렌더링 지연이 빈 화면처럼 보이지 않도록
+#   의도적인 로딩 상태를 먼저 출력한다.
+# - 한 세션에서 스타시드 데이터가 한 번 준비된 뒤에는 다시 표시하지 않는다.
+# =========================================================
+
+st.markdown(
+    """
+    <style>
+    .starseed-loading-wrap {
+        width: min(980px, 92vw);
+        margin: 22vh auto 0 auto;
+        padding: 34px 38px;
+        border-radius: 26px;
+        border: 1px solid rgba(118, 242, 226, 0.28);
+        background:
+            radial-gradient(circle at 16% 36%, rgba(95, 255, 232, 0.16), transparent 28%),
+            radial-gradient(circle at 86% 20%, rgba(144, 94, 255, 0.24), transparent 30%),
+            linear-gradient(145deg, rgba(9, 22, 42, 0.92), rgba(12, 8, 35, 0.92));
+        box-shadow:
+            0 24px 72px rgba(0, 0, 0, 0.42),
+            inset 0 1px 0 rgba(255,255,255,0.08),
+            0 0 40px rgba(95,255,232,0.08);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .starseed-loading-wrap::before {
+        content: "";
+        position: absolute;
+        inset: -80px;
+        background:
+            linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.08) 45%, transparent 63%);
+        transform: translateX(-60%);
+        animation: seedLoadingSweep 1.65s ease-in-out infinite;
+    }
+
+    @keyframes seedLoadingSweep {
+        0% { transform: translateX(-70%); opacity: 0.15; }
+        45% { opacity: 0.58; }
+        100% { transform: translateX(70%); opacity: 0.15; }
+    }
+
+    .starseed-loading-orb {
+        width: 74px;
+        height: 74px;
+        margin: 0 auto 18px auto;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 36% 30%, #ffffff 0 7%, #8cffb3 13%, #29d976 38%, #6b42ff 100%);
+        box-shadow:
+            0 0 28px rgba(140,255,179,0.45),
+            0 0 68px rgba(107,66,255,0.30);
+        position: relative;
+        z-index: 1;
+        animation: seedOrbPulse 1.35s ease-in-out infinite alternate;
+    }
+
+    .starseed-loading-orb::after {
+        content: "✦";
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 30px;
+        text-shadow: 0 0 12px rgba(255,255,255,0.86);
+    }
+
+    @keyframes seedOrbPulse {
+        from { transform: scale(0.96); filter: brightness(0.95); }
+        to { transform: scale(1.04); filter: brightness(1.18); }
+    }
+
+    .starseed-loading-title {
+        position: relative;
+        z-index: 1;
+        font-size: 32px;
+        font-weight: 950;
+        letter-spacing: -0.035em;
+        color: #f6fffb;
+        margin-bottom: 10px;
+    }
+
+    .starseed-loading-sub {
+        position: relative;
+        z-index: 1;
+        font-size: 15px;
+        line-height: 1.65;
+        color: #b8c9d8;
+    }
+
+    .starseed-loading-steps {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    .starseed-loading-chip {
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(95,255,232,0.075);
+        border: 1px solid rgba(95,255,232,0.18);
+        color: #d9fff8;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+STARSEED_LOADING_HTML = """
+<div class="starseed-loading-wrap">
+    <div class="starseed-loading-orb"></div>
+    <div class="starseed-loading-title">STAR SEED 데이터를 준비하는 중입니다</div>
+    <div class="starseed-loading-sub">
+        후보 CSV, 변화 추적 스냅샷, KPI 지표를 불러와<br>
+        영입 우선순위 대시보드 화면을 구성하고 있습니다.
+    </div>
+    <div class="starseed-loading-steps">
+        <span class="starseed-loading-chip">후보 데이터 로드</span>
+        <span class="starseed-loading-chip">KPI 계산</span>
+        <span class="starseed-loading-chip">TOP 후보 렌더링</span>
+        <span class="starseed-loading-chip">그래프 구성</span>
+    </div>
+</div>
+"""
+
+STARSEED_LOADING_PLACEHOLDER = None
+if st.session_state.get("page") == "스타시드" and not st.session_state.get("starseed_first_load_done", False):
+    STARSEED_LOADING_PLACEHOLDER = st.empty()
+    STARSEED_LOADING_PLACEHOLDER.markdown(STARSEED_LOADING_HTML, unsafe_allow_html=True)
+
+# =========================================================
 # 2. 경로 및 데이터 로드
 # =========================================================
 
@@ -3369,6 +3510,11 @@ candidate_df, segment_df, summary_df, tracking_df, reference_df, snapshot_df = l
     file_mtime_token(REFERENCE_DASHBOARD_PATH),
     file_mtime_token(CANDIDATE_SCORED_SNAPSHOT_PATH),
 )
+
+if st.session_state.get("page") == "스타시드":
+    st.session_state["starseed_first_load_done"] = True
+    if STARSEED_LOADING_PLACEHOLDER is not None:
+        STARSEED_LOADING_PLACEHOLDER.empty()
 
 
 # =========================================================
