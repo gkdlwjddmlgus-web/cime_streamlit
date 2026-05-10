@@ -2673,15 +2673,13 @@ if st.session_state.page == "스타시드":
 
 
 # =========================================================
-# SIDEBAR TOGGLE SAFE FIX - 접힘/펼침 토글 보존 버전
-# - 목적:
-#   1) 펼쳐진 사이드바 폭은 300px 수준으로 고정
-#   2) 닫았을 때는 Streamlit 기본 collapsed 상태를 방해하지 않음
-#   3) 다시 열 수 있는 토글 버튼은 항상 화면 좌상단에 남김
-# - 주의:
-#   collapsed 상태를 JS로 강제 open 하지 않는다.
-#   section[data-testid="stSidebar"]에 display:block/visibility:visible을 강제하지 않는다.
-#   이 두 가지가 있으면 닫기 버튼을 눌러도 사이드바가 다시 열리거나 애매하게 남는다.
+# SIDEBAR TOGGLE SAFE FIX - 접힘 후 재오픈 토글 보존 버전
+# - 핵심 수정:
+#   1) collapsed 상태에서 sidebar 내부 div를 visibility:hidden 처리하지 않는다.
+#      해당 div 안/근처에 Streamlit 토글 버튼이 같이 묶이면 토글까지 사라질 수 있다.
+#   2) stToolbar 전체를 숨기지 않는다.
+#      일부 Streamlit 버전에서 sidebar open/close 컨트롤이 header/toolbar 계층에 같이 잡힌다.
+#   3) 펼쳐진 상태의 sidebar 폭만 고정하고, 접힌 상태는 Streamlit 기본 동작에 맡긴다.
 # =========================================================
 st.markdown(
     """
@@ -2690,7 +2688,7 @@ st.markdown(
         --cime-sidebar-width: 300px;
     }
 
-    /* Header는 유지한다. Streamlit의 sidebar toggle이 header 영역에 붙는 버전 대응 */
+    /* Header는 유지: sidebar open/close control이 header 영역에 붙는 Streamlit 버전 대응 */
     header,
     header[data-testid="stHeader"],
     [data-testid="stHeader"] {
@@ -2706,9 +2704,11 @@ st.markdown(
         z-index: 999990 !important;
     }
 
-    /* Deploy/Toolbar 계열만 숨김. HeaderActionElements 전체는 건드리지 않음 */
-    [data-testid="stToolbar"],
-    [data-testid="stToolbar"] *,
+    /*
+      Toolbar 전체를 display:none 처리하지 않는다.
+      전체 숨김 시 접힌 sidebar를 다시 여는 컨트롤까지 같이 사라지는 Streamlit 버전이 있다.
+      대신 배포/상태 위젯처럼 명확한 요소만 숨긴다.
+    */
     [data-testid="stDecoration"],
     [data-testid="stStatusWidget"],
     [data-testid="stDeployButton"],
@@ -2732,8 +2732,7 @@ st.markdown(
         overflow: hidden !important;
     }
 
-    /* 펼쳐진 사이드바만 폭을 고정한다.
-       collapsed 상태에는 width/transform/display를 강제하지 않아야 토글이 정상 작동한다. */
+    /* 펼쳐진 상태의 sidebar 폭만 고정 */
     @media (min-width: 900px) {
         section[data-testid="stSidebar"][aria-expanded="true"] {
             flex: 0 0 var(--cime-sidebar-width) !important;
@@ -2745,26 +2744,37 @@ st.markdown(
         }
     }
 
-    /* 닫힌 사이드바 내부 콘텐츠가 잔상처럼 보이는 경우만 방지.
-       사이드바 section 자체를 display:none/width:0으로 강제하지 않는다. */
-    section[data-testid="stSidebar"][aria-expanded="false"] > div:first-child {
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
+    /*
+      중요:
+      collapsed 상태에서 section 또는 section > div:first-child를 숨기지 않는다.
+      Streamlit이 기본으로 sidebar를 접고, open control을 남기도록 한다.
+    */
 
-    /* 다시 열기/닫기 버튼은 항상 보이게 유지 */
+    /* sidebar open/close control은 항상 보이게 */
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"] {
+    [data-testid="stSidebarCollapseButton"],
+    button[aria-label="Open sidebar"],
+    button[aria-label="Close sidebar"],
+    button[aria-label="사이드바 열기"],
+    button[aria-label="사이드바 닫기"],
+    button[title="Open sidebar"],
+    button[title="Close sidebar"],
+    button[title="사이드바 열기"],
+    button[title="사이드바 닫기"] {
         display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
+        z-index: 1000000 !important;
+    }
+
+    /* 접힌 상태에서 Streamlit이 생성하는 열기 버튼 위치 보정 */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] {
         position: fixed !important;
         top: 0.55rem !important;
         left: 0.55rem !important;
-        z-index: 1000000 !important;
         width: auto !important;
         height: auto !important;
         min-width: auto !important;
@@ -2773,30 +2783,10 @@ st.markdown(
         max-height: none !important;
         overflow: visible !important;
     }
-
-    [data-testid="collapsedControl"] *,
-    [data-testid="stSidebarCollapsedControl"] *,
-    [data-testid="stSidebarCollapseButton"] *,
-    button[aria-label="Open sidebar"],
-    button[aria-label="Close sidebar"],
-    button[aria-label="사이드바 열기"],
-    button[aria-label="사이드바 닫기"],
-    button[title="Open sidebar"],
-    button[title="Close sidebar"],
-    button[title="사이드바 열기"],
-    button[title="사이드바 닫기"],
-    button[kind="header"] {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        z-index: 1000000 !important;
-    }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 
 with st.sidebar:
     html(
