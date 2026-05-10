@@ -2833,6 +2833,174 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+
+# =========================================================
+# 0-2. 전역 최종 보정: 홈/스타시드 공통 사이드바 토글 위치 + 홈 상단 여백
+# - 반드시 페이지 분기(st.stop) 이전에 실행되어야 함
+# - 이전 버전의 하단 CSS는 홈 화면에서 st.stop 때문에 실행되지 않았음
+# =========================================================
+st.markdown(
+    clean_html(
+        """
+        <style>
+        :root {
+            --cime-sidebar-width: 300px;
+            --cime-sidebar-toggle-top: 22px;
+            --cime-sidebar-toggle-size: 34px;
+            --cime-sidebar-toggle-left: 16px;
+        }
+
+        /* Streamlit 기본 header는 sidebar toggle이 의존할 수 있으므로 제거하지 않음 */
+        header,
+        header[data-testid="stHeader"],
+        [data-testid="stHeader"],
+        header [data-testid="stToolbar"],
+        [data-testid="stToolbar"] {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            overflow: visible !important;
+            background: transparent !important;
+            z-index: 999990 !important;
+        }
+
+        /* 닫힌 상태의 sidebar open 토글: 모든 페이지에서 같은 위치 */
+        [data-testid="collapsedControl"],
+        [data-testid="stSidebarCollapsedControl"] {
+            position: fixed !important;
+            top: var(--cime-sidebar-toggle-top) !important;
+            left: var(--cime-sidebar-toggle-left) !important;
+            width: var(--cime-sidebar-toggle-size) !important;
+            height: var(--cime-sidebar-toggle-size) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            overflow: visible !important;
+            z-index: 1000000 !important;
+        }
+
+        /* 펼친 상태의 sidebar close 토글: sidebar 내부 최우측 상단 */
+        section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
+        section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
+        section[data-testid="stSidebar"] button[title="Close sidebar"],
+        section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
+        section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
+            position: fixed !important;
+            top: var(--cime-sidebar-toggle-top) !important;
+            left: calc(var(--cime-sidebar-width) - var(--cime-sidebar-toggle-size) - 12px) !important;
+            width: var(--cime-sidebar-toggle-size) !important;
+            height: var(--cime-sidebar-toggle-size) !important;
+            min-width: var(--cime-sidebar-toggle-size) !important;
+            min-height: var(--cime-sidebar-toggle-size) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            overflow: visible !important;
+            z-index: 1000001 !important;
+            margin: 0 !important;
+        }
+
+        [data-testid="collapsedControl"] button,
+        [data-testid="stSidebarCollapsedControl"] button,
+        section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button,
+        section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
+        section[data-testid="stSidebar"] button[title="Close sidebar"],
+        section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
+        section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
+            width: var(--cime-sidebar-toggle-size) !important;
+            height: var(--cime-sidebar-toggle-size) !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(118, 242, 226, 0.42) !important;
+            background: rgba(7, 22, 38, 0.86) !important;
+            box-shadow: 0 0 14px rgba(95,255,232,0.16) !important;
+        }
+
+        /* sidebar 내부 콘텐츠가 닫기 토글과 겹치지 않도록 보정 */
+        section[data-testid="stSidebar"] > div:first-child {
+            padding-top: 4.1rem !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+if st.session_state.get("page") == "대시보드 홈":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* 홈 화면 상단 여백: 페이지 분기 이전에 적용해야 실제로 먹음 */
+            .block-container:has(.planet-home-wrap) {
+                padding-top: 0 !important;
+                margin-top: -5.2rem !important;
+                padding-bottom: 2.0rem !important;
+            }
+
+            .planet-home-wrap {
+                transform: translateY(-42px) !important;
+                margin-bottom: -42px !important;
+            }
+
+            .planet-home-wrap .hero-title {
+                margin-top: 0 !important;
+                margin-bottom: 8px !important;
+            }
+
+            .planet-home-wrap .hero-subtitle {
+                margin-bottom: 2px !important;
+            }
+
+            .planet-home-wrap .planet-area {
+                height: 318px !important;
+                margin-top: -14px !important;
+                margin-bottom: -8px !important;
+            }
+
+            .planet-home-wrap .planet {
+                width: 306px !important;
+                height: 306px !important;
+            }
+
+            .planet-home-wrap .planet-glow {
+                width: 430px !important;
+                height: 430px !important;
+            }
+
+            .planet-home-wrap .planet-orbit {
+                width: 780px !important;
+                height: 216px !important;
+            }
+
+            .planet-home-wrap .planet-orbit.orbit-2 {
+                width: 615px !important;
+                height: 172px !important;
+            }
+
+            .planet-home-wrap .planet-orbit.orbit-3 {
+                width: 910px !important;
+                height: 280px !important;
+            }
+
+            .planet-home-wrap + div,
+            .planet-home-wrap ~ div {
+                position: relative !important;
+                z-index: 5 !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
 with st.sidebar:
     html(
         """
@@ -2858,11 +3026,13 @@ with st.sidebar:
     }
 
     def _go_page(page_name: str) -> None:
-        # Streamlit button callback은 본문 렌더링 전에 실행된다.
-        # 기존처럼 버튼 클릭 후 st.rerun()을 다시 호출하면
-        # 홈/중간 화면이 한 번 보였다가 스타시드로 이동하는 이중 rerun 플래시가 생길 수 있다.
-        st.session_state.page = page_name
-        st.session_state.card = None
+        # 버튼 callback에서 page를 먼저 바꾸고, 아래 본문 분기에서 바로 해당 페이지를 렌더링한다.
+        # st.rerun()을 별도로 호출하지 않아 이중 rerun으로 인한 중간 화면 노출을 줄인다.
+        if st.session_state.get("page") != page_name:
+            st.session_state.page = page_name
+            st.session_state.card = None
+        else:
+            st.session_state.card = None
 
     for page, item in NAV_ITEMS.items():
         is_active = st.session_state.page == page
