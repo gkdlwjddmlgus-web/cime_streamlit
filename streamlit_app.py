@@ -26,6 +26,7 @@ import html as html_lib
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import plotly.express as px
 import plotly.graph_objects as go
 # =========================================================
@@ -49,6 +50,123 @@ st.set_page_config(
 )
 
 # =========================================================
+# Streamlit 기본 Deploy 버튼/상단 툴바 숨김 (전 페이지 공통)
+# - CSS만으로 안 잡히는 Streamlit 버전이 있어 JS 보조 숨김까지 함께 적용
+# =========================================================
+st.markdown(
+    """
+    <style>
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stToolbar"] *,
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDeployButton"],
+    [data-testid="stAppDeployButton"],
+    [data-testid="stHeaderActionElements"],
+    [data-testid="stHeaderActionElements"] *,
+    .stDeployButton,
+    .stAppDeployButton,
+    button[title="Deploy"],
+    button[aria-label="Deploy"],
+    a[title="Deploy"],
+    a[aria-label="Deploy"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .stApp,
+    .block-container {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+components.html(
+    """
+    <script>
+    (function () {
+        function hideDeploy() {
+            let doc;
+            try {
+                doc = window.parent.document;
+            } catch (e) {
+                doc = document;
+            }
+
+            const selectors = [
+                'header',
+                '[data-testid="stHeader"]',
+                '[data-testid="stToolbar"]',
+                '[data-testid="stDecoration"]',
+                '[data-testid="stStatusWidget"]',
+                '[data-testid="stDeployButton"]',
+                '[data-testid="stAppDeployButton"]',
+                '[data-testid="stHeaderActionElements"]',
+                '.stDeployButton',
+                '.stAppDeployButton',
+                'button[title="Deploy"]',
+                'button[aria-label="Deploy"]',
+                'a[title="Deploy"]',
+                'a[aria-label="Deploy"]'
+            ];
+
+            selectors.forEach(function (selector) {
+                doc.querySelectorAll(selector).forEach(function (el) {
+                    el.style.setProperty('display', 'none', 'important');
+                    el.style.setProperty('visibility', 'hidden', 'important');
+                    el.style.setProperty('opacity', '0', 'important');
+                    el.style.setProperty('pointer-events', 'none', 'important');
+                    el.style.setProperty('height', '0px', 'important');
+                    el.style.setProperty('min-height', '0px', 'important');
+                    el.style.setProperty('max-height', '0px', 'important');
+                    el.style.setProperty('overflow', 'hidden', 'important');
+                });
+            });
+
+            doc.querySelectorAll('button, a, [role="button"]').forEach(function (el) {
+                const label = ((el.innerText || '') + ' ' + (el.getAttribute('aria-label') || '') + ' ' + (el.getAttribute('title') || '')).trim();
+                if (label === 'Deploy' || label.includes('Deploy')) {
+                    el.style.setProperty('display', 'none', 'important');
+                    el.style.setProperty('visibility', 'hidden', 'important');
+                    el.style.setProperty('opacity', '0', 'important');
+                    el.style.setProperty('pointer-events', 'none', 'important');
+                }
+            });
+        }
+
+        hideDeploy();
+        setTimeout(hideDeploy, 100);
+        setTimeout(hideDeploy, 500);
+        setTimeout(hideDeploy, 1200);
+
+        try {
+            const target = window.parent.document.body;
+            new MutationObserver(hideDeploy).observe(target, { childList: true, subtree: true });
+        } catch (e) {}
+    })();
+    </script>
+    """,
+    height=0,
+    width=0,
+)
+
+
+# =========================================================
 # 0-1. CIME STREAM PLANET 네비게이션 상태
 # =========================================================
 
@@ -61,7 +179,7 @@ if "card" not in st.session_state:
 if "bg_html" not in st.session_state:
     random.seed(42)
     stars = []
-    for _ in range(230):
+    for _ in range(180):
         size = random.uniform(1.2, 4.2)
         x = random.uniform(0, 100)
         y = random.uniform(0, 100)
@@ -1323,6 +1441,7 @@ st.markdown(
         .sat-2 { color: #FFD45D; background: #FFD45D; transform: translate(-350px, 62px); }
         .sat-3 { color: #95AFFF; background: #95AFFF; transform: translate(-240px, -66px); }
         .sat-4 { color: #C681FF; background: #C681FF; transform: translate(240px, -62px); }
+        .sat-5 { color: #7DFF8A; background: #7DFF8A; transform: translate(470px, -72px); }
 
         div[data-testid="column"] {
             position: relative;
@@ -2483,6 +2602,121 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# =========================================================
+# 1-6.5. Sidebar active color preload
+# - 스타시드 페이지에서 사이드바 active 버튼이 먼저 보라색으로 칠해진 뒤
+#   하단 CSS가 적용되며 초록색으로 바뀌는 플래시를 방지
+# - 사이드바 버튼을 그리기 전에 현재 페이지 기준 active 색상을 먼저 주입
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            :root {
+                --seed-green: #7CFF9E;
+                --seed-green-soft: #98FFAB;
+                --seed-green-bright: #37F58E;
+                --seed-mint: #63FFD8;
+                --seed-panel: rgba(6, 18, 26, 0.88);
+                --seed-panel-strong: rgba(7, 24, 31, 0.96);
+                --seed-line: rgba(124, 255, 158, 0.30);
+                --seed-line-strong: rgba(124, 255, 158, 0.58);
+                --seed-purple-base: #09051C;
+                --seed-text: #FFF8FF;
+                --seed-muted: #CFC4E4;
+            }
+
+            .stApp {
+                background:
+                    radial-gradient(circle at 72% 6%, rgba(50, 255, 130, 0.16) 0, transparent 22%),
+                    radial-gradient(circle at 51% 22%, rgba(127, 47, 255, 0.34), transparent 30%),
+                    radial-gradient(circle at 76% 76%, rgba(29, 255, 129, 0.09), transparent 31%),
+                    linear-gradient(180deg, #050411 0%, #09051C 52%, #050411 100%) !important;
+            }
+
+            [data-testid="stHeader"] {
+                background: rgba(8, 12, 22, 0.96) !important;
+            }
+
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, rgba(7, 8, 24, 0.99), rgba(4, 6, 18, 0.99)) !important;
+                border-right: 1px solid rgba(154, 98, 255, 0.42) !important;
+                box-shadow: 10px 0 32px rgba(0, 0, 0, 0.28) !important;
+            }
+
+            .sidebar-subtitle,
+            .mission-sidebar-sub {
+                color: var(--seed-green-soft) !important;
+                text-shadow: 0 0 12px rgba(124, 255, 158, 0.28) !important;
+            }
+
+            section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+                background: linear-gradient(135deg, rgba(30, 213, 102, 0.98), rgba(18, 146, 86, 0.96)) !important;
+                color: #F5FFF7 !important;
+                border: 1px solid rgba(152, 255, 171, 0.70) !important;
+                box-shadow:
+                    0 0 12px rgba(60, 255, 132, 0.14),
+                    inset 0 1px 0 rgba(255,255,255,0.10) !important;
+            }
+
+            section[data-testid="stSidebar"] .stButton > button[kind="primary"] p,
+            section[data-testid="stSidebar"] .stButton > button[kind="primary"] span {
+                color: #F5FFF7 !important;
+                font-weight: 900 !important;
+            }
+
+            section[data-testid="stSidebar"] .stButton > button[kind="secondary"] {
+                background: rgba(20, 16, 48, 0.78) !important;
+                color: #EDE5FF !important;
+                border: 1px solid rgba(196, 143, 255, 0.26) !important;
+                box-shadow: none !important;
+            }
+
+            section[data-testid="stSidebar"] .stButton > button:hover {
+                border-color: rgba(152, 255, 171, 0.58) !important;
+                box-shadow: 0 0 20px rgba(124, 255, 158, 0.18) !important;
+            }
+
+            .starseed-board {
+                margin-top: -30px !important;
+            }
+
+            .board-title {
+                color: #FFF8FF !important;
+                letter-spacing: 9px !important;
+                text-shadow:
+                    0 0 12px rgba(255,255,255,0.52),
+                    0 0 24px rgba(152,255,171,0.32),
+                    0 0 44px rgba(52,255,130,0.22) !important;
+            }
+
+            .board-title::after {
+                content: "";
+                display: block;
+                width: 220px;
+                height: 2px;
+                margin-top: 14px;
+                border-radius: 999px;
+                background: linear-gradient(90deg, rgba(152,255,171,0.0), rgba(152,255,171,0.85), rgba(99,255,216,0.42), rgba(152,255,171,0.0));
+                box-shadow: 0 0 18px rgba(124,255,158,0.34);
+            }
+
+            .board-info-card {
+                border: 1px solid var(--seed-line-strong) !important;
+                background:
+                    radial-gradient(circle at 8% 45%, rgba(124,255,158,0.22), transparent 28%),
+                    linear-gradient(135deg, rgba(10, 38, 30, 0.82), rgba(18, 16, 52, 0.88)) !important;
+                box-shadow:
+                    inset 0 1px 0 rgba(255,255,255,.08),
+                    0 0 28px rgba(124,255,158,0.15) !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
 
 with st.sidebar:
     html(
@@ -2525,7 +2759,7 @@ with st.sidebar:
 def render_planet_home():
     html(
         """
-        <div class="main-wrap">
+        <div class="main-wrap planet-home-wrap">
         <div class="hero-title">CIME STREAM PLANET</div>
         <div class="hero-subtitle">데이터 우주에서 다음 플랫폼의 중심 별을 찾다</div>
         <div class="planet-area">
@@ -2537,6 +2771,7 @@ def render_planet_home():
         <div class="satellite sat-2"></div>
         <div class="satellite sat-3"></div>
         <div class="satellite sat-4"></div>
+        <div class="satellite sat-5"></div>
         <div class="planet">
         <div class="planet-logo">CIME</div>
         </div>
@@ -2803,11 +3038,11 @@ def read_csv_safe(path: Path) -> pd.DataFrame:
 
     for enc in ["utf-8-sig", "cp949", "utf-8"]:
         try:
-            return pd.read_csv(path, encoding=enc)
+            return pd.read_csv(path, encoding=enc, low_memory=False)
         except UnicodeDecodeError:
             continue
 
-    return pd.read_csv(path)
+    return pd.read_csv(path, low_memory=False)
 
 
 def file_mtime_token(path: Path):
@@ -3926,16 +4161,17 @@ st.markdown(
         <style>
         /* 전체 컨테이너 폭/상단 간격: 메인 대시보드와 유사한 밀도 */
         .block-container {
-            max-width: 1540px !important;
-            padding-top: 1.25rem !important;
+            max-width: 1520px !important;
+            padding-top: 0rem !important;
+            padding-left: 2.0rem !important;
+            padding-right: 2.0rem !important;
+            padding-bottom: 2.5rem !important;
         }
 
-        /* STAR SEED 상단: 홈 화면의 큰 타이틀 톤과 정렬을 유지 */
-        .starseed-hero {
-            width: 100% !important;
-            text-align: center !important;
-            padding: 4px 0 26px 0 !important;
-            margin: -10px auto 12px auto !important;
+        .starseed-board {
+            width: 100%;
+            padding: 0 0 18px 0;
+            margin-top: -30px;
             position: relative;
             z-index: 2;
         }
@@ -4323,7 +4559,7 @@ st.markdown(
         <style>
         .block-container {
             max-width: 1380px !important;
-            padding-top: 0.35rem !important;
+            padding-top: 0rem !important;
             padding-left: 2.0rem !important;
             padding-right: 2.0rem !important;
             padding-bottom: 2.5rem !important;
@@ -4336,7 +4572,8 @@ st.markdown(
 
         .starseed-board {
             width: 100%;
-            padding: 8px 0 18px 0;
+            padding: 0 0 18px 0;
+            margin-top: -34px;
             position: relative;
             z-index: 2;
         }
@@ -4350,21 +4587,25 @@ st.markdown(
         }
 
         .board-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 54px;
-            font-weight: 900;
-            line-height: .95;
-            letter-spacing: 8px;
-            color: #fff8ff;
-            text-shadow: 0 0 18px rgba(190, 115, 255, .78), 0 0 34px rgba(118, 87, 255, .38);
-            margin: 0 0 10px 0;
+            font-family: Arial, Helvetica, sans-serif !important;
+            font-size: 58px;
+            font-weight: 950;
+            line-height: 1;
+            letter-spacing: 9px;
+            color: #FFF8FF;
+            text-shadow:
+                0 0 10px rgba(255,255,255,0.65),
+                0 0 22px rgba(230,195,255,0.45),
+                0 0 38px rgba(179,93,255,0.55);
+            margin: 0 0 12px 0;
         }
 
         .board-subtitle {
-            color: #d9cdf9;
-            font-size: 17px;
+            color: #D9CFE8;
+            font-size: 18px;
             font-weight: 800;
-            letter-spacing: -.02em;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 12px rgba(230,195,255,0.18);
         }
 
         .board-info-card {
@@ -4902,6 +5143,57 @@ if not mini_tracking_df.empty:
         mini_tracking_df["순위변동"] = pd.to_numeric(mini_tracking_df["순위변동"], errors="coerce")
         mini_tracking_df = mini_tracking_df.sort_values("순위변동", ascending=False)
 
+
+# ---------------------------------------------------------
+# 9-9. STAR SEED 최종 문구/폰트 보정
+# - 홈 화면의 메인 타이틀과 톤을 맞추기 위한 최종 override
+# ---------------------------------------------------------
+st.markdown(
+    clean_html(
+        """
+        <style>
+        .starseed-board {
+            margin-top: -34px !important;
+        }
+
+        /* 대시보드 홈(.hero-title)과 동일한 타이틀 톤으로 맞춤 */
+        .board-title {
+            font-family: inherit !important;
+            font-size: 58px !important;
+            font-weight: 950 !important;
+            letter-spacing: 9px !important;
+            line-height: 1 !important;
+            color: #FFF8FF !important;
+            text-shadow: 0 0 22px rgba(230, 195, 255, 0.35) !important;
+            margin: 4px 0 14px 0 !important;
+        }
+
+        .board-subtitle {
+            color: #C6BBD9 !important;
+            font-size: 19px !important;
+            font-weight: 750 !important;
+            letter-spacing: -0.02em !important;
+            text-shadow: none !important;
+        }
+
+        .board-info-title {
+            color: #FFF8FF !important;
+            font-size: 14.5px !important;
+            font-weight: 950 !important;
+        }
+
+        .board-info-text {
+            color: #CFC4E4 !important;
+            font-size: 12px !important;
+            line-height: 1.58 !important;
+            word-break: keep-all !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
 # ---------------------------------------------------------
 # 10. 상단 헤더 + KPI
 # ---------------------------------------------------------
@@ -4909,16 +5201,22 @@ if not mini_tracking_df.empty:
 html(
     f"""
     <div class="starseed-board">
-        <div class="board-hero">
-            <div>
-                <div class="board-title">STAR SEED</div>
-                <div class="board-subtitle">외부 반응 속 성장 가능성이 보이는 후보군을 찾습니다</div>
+        <div class="board-hero board-hero-compact">
+            <div class="board-head-left">
+                <div class="board-title-icon">
+                    {SEED_ICON_HTML}
+                </div>
+                <div>
+                    <div class="board-title board-title-ko">스타시드 <span>Star Seed</span></div>
+                    <div class="board-title-accent-line"></div>
+                    <div class="board-subtitle">유튜브 기반 성장 잠재력과 라이브 전환 가능성을 분석해, 차세대 후보군을 발굴합니다</div>
+                </div>
             </div>
             <div class="board-info-card">
                 <div class="board-info-icon">✦</div>
                 <div>
-                    <div class="board-info-title">스타시드는 무엇을 찾나요?</div>
-                    <div class="board-info-text">유튜브 기반 후보군 중 최근 성장세, 팬덤 반응, 콘텐츠 적합성, 영입 리스크를 함께 검토해 CIME에서 성장 가능성이 높은 후보를 선별합니다.</div>
+                    <div class="board-info-title">후보를 선별하는 기준</div>
+                    <div class="board-info-text">팬 반응 밀도, 라이브 전환성, 실전 리스크, 액션버킷을 함께 확인해<br>CIME가 우선 검토할 예비 스트리머 후보군을 정리합니다.</div>
                 </div>
             </div>
         </div>
@@ -4933,7 +5231,7 @@ html(
 )
 
 # ---------------------------------------------------------
-# 11. 오늘의 추천 후보 TOP 5
+# 11. 우선 검토 추천 후보 TOP 5
 # ---------------------------------------------------------
 
 top_candidates = filtered.head(5).copy()
@@ -4957,17 +5255,14 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
 html(
     f"""
     <div class="board-panel">
-        <div class="board-panel-title">✩ 오늘의 추천 후보 TOP 5</div>
+        <div class="board-panel-title">✩ 우선 검토 추천 후보 TOP 5</div>
         <div class="top5-grid">{''.join(mini_cards)}</div>
     </div>
     """
 )
 
 # ---------------------------------------------------------
-# 12. 영입 우선순위 TOP + 선택 후보 상세
-# - 최근 순위 상승 후보 테이블을 영입 우선순위 TOP 영역 내부 선택 탭으로 이동
-# - 기존 하단 그래프 영역의 최근 순위 상승 후보 중복 노출 제거
-# - 의미가 약한 "전체 순위 보기" 바 제거
+# 12. 후보별 검토 우선순위 + 선택 후보 상세
 # ---------------------------------------------------------
 
 priority_df = filtered.head(8).copy()
@@ -5027,7 +5322,7 @@ with left_col:
         st.session_state["priority_table_view_mode"] = mode
 
     current_priority_mode = st.session_state.get("priority_table_view_mode", "영입 우선순위 TOP")
-    if current_priority_mode not in ["영입 우선순위 TOP", "최근 순위 상승 후보"]:
+    if current_priority_mode not in ["추천 점수 높은 순", "최근 상승한 후보"]:
         current_priority_mode = "영입 우선순위 TOP"
         st.session_state["priority_table_view_mode"] = current_priority_mode
 
@@ -5106,7 +5401,7 @@ with left_col:
             )
 
 
-    with st.expander("Table 설명", expanded=False):
+    with st.expander("표 보는 방법", expanded=False):
         if priority_view_mode == "영입 우선순위 TOP":
             st.markdown(
                 """
@@ -5160,7 +5455,7 @@ with right_col:
         html(
             f"""
             <div class="board-panel detail-panel-v2" style="min-height:286px;">
-                <div class="board-panel-title">👥 선택 후보 상세</div>
+                <div class="board-panel-title">👥 선택한 후보 상세 보기</div>
                 <div class="detail-card-inner detail-card-inner-v2">
                     <div class="detail-avatar-area">{_avatar_big(selected_row)}</div>
                     <div class="detail-content-area">
@@ -5173,7 +5468,7 @@ with right_col:
                         </div>
                     </div>
                     <div class="reason-panel detail-reason-bottom">
-                        <div class="reason-title">핵심 추천 사유</div>
+                        <div class="reason-title">왜 추천되었나요?</div>
                         {reason_html}
                     </div>
                 </div>
@@ -5215,12 +5510,17 @@ st.markdown(
         <style>
         /* 상단 여백만 조정: 카드 내부 높이/프로필 이미지 위치는 유지 */
         .block-container {
-            padding-top: 0.35rem !important;
+            padding-top: 0rem !important;
         }
 
         .starseed-dashboard-hero {
-            margin-top: -10px !important;
-            margin-bottom: 14px !important;
+            margin-top: -24px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .starseed-board {
+            padding-top: 0 !important;
+            margin-top: -24px !important;
         }
 
         /* 하단 그래프 영역: 타이틀 → 선택 필터 → 설명/출력 순서로 고정 */
@@ -5723,10 +6023,10 @@ with st.expander("KPI 해석 방법", expanded=False):
     st.markdown(
         """
         <div class="explain-box">
-        <b>전체 분석 후보</b>: 수집/전처리 후 대시보드에 올라온 전체 후보 수입니다.<br><br>
-        <b>1차 선별 후보</b>: shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다.<br><br>
-        <b>평균 추천 점수</b>: 현재 필터 조건에 남은 후보들의 평균 영입 점수입니다.<br><br>
-        <b>즉시 검토 후보</b>: 우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다.
+        <b>분석한 전체 채널</b>: 수집/전처리 후 대시보드에 올라온 전체 후보 수입니다.<br><br>
+        <b>1차 조건 통과 후보</b>: shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다.<br><br>
+        <b>추천 점수 평균</b>: 현재 필터 조건에 남은 후보들의 평균 영입 점수입니다.<br><br>
+        <b>바로 검토할 후보</b>: 우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다.
         </div>
         """,
         unsafe_allow_html=True,
@@ -6109,3 +6409,1389 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# =========================================================
+# STAR SEED 최종 디자인 오버라이드
+# - 문구는 그대로 두고, 메인 홈의 스타시드 카드와 연결되는 민트/그린 포인트 강화
+# - 기존 보라 우주톤은 유지하면서 STAR SEED 페이지의 액티브/카드/표/상세 영역을 통일
+# =========================================================
+st.markdown(
+    clean_html(
+        """
+        <style>
+        :root {
+            --seed-green: #7CFF9E;
+            --seed-green-soft: #98FFAB;
+            --seed-green-bright: #37F58E;
+            --seed-mint: #63FFD8;
+            --seed-panel: rgba(6, 18, 26, 0.88);
+            --seed-panel-strong: rgba(7, 24, 31, 0.96);
+            --seed-line: rgba(124, 255, 158, 0.30);
+            --seed-line-strong: rgba(124, 255, 158, 0.58);
+            --seed-purple-base: #09051C;
+            --seed-text: #FFF8FF;
+            --seed-muted: #CFC4E4;
+        }
+
+        /* STAR SEED 본문 배경: 메인 홈의 보라 우주톤 위에 은은한 초록 광원만 추가 */
+        .stApp {
+            background:
+                radial-gradient(circle at 72% 6%, rgba(50, 255, 130, 0.16) 0, transparent 22%),
+                radial-gradient(circle at 51% 22%, rgba(127, 47, 255, 0.34), transparent 30%),
+                radial-gradient(circle at 76% 76%, rgba(29, 255, 129, 0.09), transparent 31%),
+                linear-gradient(180deg, #050411 0%, #09051C 52%, #050411 100%) !important;
+        }
+
+        [data-testid="stHeader"] {
+            background: rgba(8, 12, 22, 0.96) !important;
+        }
+
+        /* 사이드바는 홈과 같은 어두운 미션 컨트롤 톤 유지 */
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, rgba(7, 8, 24, 0.99), rgba(4, 6, 18, 0.99)) !important;
+            border-right: 1px solid rgba(154, 98, 255, 0.42) !important;
+            box-shadow: 10px 0 32px rgba(0, 0, 0, 0.28) !important;
+        }
+
+        .sidebar-subtitle,
+        .mission-sidebar-sub {
+            color: var(--seed-green-soft) !important;
+            text-shadow: 0 0 12px rgba(124, 255, 158, 0.28) !important;
+        }
+
+        /* STAR SEED 선택 상태: 홈의 스타시드 카드와 연결되는 그린 액티브 */
+        section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, rgba(30, 213, 102, 0.98), rgba(18, 146, 86, 0.96)) !important;
+            color: #F5FFF7 !important;
+            border: 1px solid rgba(152, 255, 171, 0.70) !important;
+            box-shadow:
+                0 0 22px rgba(60, 255, 132, 0.30),
+                inset 0 1px 0 rgba(255,255,255,0.16) !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button[kind="secondary"] {
+            background: rgba(20, 16, 48, 0.78) !important;
+            color: #EDE5FF !important;
+            border: 1px solid rgba(196, 143, 255, 0.26) !important;
+            box-shadow: none !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button:hover {
+            border-color: rgba(152, 255, 171, 0.58) !important;
+            box-shadow: 0 0 20px rgba(124, 255, 158, 0.18) !important;
+        }
+
+        .starseed-board {
+            margin-top: -30px !important;
+        }
+
+        /* 제목: 텍스트는 그대로, STAR SEED에 초록 림라이트만 추가 */
+        .board-title {
+            color: #FFF8FF !important;
+            letter-spacing: 9px !important;
+            text-shadow:
+                0 0 12px rgba(255,255,255,0.52),
+                0 0 24px rgba(152,255,171,0.32),
+                0 0 44px rgba(52,255,130,0.22) !important;
+        }
+
+        .board-title::after {
+            content: "";
+            display: block;
+            width: 220px;
+            height: 2px;
+            margin-top: 14px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(152,255,171,0.0), rgba(152,255,171,0.85), rgba(99,255,216,0.42), rgba(152,255,171,0.0));
+            box-shadow: 0 0 18px rgba(124,255,158,0.34);
+        }
+
+        .board-subtitle {
+            color: #D9CFE8 !important;
+            text-shadow: 0 0 12px rgba(124,255,158,0.08) !important;
+        }
+
+        .board-subtitle .seed-point,
+        .seed-point,
+        .seed-soft-point {
+            color: var(--seed-green-soft) !important;
+            text-shadow: 0 0 12px rgba(124,255,158,0.34) !important;
+        }
+
+        /* 안내 카드 */
+        .board-info-card {
+            border: 1px solid var(--seed-line-strong) !important;
+            background:
+                radial-gradient(circle at 8% 45%, rgba(124,255,158,0.22), transparent 28%),
+                linear-gradient(135deg, rgba(10, 38, 30, 0.82), rgba(18, 16, 52, 0.88)) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.08),
+                0 0 28px rgba(124,255,158,0.15) !important;
+        }
+
+        .board-info-icon {
+            background: radial-gradient(circle at 34% 26%, #EFFFF4, #47F587 44%, #0B7A4E 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 22px rgba(71,245,135,0.42) !important;
+        }
+
+        .board-info-title {
+            color: #F7FFF8 !important;
+        }
+
+        .board-info-text {
+            color: #D7E7DA !important;
+        }
+
+        /* KPI 카드 */
+        .board-kpi-card {
+            border: 1px solid rgba(124,255,158,0.30) !important;
+            background:
+                radial-gradient(circle at 10% 18%, rgba(124,255,158,0.14), transparent 30%),
+                linear-gradient(180deg, rgba(9, 24, 38, .92), rgba(8, 12, 31, .96)) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.06),
+                0 10px 26px rgba(0,0,0,.24),
+                0 0 18px rgba(124,255,158,.055) !important;
+        }
+
+        .board-kpi-card:hover {
+            border-color: rgba(152,255,171,0.55) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.08),
+                0 14px 30px rgba(0,0,0,.28),
+                0 0 24px rgba(124,255,158,.12) !important;
+        }
+
+        .board-kpi-card::before {
+            background: radial-gradient(circle at 8% 18%, rgba(124,255,158,.18), transparent 30%) !important;
+        }
+
+        .board-kpi-icon {
+            background: radial-gradient(circle at 34% 24%, rgba(255,255,255,.40), rgba(57, 230, 125, .86) 48%, rgba(12, 93, 64, .95) 100%) !important;
+            box-shadow: 0 0 20px rgba(80,255,146,.33) !important;
+        }
+
+        .board-kpi-label { color: #D5E6DD !important; }
+        .board-kpi-value { color: #FFFFFF !important; }
+        .board-kpi-note { color: #92A995 !important; }
+
+        /* 공통 패널 */
+        .board-panel {
+            border: 1px solid rgba(124,255,158,0.26) !important;
+            background:
+                linear-gradient(180deg, rgba(14, 18, 43, .86), rgba(6, 11, 27, .94)) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.06),
+                0 16px 32px rgba(0,0,0,.22),
+                0 0 24px rgba(124,255,158,.055) !important;
+        }
+
+        .board-panel-title {
+            color: #FFF8FF !important;
+        }
+
+        /* TOP5 카드 */
+        .mini-candidate-card {
+            border: 1px solid rgba(124,255,158,0.28) !important;
+            background:
+                radial-gradient(circle at 22% 48%, rgba(124,255,158,0.08), transparent 42%),
+                linear-gradient(180deg, rgba(14, 20, 45, .86), rgba(8, 12, 31, .97)) !important;
+        }
+
+        .mini-candidate-card:hover {
+            border-color: rgba(152,255,171,0.50) !important;
+            box-shadow: 0 0 20px rgba(124,255,158,0.11) !important;
+        }
+
+        .mini-avatar-wrap,
+        .detail-avatar-big {
+            border-color: rgba(152,255,171,0.66) !important;
+            box-shadow:
+                0 0 22px rgba(124,255,158,0.28),
+                0 0 42px rgba(124,255,158,0.08) !important;
+        }
+
+        .mini-stage,
+        .action-immediate {
+            color: #DFFFF0 !important;
+            background: linear-gradient(135deg, rgba(35, 194, 112, .92), rgba(10, 111, 76, .92)) !important;
+            border: 1px solid rgba(124,255,158,.42) !important;
+        }
+
+        /* 우선순위 버튼 / 그래프 버튼: 보라에서 그린으로 연결 */
+        div[data-testid="column"] .stButton > button[kind="primary"],
+        button[kind="primary"][data-testid="baseButton-primary"] {
+            background: linear-gradient(135deg, rgba(36, 193, 104, 0.96), rgba(17, 113, 80, 0.96)) !important;
+            border-color: rgba(152,255,171,0.56) !important;
+            color: #F7FFF8 !important;
+            box-shadow: 0 0 18px rgba(124,255,158,0.20) !important;
+        }
+
+        div[data-testid="column"] .stButton > button[kind="secondary"],
+        button[kind="secondary"][data-testid="baseButton-secondary"] {
+            background: rgba(7,18,34,0.84) !important;
+            border-color: rgba(124,255,158,0.24) !important;
+            color: #EAF7EF !important;
+            box-shadow: none !important;
+        }
+
+        div[data-testid="column"] .stButton > button:hover {
+            border-color: rgba(152,255,171,0.60) !important;
+            box-shadow: 0 0 18px rgba(124,255,158,0.15) !important;
+        }
+
+        /* Selectbox */
+        .stSelectbox > div > div {
+            background: rgba(6, 18, 26, 0.92) !important;
+            border: 1px solid rgba(124,255,158,0.30) !important;
+            border-radius: 13px !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04) !important;
+        }
+
+        /* 테이블 */
+        .priority-table th {
+            background: rgba(255,255,255,.075) !important;
+            color: #E4E9E2 !important;
+            border-bottom: 1px solid rgba(124,255,158,0.16) !important;
+        }
+
+        .priority-table td {
+            border-bottom: 1px solid rgba(124,255,158,0.075) !important;
+        }
+
+        .priority-table tr:hover td {
+            background: rgba(124,255,158,0.045) !important;
+        }
+
+        .priority-score,
+        .mini-score,
+        .detail-metric-value {
+            color: #FFFFFF !important;
+        }
+
+        .view-more-bar {
+            background: linear-gradient(90deg, rgba(12, 80, 58, .65), rgba(8, 32, 38, .78)) !important;
+            border: 1px solid rgba(124,255,158,.30) !important;
+            color: #EFFFF4 !important;
+        }
+
+        /* 선택 후보 상세 패널: 가장 강한 그린 포인트 */
+        .detail-panel-v2 {
+            border: 1px solid rgba(124,255,158,0.50) !important;
+            background:
+                radial-gradient(circle at 9% 45%, rgba(124,255,158,0.13), transparent 30%),
+                linear-gradient(180deg, rgba(8, 32, 27, .88), rgba(8, 13, 31, .96)) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.07),
+                0 0 26px rgba(124,255,158,0.16),
+                0 18px 34px rgba(0,0,0,.26) !important;
+        }
+
+        .detail-metric-box {
+            border: 1px solid rgba(124,255,158,.28) !important;
+            background: rgba(124,255,158,.045) !important;
+        }
+
+        .detail-metric-label {
+            color: #C5DCCB !important;
+        }
+
+        .reason-panel {
+            border: 1px solid rgba(124,255,158,.38) !important;
+            background: rgba(11, 55, 34, .28) !important;
+        }
+
+        .reason-title {
+            color: #F3FFF5 !important;
+        }
+
+        .reason-bullet {
+            color: #DDEBDD !important;
+        }
+
+        .reason-bullet::before {
+            color: var(--seed-green-bright) !important;
+            text-shadow: 0 0 8px rgba(124,255,158,0.45) !important;
+        }
+
+        /* 그래프 영역 */
+        .graph-header-title {
+            color: #FFF8FF !important;
+            text-shadow: 0 0 14px rgba(124,255,158,0.22) !important;
+        }
+
+        .graph-explain-title {
+            color: #FFF8FF !important;
+            text-shadow: 0 0 12px rgba(124,255,158,0.20) !important;
+        }
+
+        .graph-explain-text {
+            color: #CFC4E4 !important;
+        }
+
+        .stPlotlyChart,
+        .plot-shell,
+        .graph-output-card,
+        .graph-table-card {
+            border-color: rgba(124,255,158,0.24) !important;
+            background: rgba(6, 12, 25, 0.66) !important;
+        }
+
+        /* expander / 설명 박스 */
+        div[data-testid="stExpander"] {
+            border-color: rgba(124,255,158,0.20) !important;
+            background: rgba(8,18,34,0.78) !important;
+        }
+
+        .explain-box,
+        .guide-box,
+        .reason-box {
+            border-color: rgba(124,255,158,0.18) !important;
+            background: rgba(7, 20, 28, 0.70) !important;
+        }
+
+        /* 이미지 시안처럼 전체적으로 조금 더 촘촘한 관제보드 느낌 */
+        .board-kpi-grid {
+            gap: 12px !important;
+            margin: 12px 0 12px 0 !important;
+        }
+
+        .top5-grid {
+            gap: 10px !important;
+        }
+
+        .mid-grid {
+            gap: 14px !important;
+            margin-top: 12px !important;
+        }
+
+        @media (max-width: 1200px) {
+            .board-title::after { width: 180px; }
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
+# 1-8. STAR SEED 눈부심 완화 오버라이드
+# - 문구/레이아웃은 유지하고, 초록 포인트의 발광감만 낮춤
+# - 보라 우주톤은 유지하되 카드/아이콘/상세패널 글로우를 부드럽게 조정
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            :root {
+                --seed-green-bright: #83F6A0;
+                --seed-green-soft: #6FDE90;
+                --seed-green-line: rgba(131, 246, 160, 0.24);
+                --seed-green-line-soft: rgba(131, 246, 160, 0.16);
+                --seed-green-bg: rgba(78, 191, 118, 0.055);
+            }
+
+            /* 배경의 초록 안개를 한 단계 낮춰 눈부심 완화 */
+            .stApp {
+                background:
+                    radial-gradient(circle at 56% 31%, rgba(127, 47, 255, 0.34), transparent 30%),
+                    radial-gradient(circle at 78% 7%, rgba(93, 224, 131, 0.075), transparent 24%),
+                    radial-gradient(circle at 60% 79%, rgba(121, 51, 255, 0.13), transparent 33%),
+                    linear-gradient(180deg, #050411 0%, #09051C 52%, #050411 100%) !important;
+            }
+
+            /* STAR SEED 타이틀/강조 텍스트: 빛 번짐 축소 */
+            .board-title,
+            .graph-header-title,
+            .graph-explain-title {
+                text-shadow: 0 0 8px rgba(131,246,160,0.12) !important;
+            }
+
+            .board-title::after {
+                opacity: 0.72 !important;
+                box-shadow: 0 0 10px rgba(131,246,160,0.10) !important;
+            }
+
+            .seed-page-highlight,
+            .seed-point,
+            .seed-soft-point,
+            .reason-bullet::before {
+                color: var(--seed-green-bright) !important;
+                text-shadow: none !important;
+            }
+
+            /* 사이드바 active 버튼: 색은 유지, 네온만 낮춤 */
+            section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+                background: linear-gradient(135deg, rgba(28, 174, 88, 0.95), rgba(15, 105, 70, 0.96)) !important;
+                border-color: rgba(131,246,160,0.42) !important;
+                box-shadow:
+                    0 0 10px rgba(80, 220, 120, 0.12),
+                    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+            }
+
+            /* KPI / 패널 공통: 테두리는 보이되 광량은 낮춤 */
+            .board-kpi-card,
+            .board-panel,
+            .mini-candidate-card,
+            .detail-panel-v2,
+            .stPlotlyChart,
+            .plot-shell,
+            .graph-output-card,
+            .graph-table-card {
+                border-color: var(--seed-green-line-soft) !important;
+                box-shadow:
+                    inset 0 1px 0 rgba(255,255,255,.045),
+                    0 12px 26px rgba(0,0,0,.24) !important;
+            }
+
+            .board-kpi-card:hover,
+            .board-panel:hover,
+            .mini-candidate-card:hover,
+            .detail-panel-v2:hover {
+                border-color: rgba(131,246,160,0.30) !important;
+                box-shadow:
+                    inset 0 1px 0 rgba(255,255,255,.055),
+                    0 14px 28px rgba(0,0,0,.28),
+                    0 0 10px rgba(131,246,160,.055) !important;
+            }
+
+            .board-kpi-card::before,
+            .mini-candidate-card,
+            .detail-panel-v2 {
+                background:
+                    radial-gradient(circle at 10% 28%, rgba(131,246,160,0.055), transparent 32%),
+                    linear-gradient(180deg, rgba(14, 18, 43, .86), rgba(6, 11, 27, .94)) !important;
+            }
+
+            /* 원형 아이콘/아바타 빛 완화 */
+            .board-kpi-icon {
+                background: radial-gradient(circle at 34% 24%, rgba(255,255,255,.28), rgba(48, 190, 102, .78) 50%, rgba(12, 78, 56, .92) 100%) !important;
+                box-shadow: 0 0 10px rgba(80,255,146,.16) !important;
+            }
+
+            .mini-avatar-wrap,
+            .detail-avatar-big {
+                border-color: rgba(131,246,160,0.38) !important;
+                box-shadow: 0 0 12px rgba(131,246,160,0.12) !important;
+            }
+
+            /* 상세 패널은 포인트만 남기고 녹색 면광 제거 */
+            .detail-panel-v2 {
+                border-color: rgba(131,246,160,0.28) !important;
+                background:
+                    radial-gradient(circle at 9% 45%, rgba(131,246,160,0.060), transparent 30%),
+                    linear-gradient(180deg, rgba(8, 25, 27, .82), rgba(8, 13, 31, .96)) !important;
+            }
+
+            .detail-metric-box,
+            .reason-panel {
+                border-color: rgba(131,246,160,.20) !important;
+                background: rgba(131,246,160,.030) !important;
+            }
+
+            /* 태그/버튼도 덜 쨍하게 */
+            .mini-stage,
+            .action-immediate {
+                background: linear-gradient(135deg, rgba(26, 158, 91, .86), rgba(9, 88, 62, .88)) !important;
+                border-color: rgba(131,246,160,.28) !important;
+                box-shadow: none !important;
+            }
+
+            div[data-testid="column"] .stButton > button[kind="primary"],
+            button[kind="primary"][data-testid="baseButton-primary"] {
+                background: linear-gradient(135deg, rgba(26, 158, 91, 0.92), rgba(12, 92, 65, 0.94)) !important;
+                border-color: rgba(131,246,160,0.32) !important;
+                box-shadow: none !important;
+            }
+
+            div[data-testid="column"] .stButton > button:hover {
+                border-color: rgba(131,246,160,0.38) !important;
+                box-shadow: 0 0 8px rgba(131,246,160,0.08) !important;
+            }
+
+            .view-more-bar,
+            .stSelectbox > div > div {
+                border-color: rgba(131,246,160,.20) !important;
+                box-shadow: none !important;
+            }
+
+            /* 별 배경이 너무 튀지 않게 */
+            .star-layer { opacity: 0.78 !important; }
+            .twinkle-star { box-shadow: 0 0 6px rgba(255,255,255,0.55), 0 0 12px rgba(198,168,255,0.28) !important; }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+# =========================================================
+# 1-9. STAR SEED 제목 포인트 복구 오버라이드
+# - 전체 눈부심은 낮춘 상태로 유지
+# - STAR SEED 제목만 선명도/존재감 강화
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* 제목은 다시 힘 있게, 대신 화면 전체로 번지는 네온은 제한 */
+            .board-title {
+                color: #F7FFF9 !important;
+                letter-spacing: 10px !important;
+                text-shadow:
+                    0 0 5px rgba(255,255,255,0.30),
+                    0 0 14px rgba(131,246,160,0.26),
+                    0 0 26px rgba(131,246,160,0.16) !important;
+                position: relative;
+            }
+
+            /* 글자 아래 그린 라인을 조금 더 또렷하게 */
+            .board-title::after {
+                width: 250px !important;
+                height: 3px !important;
+                margin-top: 15px !important;
+                opacity: 0.92 !important;
+                background: linear-gradient(
+                    90deg,
+                    rgba(131,246,160,0),
+                    rgba(131,246,160,0.92),
+                    rgba(99,255,216,0.48),
+                    rgba(131,246,160,0)
+                ) !important;
+                box-shadow: 0 0 12px rgba(131,246,160,0.18) !important;
+            }
+
+            /* 제목 주변에 아주 얇은 녹색 분위기만 추가 */
+            .starseed-head-left {
+                position: relative;
+            }
+
+            .starseed-head-left::before {
+                content: "";
+                position: absolute;
+                left: -28px;
+                top: -20px;
+                width: 420px;
+                height: 150px;
+                border-radius: 999px;
+                background: radial-gradient(circle, rgba(131,246,160,0.075), transparent 66%);
+                pointer-events: none;
+                z-index: -1;
+            }
+
+            /* 부제목 강조 단어는 살짝만 더 밝게 */
+            .board-subtitle .seed-point,
+            .board-subtitle .seed-soft-point {
+                color: #8EF3A5 !important;
+                text-shadow: 0 0 8px rgba(131,246,160,0.14) !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+# =========================================================
+# 1-10. STAR SEED 상단 컴팩트 헤더 시안 오버라이드
+# - 요청한 캡처처럼 제목을 한 줄 카드형 헤더로 변경
+# - 하단 본문/문구는 유지하고 상단 톤만 정리
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            .starseed-board {
+                margin-top: -18px !important;
+                padding-top: 18px !important;
+                position: relative !important;
+            }
+
+            .starseed-board::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                height: 3px;
+                border-radius: 999px;
+                background: linear-gradient(
+                    90deg,
+                    rgba(131, 246, 160, 0.94) 0%,
+                    rgba(131, 246, 160, 0.94) 50%,
+                    rgba(128, 88, 255, 0.64) 50%,
+                    rgba(131, 246, 160, 0.82) 100%
+                );
+                box-shadow: 0 0 10px rgba(131,246,160,0.14) !important;
+            }
+
+            .board-hero,
+            .board-hero-compact {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.72fr) !important;
+                gap: 26px !important;
+                align-items: center !important;
+                margin-bottom: 14px !important;
+            }
+
+            .board-head-left {
+                display: grid !important;
+                grid-template-columns: 72px minmax(0, 1fr) !important;
+                gap: 18px !important;
+                align-items: center !important;
+                min-height: 96px !important;
+                position: relative !important;
+            }
+
+            .board-head-left::before {
+                content: "";
+                position: absolute;
+                left: -18px;
+                top: -16px;
+                width: 430px;
+                height: 128px;
+                border-radius: 999px;
+                background: radial-gradient(circle, rgba(131,246,160,0.06), transparent 68%);
+                pointer-events: none;
+                z-index: -1;
+            }
+
+            .board-title-icon {
+                width: 60px !important;
+                height: 60px !important;
+                border-radius: 10px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background:
+                    radial-gradient(circle at 45% 30%, rgba(131,246,160,0.14), transparent 56%),
+                    rgba(12, 20, 38, 0.86) !important;
+                border: 2px solid rgba(238, 235, 255, 0.82) !important;
+                box-shadow:
+                    0 0 10px rgba(131,246,160,0.10),
+                    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+                overflow: hidden !important;
+            }
+
+            .board-title-icon .seed-search-icon {
+                transform: scale(0.78) !important;
+                transform-origin: center center !important;
+            }
+
+            .board-title,
+            .board-title-ko {
+                font-family: inherit !important;
+                font-size: 39px !important;
+                font-weight: 950 !important;
+                letter-spacing: -0.055em !important;
+                line-height: 1.03 !important;
+                color: #FFF8FF !important;
+                margin: 0 0 8px 0 !important;
+                text-shadow:
+                    0 0 4px rgba(255,255,255,0.20),
+                    0 0 12px rgba(131,246,160,0.16) !important;
+                display: flex !important;
+                align-items: baseline !important;
+                gap: 10px !important;
+                white-space: nowrap !important;
+                position: relative !important;
+            }
+
+            .board-title span {
+                color: #76F08D !important;
+                font-size: 31px !important;
+                font-weight: 950 !important;
+                letter-spacing: -0.035em !important;
+                text-shadow: 0 0 10px rgba(131,246,160,0.16) !important;
+            }
+
+            .board-title::after,
+            .board-title-ko::after {
+                display: none !important;
+                content: none !important;
+            }
+
+            .board-subtitle {
+                margin: 0 !important;
+                font-size: 14.2px !important;
+                font-weight: 720 !important;
+                line-height: 1.45 !important;
+                letter-spacing: -0.035em !important;
+                color: #D8D0E7 !important;
+                text-align: left !important;
+                text-shadow: none !important;
+                white-space: nowrap !important;
+            }
+
+            .board-subtitle .seed-point,
+            .board-subtitle .seed-soft-point {
+                color: #8EF3A5 !important;
+                text-shadow: none !important;
+            }
+
+            .board-info-card {
+                min-height: 76px !important;
+                grid-template-columns: 52px 1fr !important;
+                gap: 14px !important;
+                padding: 14px 18px !important;
+                border-radius: 12px !important;
+                border: 1px solid rgba(131, 246, 160, 0.40) !important;
+                background:
+                    radial-gradient(circle at 9% 50%, rgba(131,246,160,0.14), transparent 28%),
+                    linear-gradient(135deg, rgba(11, 35, 28, 0.78), rgba(18, 16, 45, 0.82)) !important;
+                box-shadow:
+                    0 10px 24px rgba(0,0,0,0.20),
+                    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+            }
+
+            .board-info-icon {
+                width: 42px !important;
+                height: 42px !important;
+                font-size: 20px !important;
+                background: radial-gradient(circle at 34% 26%, #F1FFF4, #58E984 48%, #11894D 100%) !important;
+                box-shadow: 0 0 12px rgba(88,233,132,0.20) !important;
+            }
+
+            .board-info-title {
+                font-size: 13.2px !important;
+                margin-bottom: 4px !important;
+                color: #F5FFF7 !important;
+            }
+
+            .board-info-text {
+                font-size: 11.2px !important;
+                line-height: 1.5 !important;
+                color: #D6E5D8 !important;
+            }
+
+            @media (max-width: 1100px) {
+                .board-hero,
+                .board-hero-compact {
+                    grid-template-columns: 1fr !important;
+                }
+                .board-subtitle {
+                    white-space: normal !important;
+                }
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
+# =========================================================
+# 1-11. STAR SEED 상단 선 제거 + 상단 여백 압축 최종 오버라이드
+# - 문구/레이아웃은 유지
+# - 초록 상단 장식선 제거
+# - 화면 위쪽 여백만 줄여서 헤더가 더 위로 붙도록 조정
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* Streamlit 기본 본문 상단 여백 압축 */
+            .block-container {
+                padding-top: 0.55rem !important;
+            }
+
+            /* 스타시드 보드 자체 상단 여백 압축 */
+            .starseed-board {
+                margin-top: -30px !important;
+                padding-top: 6px !important;
+            }
+
+            /* 위쪽 초록/보라 긴 선 제거 */
+            .starseed-board::before,
+            .board-hero::before,
+            .board-hero-compact::before,
+            .starseed-dashboard-hero::before {
+                display: none !important;
+                content: none !important;
+                opacity: 0 !important;
+                height: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            /* 헤더 블록 간격만 살짝 더 압축 */
+            .board-hero,
+            .board-hero-compact {
+                margin-top: 0 !important;
+                margin-bottom: 10px !important;
+            }
+
+            .board-head-left {
+                min-height: 84px !important;
+            }
+
+            .board-title-icon {
+                width: 56px !important;
+                height: 56px !important;
+            }
+
+            .board-title,
+            .board-title-ko {
+                margin-bottom: 6px !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+# =========================================================
+# 1-12. STAR SEED 제목 위 빛 번짐 제거 최종 오버라이드
+# - 제목 위쪽에 선처럼 보이는 text-shadow / 배경광 제거
+# - 제목 자체는 너무 밋밋하지 않게 아주 약한 그림자만 유지
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* 제목 주변의 둥근 배경광이 선처럼 보이는 현상 제거 */
+            .board-head-left::before,
+            .starseed-head-left::before,
+            .board-title::before,
+            .board-title-ko::before,
+            .board-title span::before,
+            .board-title-ko span::before,
+            .starseed-title::before,
+            .starseed-compact-title::before,
+            .starseed-head-title::before {
+                display: none !important;
+                content: none !important;
+                opacity: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                filter: none !important;
+            }
+
+            /* 제목 위로 번지는 강한 그림자 제거 */
+            .board-title,
+            .board-title-ko,
+            .starseed-title,
+            .starseed-compact-title,
+            .starseed-head-title {
+                text-shadow: 0 1px 0 rgba(255,255,255,0.10) !important;
+                filter: none !important;
+            }
+
+            /* Star Seed 영문 초록 글자도 번짐 최소화 */
+            .board-title span,
+            .board-title-ko span,
+            .starseed-title span,
+            .starseed-compact-title span,
+            .starseed-head-title span {
+                text-shadow: 0 0 4px rgba(131,246,160,0.10) !important;
+                filter: none !important;
+            }
+
+            /* 혹시 텍스트 뒤 블러/라인 역할을 하는 after 장식도 완전 제거 */
+            .board-title::after,
+            .board-title-ko::after,
+            .starseed-title::after,
+            .starseed-compact-title::after,
+            .starseed-head-title::after {
+                display: none !important;
+                content: none !important;
+                opacity: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            /* 제목 영역 위쪽 여백은 유지하되, 위로 삐져나오는 빛만 숨김 */
+            .board-head-left,
+            .starseed-head-left {
+                overflow: visible !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+# =========================================================
+# STAR SEED 상단 여백 최종 압축 오버라이드
+# - Streamlit 기본 상단 헤더 높이를 줄여 위쪽 빈 공간 제거
+# - 스타시드 헤더를 화면 상단에 더 가깝게 배치
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* Streamlit 기본 상단 검은 헤더 영역 압축 */
+            [data-testid="stHeader"] {
+                height: 0px !important;
+                min-height: 0px !important;
+                background: transparent !important;
+            }
+
+            [data-testid="stToolbar"],
+            [data-testid="stDecoration"] {
+                display: none !important;
+                height: 0px !important;
+            }
+
+            /* 본문 컨테이너 상단 여백 제거 */
+            .block-container {
+                padding-top: 0rem !important;
+                margin-top: -2.1rem !important;
+            }
+
+            /* 스타시드 상단 헤더를 더 위로 당김 */
+            .starseed-board {
+                margin-top: -42px !important;
+                padding-top: 0 !important;
+            }
+
+            .board-hero,
+            .board-hero-compact {
+                margin-top: 0 !important;
+                padding-top: 4px !important;
+                padding-bottom: 8px !important;
+                margin-bottom: 8px !important;
+            }
+
+            .board-head-left {
+                min-height: 70px !important;
+                align-items: center !important;
+            }
+
+            .board-title-icon {
+                width: 52px !important;
+                height: 52px !important;
+            }
+
+            .board-title,
+            .board-title-ko {
+                margin-top: 0 !important;
+                margin-bottom: 4px !important;
+                line-height: 1.05 !important;
+            }
+
+            .board-subtitle {
+                margin-top: 0 !important;
+                line-height: 1.35 !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+# =========================================================
+# 대시보드 홈 상단 배치 조정
+# - Deploy/상단바 숨김 상태에서 홈 화면을 더 위로 당김
+# - 문구/카드 내용은 수정하지 않음
+# =========================================================
+
+st.markdown(
+    clean_html(
+        """
+        <style>
+        /* 모든 페이지에서 Streamlit 상단 툴바/Deploy 숨김 */
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"] {
+            display: none !important;
+        }
+
+        [data-testid="stHeader"] {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            background: transparent !important;
+        }
+
+        /* 홈 화면만 위로 당기는 전용 클래스 */
+        .planet-home-wrap {
+            margin-top: -56px !important;
+        }
+
+        .planet-home-wrap .hero-title {
+            margin-top: 0 !important;
+            margin-bottom: 10px !important;
+        }
+
+        .planet-home-wrap .hero-subtitle {
+            margin-bottom: 2px !important;
+        }
+
+        .planet-home-wrap .planet-area {
+            height: 315px !important;
+            margin-top: -16px !important;
+            margin-bottom: -24px !important;
+        }
+
+        /* 행성 크기는 유지하되 카드가 더 위로 붙게 카드 영역만 살짝 당김 */
+        .mission-card {
+            margin-top: -6px !important;
+        }
+
+        section.main .stButton > button {
+            margin-top: -60px !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
+# Streamlit Deploy 버튼/상단바 완전 숨김 최종 오버라이드
+# - 모든 페이지 공통 적용
+# - Streamlit 버전별 data-testid/class 차이를 넓게 대응
+# =========================================================
+st.markdown(
+    clean_html(
+        """
+        <style>
+        /* Streamlit 상단 헤더 전체 숨김 */
+        header,
+        header[data-testid="stHeader"],
+        [data-testid="stHeader"] {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+            background: transparent !important;
+            overflow: hidden !important;
+        }
+
+        /* Deploy 버튼/툴바 숨김: Streamlit 버전별 선택자 대응 */
+        [data-testid="stToolbar"],
+        [data-testid="stToolbar"] *,
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        [data-testid="stDeployButton"],
+        [data-testid="stAppDeployButton"],
+        .stDeployButton,
+        .stAppDeployButton,
+        button[title="Deploy"],
+        button[aria-label="Deploy"],
+        a[title="Deploy"],
+        a[aria-label="Deploy"] {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+
+        /* 상단바가 사라진 뒤 남는 여백 제거 */
+        .block-container {
+            padding-top: 0rem !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
+# 홈 화면 레이아웃 복구/안전 조정
+# - 행성이 카드 위로 겹치지 않게 원래 비율 복구
+# - Deploy 숨김 유지
+# - 홈 첫 진입 시 너무 아래로 처지지 않도록만 살짝 위로 조정
+# =========================================================
+st.markdown(
+    clean_html(
+        """
+        <style>
+        /* Deploy / Streamlit 툴바 숨김 유지 */
+        header,
+        [data-testid="stHeader"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        [data-testid="stDeployButton"],
+        [data-testid="stAppDeployButton"],
+        .stDeployButton,
+        button[title="Deploy"],
+        button[aria-label="Deploy"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+        }
+
+        /* 홈 화면: 압축은 풀고, 전체만 살짝 위로 */
+        .block-container:has(.planet-home-wrap) {
+            padding-top: 0 !important;
+            margin-top: -3.2rem !important;
+            padding-bottom: 2.5rem !important;
+        }
+
+        .planet-home-wrap {
+            transform: translateY(-22px) !important;
+            margin-bottom: -22px !important;
+        }
+
+        .planet-home-wrap .hero-title {
+            font-size: 58px !important;
+            margin-top: 8px !important;
+            margin-bottom: 14px !important;
+            letter-spacing: 9px !important;
+        }
+
+        .planet-home-wrap .hero-subtitle {
+            font-size: 19px !important;
+            margin-bottom: 8px !important;
+        }
+
+        /* 행성 영역은 너무 줄이면 카드와 겹치므로 340px 정도로 복구 */
+        .planet-home-wrap .planet-area {
+            height: 340px !important;
+            margin-top: -8px !important;
+            margin-bottom: -2px !important;
+        }
+
+        .planet-home-wrap .planet {
+            width: 300px !important;
+            height: 300px !important;
+        }
+
+        .planet-home-wrap .planet-logo {
+            font-size: 45px !important;
+        }
+
+        .planet-home-wrap .planet-glow {
+            width: 440px !important;
+            height: 440px !important;
+        }
+
+        .planet-home-wrap .planet-orbit {
+            width: 790px !important;
+            height: 220px !important;
+        }
+
+        .planet-home-wrap .planet-orbit.orbit-2 {
+            width: 625px !important;
+            height: 176px !important;
+        }
+
+        .planet-home-wrap .planet-orbit.orbit-3 {
+            width: 920px !important;
+            height: 285px !important;
+        }
+
+        /* 카드 원래 높이 복구: 겹침 방지 */
+        .planet-home-wrap .mission-card {
+            min-height: 245px !important;
+            padding: 26px 38px 74px !important;
+        }
+
+        .planet-home-wrap .card-head {
+            margin-top: 20px !important;
+            margin-bottom: 24px !important;
+        }
+
+        .planet-home-wrap .card-title {
+            font-size: 40px !important;
+        }
+
+        .planet-home-wrap .card-desc {
+            font-size: 19px !important;
+            line-height: 1.68 !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+# Streamlit이 이전 스크롤 위치를 기억할 때를 대비해, 홈에서는 첫 렌더 후 상단으로 복귀
+if st.session_state.get("page") == "대시보드 홈":
+    st.components.v1.html(
+        """
+        <script>
+        const scrollHomeTop = () => {
+            try {
+                window.parent.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+                const doc = window.parent.document;
+                const main = doc.querySelector('section.main') || doc.querySelector('[data-testid="stAppViewContainer"]');
+                if (main) main.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            } catch(e) {}
+        };
+        scrollHomeTop();
+        setTimeout(scrollHomeTop, 80);
+        setTimeout(scrollHomeTop, 250);
+        </script>
+        """,
+        height=0,
+    )
+
+
+# =========================================================
+# STAR SEED 헤더 최종 미세 조정
+# - 제목과 설명 사이 초록 라인 배치
+# - 좌측 아이콘을 제목+설명 높이에 맞게 확대
+# - 우측 기준 카드가 KPI 영역보다 튀어나오지 않도록 왼쪽 정렬
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* 상단 헤더 전체 폭/정렬 안정화 */
+            .board-hero,
+            .board-hero-compact {
+                grid-template-columns: minmax(0, 1fr) 560px !important;
+                column-gap: 22px !important;
+                align-items: center !important;
+                padding-right: 0 !important;
+                box-sizing: border-box !important;
+            }
+
+            /* 좌측 아이콘이 제목~설명 높이와 맞도록 확대 */
+            .board-head-left {
+                grid-template-columns: 86px minmax(0, 1fr) !important;
+                gap: 20px !important;
+                min-height: 88px !important;
+                align-items: center !important;
+            }
+
+            .board-title-icon {
+                width: 72px !important;
+                height: 72px !important;
+                border-radius: 12px !important;
+                align-self: center !important;
+            }
+
+            .board-title-icon .seed-search-icon {
+                transform: scale(1.02) !important;
+                transform-origin: center center !important;
+            }
+
+            .board-title-icon .seed-lens {
+                border-width: 4px !important;
+            }
+
+            /* 제목 바로 아래, 설명 바로 위의 짧은 초록 라인 */
+            .board-title,
+            .board-title-ko {
+                margin-bottom: 7px !important;
+            }
+
+            .board-title-accent-line {
+                width: 235px !important;
+                height: 2px !important;
+                margin: 0 0 9px 2px !important;
+                border-radius: 999px !important;
+                background: linear-gradient(
+                    90deg,
+                    rgba(126, 255, 153, 0.92) 0%,
+                    rgba(126, 255, 153, 0.58) 42%,
+                    rgba(126, 255, 153, 0.18) 78%,
+                    rgba(126, 255, 153, 0.00) 100%
+                ) !important;
+                box-shadow: 0 0 8px rgba(126, 255, 153, 0.16) !important;
+            }
+
+            .board-subtitle {
+                margin-top: 0 !important;
+                white-space: nowrap !important;
+            }
+
+            /* 우측 기준 카드: 아래 KPI 영역보다 오른쪽으로 튀어나오지 않게 왼쪽으로 당김 */
+            .board-info-card {
+                width: 100% !important;
+                max-width: none !important;
+                justify-self: stretch !important;
+                transform: none !important;
+                box-sizing: border-box !important;
+                grid-template-columns: 54px minmax(0, 1fr) !important;
+                padding-right: 22px !important;
+            }
+
+            .board-info-text {
+                white-space: normal !important;
+                overflow: visible !important;
+                text-overflow: unset !important;
+                line-height: 1.5 !important;
+                font-size: 12px !important;
+                word-break: keep-all !important;
+                overflow-wrap: break-word !important;
+            }
+
+            @media (max-width: 1200px) {
+                .board-hero,
+                .board-hero-compact {
+                    grid-template-columns: 1fr !important;
+                    padding-right: 0 !important;
+                }
+
+                .board-info-card {
+                    transform: none !important;
+                    max-width: none !important;
+                }
+
+                .board-subtitle,
+                .board-info-text {
+                    white-space: normal !important;
+                }
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+# =========================================================
+# 1-13. STAR SEED 상단 기준 카드 텍스트 잘림 방지 + 경량 보정
+# - 긴 문구가 한 줄 고정으로 잘리지 않도록 마지막에 한 번 더 보정
+# - decorative star DOM 수는 위에서 180개로 낮춰 렌더링 부담을 줄임
+# =========================================================
+if st.session_state.page == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            .board-info-card {
+                align-self: center !important;
+                min-width: 0 !important;
+                overflow: visible !important;
+            }
+
+            .board-info-card > div:last-child {
+                min-width: 0 !important;
+            }
+
+            .board-info-title,
+            .board-info-text {
+                white-space: normal !important;
+                overflow: visible !important;
+                text-overflow: unset !important;
+            }
+
+            .board-info-text {
+                line-height: 1.45 !important;
+                word-break: keep-all !important;
+                overflow-wrap: break-word !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
