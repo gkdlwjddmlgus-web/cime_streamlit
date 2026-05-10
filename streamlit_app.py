@@ -7826,3 +7826,164 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# =========================================================
+# FINAL SIDEBAR OPEN GUARD
+# - Streamlit Cloud/브라우저에 사이드바 접힘 상태가 남아 있어도 첫 진입 시 자동으로 열기
+# - header는 유지하고, 사이드바 토글 버튼은 항상 클릭 가능하게 복구
+# =========================================================
+st.markdown(
+    """
+    <style>
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        height: 2.4rem !important;
+        min-height: 2.4rem !important;
+        max-height: 2.4rem !important;
+        background: transparent !important;
+        overflow: visible !important;
+        z-index: 999997 !important;
+    }
+
+    /* Streamlit 버전별 사이드바 열기/닫기 버튼 후보를 모두 살림 */
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] *,
+    button[aria-label="Open sidebar"],
+    button[aria-label="Close sidebar"],
+    button[aria-label="사이드바 열기"],
+    button[aria-label="사이드바 닫기"],
+    button[title="Open sidebar"],
+    button[title="Close sidebar"],
+    button[kind="header"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+        z-index: 999999 !important;
+    }
+
+    /* 접힌 상태에서 열기 버튼이 화면 밖/뒤로 밀리지 않게 고정 */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important;
+        top: 0.55rem !important;
+        left: 0.55rem !important;
+    }
+
+    /* 사이드바 자체는 절대 display:none 처리하지 않음 */
+    section[data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 999996 !important;
+    }
+
+    /* Deploy/Toolbar 계열만 숨김 */
+    [data-testid="stToolbar"],
+    [data-testid="stToolbar"] *,
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDeployButton"],
+    [data-testid="stAppDeployButton"],
+    .stDeployButton,
+    .stAppDeployButton,
+    button[title="Deploy"],
+    button[aria-label="Deploy"],
+    a[title="Deploy"],
+    a[aria-label="Deploy"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.components.v1.html(
+    """
+    <script>
+    (function () {
+      const root = window.parent.document;
+
+      function sidebarLooksClosed() {
+        const sidebar = root.querySelector('section[data-testid="stSidebar"]');
+        if (!sidebar) return true;
+        const rect = sidebar.getBoundingClientRect();
+        const style = root.defaultView.getComputedStyle(sidebar);
+        return (
+          rect.width < 80 ||
+          rect.right < 80 ||
+          style.display === 'none' ||
+          style.visibility === 'hidden' ||
+          style.opacity === '0'
+        );
+      }
+
+      function findOpenSidebarButton() {
+        const directSelectors = [
+          '[data-testid="collapsedControl"] button',
+          '[data-testid="stSidebarCollapsedControl"] button',
+          '[data-testid="stSidebarCollapseButton"] button',
+          'button[aria-label="Open sidebar"]',
+          'button[title="Open sidebar"]',
+          'button[aria-label="사이드바 열기"]',
+          'button[title="사이드바 열기"]'
+        ];
+        for (const selector of directSelectors) {
+          const el = root.querySelector(selector);
+          if (el) return el;
+        }
+
+        const buttons = Array.from(root.querySelectorAll('button'));
+        return buttons.find((btn) => {
+          const text = [
+            btn.getAttribute('aria-label'),
+            btn.getAttribute('title'),
+            btn.textContent
+          ].filter(Boolean).join(' ').toLowerCase();
+          return text.includes('open sidebar') || text.includes('sidebar') || text.includes('사이드바');
+        });
+      }
+
+      function openSidebarIfNeeded() {
+        if (!sidebarLooksClosed()) return;
+        const btn = findOpenSidebarButton();
+        if (btn) btn.click();
+      }
+
+      // Streamlit 렌더 타이밍 차이를 고려해 여러 번 시도
+      [120, 350, 700, 1200, 2000].forEach((delay) => {
+        window.setTimeout(openSidebarIfNeeded, delay);
+      });
+    })();
+    </script>
+    """,
+    height=0,
+    width=0,
+)
