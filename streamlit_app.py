@@ -26,6 +26,7 @@ import html as html_lib
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import plotly.express as px
 import plotly.graph_objects as go
 # =========================================================
@@ -47,6 +48,181 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# =========================================================
+# 0-0. Streamlit sidebar floating toggle guard
+# - Streamlit Cloud/버전별 DOM 차이로 기본 사이드바 토글이 CSS에 묻히는 문제 대응
+# - 기본 토글이 안 보여도 좌상단 고정 버튼으로 sidebar open/close를 다시 호출
+# - stToolbar 전체를 숨기지 않는 것이 중요함
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* header는 반드시 남긴다. sidebar open/close control이 이 영역에 붙는 버전이 있음 */
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        overflow: visible !important;
+        z-index: 999990 !important;
+    }
+
+    /* Streamlit 기본 사이드바 컨트롤 후보는 숨기지 않는다 */
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] *,
+    button[aria-label="Open sidebar"],
+    button[aria-label="Close sidebar"],
+    button[aria-label="사이드바 열기"],
+    button[aria-label="사이드바 닫기"],
+    button[title="Open sidebar"],
+    button[title="Close sidebar"],
+    button[title="사이드바 열기"],
+    button[title="사이드바 닫기"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 1000000 !important;
+    }
+
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"] {
+        position: fixed !important;
+        top: 0.6rem !important;
+        left: 0.6rem !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+components.html(
+    """
+    <script>
+    (function () {
+      const doc = window.parent.document;
+      const BTN_ID = "cime-sidebar-floating-toggle";
+      const STYLE_ID = "cime-sidebar-floating-toggle-style";
+
+      function ensureStyle() {
+        if (doc.getElementById(STYLE_ID)) return;
+        const style = doc.createElement("style");
+        style.id = STYLE_ID;
+        style.textContent = `
+          #${BTN_ID} {
+            position: fixed !important;
+            top: 10px !important;
+            left: 10px !important;
+            width: 38px !important;
+            height: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(124,255,158,0.50) !important;
+            background: rgba(6,18,26,0.92) !important;
+            color: #DFFFF6 !important;
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            line-height: 1 !important;
+            box-shadow: 0 0 18px rgba(124,255,158,0.22) !important;
+            z-index: 2147483647 !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            backdrop-filter: blur(6px) !important;
+          }
+          #${BTN_ID}:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 0 24px rgba(124,255,158,0.36) !important;
+          }
+        `;
+        doc.head.appendChild(style);
+      }
+
+      function getNativeToggle() {
+        const directSelectors = [
+          '[data-testid="collapsedControl"] button',
+          '[data-testid="stSidebarCollapsedControl"] button',
+          '[data-testid="stSidebarCollapseButton"] button',
+          '[data-testid="collapsedControl"]',
+          '[data-testid="stSidebarCollapsedControl"]',
+          '[data-testid="stSidebarCollapseButton"]',
+          'button[aria-label="Open sidebar"]',
+          'button[aria-label="Close sidebar"]',
+          'button[aria-label="사이드바 열기"]',
+          'button[aria-label="사이드바 닫기"]',
+          'button[title="Open sidebar"]',
+          'button[title="Close sidebar"]',
+          'button[title="사이드바 열기"]',
+          'button[title="사이드바 닫기"]'
+        ];
+        for (const selector of directSelectors) {
+          const el = doc.querySelector(selector);
+          if (el && el.id !== BTN_ID) return el;
+        }
+
+        const buttons = Array.from(doc.querySelectorAll('button'));
+        return buttons.find((b) => {
+          const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+          const title = (b.getAttribute('title') || '').toLowerCase();
+          return (aria.includes('sidebar') || title.includes('sidebar') || aria.includes('사이드바') || title.includes('사이드바'));
+        });
+      }
+
+      function forceClickable(el) {
+        let cur = el;
+        for (let i = 0; i < 4 && cur; i += 1) {
+          cur.style.setProperty('display', 'flex', 'important');
+          cur.style.setProperty('visibility', 'visible', 'important');
+          cur.style.setProperty('opacity', '1', 'important');
+          cur.style.setProperty('pointer-events', 'auto', 'important');
+          cur.style.setProperty('z-index', '2147483647', 'important');
+          cur = cur.parentElement;
+        }
+      }
+
+      function toggleSidebar() {
+        const nativeBtn = getNativeToggle();
+        if (nativeBtn) {
+          forceClickable(nativeBtn);
+          nativeBtn.click();
+          return;
+        }
+        console.warn('[CIME] Native Streamlit sidebar toggle was not found.');
+      }
+
+      function ensureButton() {
+        ensureStyle();
+        let btn = doc.getElementById(BTN_ID);
+        if (!btn) {
+          btn = doc.createElement('button');
+          btn.id = BTN_ID;
+          btn.type = 'button';
+          btn.title = '사이드바 열기/닫기';
+          btn.setAttribute('aria-label', 'CIME sidebar toggle');
+          btn.textContent = '☰';
+          btn.addEventListener('click', toggleSidebar);
+          doc.body.appendChild(btn);
+        }
+      }
+
+      ensureButton();
+      const observer = new MutationObserver(ensureButton);
+      observer.observe(doc.body, { childList: true, subtree: true });
+    })();
+    </script>
+    """,
+    height=0,
+    width=0,
+)
+
 
 # =========================================================
 # Streamlit 기본 Deploy 버튼/상단 툴바 숨김 - 사이드바 토글 보존 버전
@@ -72,8 +248,6 @@ st.markdown(
     }
 
     /* Deploy/Toolbar 계열만 숨김 */
-    [data-testid="stToolbar"],
-    [data-testid="stToolbar"] *,
     [data-testid="stDecoration"],
     [data-testid="stStatusWidget"],
     [data-testid="stDeployButton"],
@@ -7410,7 +7584,6 @@ if st.session_state.page == "스타시드":
                 overflow: visible !important;
             }
 
-            [data-testid="stToolbar"],
             [data-testid="stDecoration"] {
                 display: none !important;
                 height: 0px !important;
@@ -7475,7 +7648,6 @@ st.markdown(
         """
         <style>
         /* 모든 페이지에서 Streamlit 상단 툴바/Deploy 숨김 */
-        [data-testid="stToolbar"],
         [data-testid="stDecoration"],
         [data-testid="stStatusWidget"] {
             display: none !important;
@@ -7551,8 +7723,6 @@ st.markdown(
         }
 
         /* Deploy 버튼/툴바 숨김: Streamlit 버전별 선택자 대응 */
-        [data-testid="stToolbar"],
-        [data-testid="stToolbar"] *,
         [data-testid="stDecoration"],
         [data-testid="stStatusWidget"],
         [data-testid="stDeployButton"],
@@ -7596,7 +7766,6 @@ st.markdown(
         """
         <style>
         /* Deploy / Streamlit 툴바 숨김 유지: header/stHeader는 사이드바 토글 때문에 제외 */
-        [data-testid="stToolbar"],
         [data-testid="stDecoration"],
         [data-testid="stStatusWidget"],
         [data-testid="stDeployButton"],
