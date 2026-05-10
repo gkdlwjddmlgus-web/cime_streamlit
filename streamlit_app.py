@@ -2673,15 +2673,24 @@ if st.session_state.page == "스타시드":
 
 
 # =========================================================
-# SIDEBAR FORCE OPEN GUARD - 반드시 page routing/st.stop 이전에 실행
-# - 홈/스타트레일에서는 아래쪽 코드가 st.stop()으로 중단되므로,
-#   사이드바 복구 코드는 with st.sidebar 및 page 분기보다 먼저 있어야 함.
-# - 문제 원인: 이전 복구 코드는 파일 하단에 있어 홈 화면에서는 실행되지 않았음.
+# SIDEBAR COLLAPSE/EXPAND FIX - 강제 열기 제거 버전
+# - 이전 코드의 문제:
+#   1) aria-expanded="false" 상태에서도 사이드바 width를 300px로 강제함
+#   2) JS가 접힌 사이드바를 자동으로 다시 여는 forceSidebarOpen을 실행함
+#   그래서 << 버튼을 눌러도 완전히 접히지 않고, 반쯤 남거나 다시 확장되는 문제가 발생함.
+# - 수정 방향:
+#   1) 사이드바는 expanded 상태에서만 300px 고정
+#   2) collapsed 상태에서는 width 0 / transform 음수 이동으로 완전히 접힘
+#   3) 사이드바 열기/닫기 버튼만 보존하고, 자동 클릭 JS는 사용하지 않음
 # =========================================================
 st.markdown(
     """
     <style>
-    /* 헤더는 숨기지 않는다. 사이드바 열기 버튼이 헤더 영역에 붙는 Streamlit 버전 대응 */
+    :root {
+        --cime-sidebar-width: 300px;
+    }
+
+    /* 헤더는 숨기지 않는다. 사이드바 접힘/펼침 버튼이 header 영역에 붙는 Streamlit 버전 대응 */
     header,
     header[data-testid="stHeader"],
     [data-testid="stHeader"] {
@@ -2689,15 +2698,41 @@ st.markdown(
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        min-height: 2.4rem !important;
         height: 2.4rem !important;
+        min-height: 2.4rem !important;
         max-height: 2.4rem !important;
         background: transparent !important;
         overflow: visible !important;
         z-index: 999990 !important;
     }
 
-    /* 사이드바 열기/닫기 버튼은 항상 접근 가능하게 유지 */
+    /* Deploy/Toolbar 계열만 숨김. HeaderActionElements 전체는 숨기지 않음 */
+    [data-testid="stToolbar"],
+    [data-testid="stToolbar"] *,
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDeployButton"],
+    [data-testid="stAppDeployButton"],
+    .stDeployButton,
+    .stAppDeployButton,
+    button[title="Deploy"],
+    button[aria-label="Deploy"],
+    a[title="Deploy"],
+    a[aria-label="Deploy"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* 사이드바 열기/닫기 컨트롤은 항상 보이게 유지 */
     [data-testid="collapsedControl"],
     [data-testid="collapsedControl"] *,
     [data-testid="stSidebarCollapsedControl"],
@@ -2715,13 +2750,6 @@ st.markdown(
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        width: auto !important;
-        height: auto !important;
-        min-width: auto !important;
-        min-height: auto !important;
-        max-width: none !important;
-        max-height: none !important;
-        overflow: visible !important;
         z-index: 999999 !important;
     }
 
@@ -2732,96 +2760,39 @@ st.markdown(
         left: 0.55rem !important;
     }
 
-    /* collapsed 상태가 브라우저에 남아 있어도 사이드바 자체가 0px로 고정되지 않게 보정 */
-    section[data-testid="stSidebar"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        z-index: 999996 !important;
-    }
-
+    /* 펼쳐진 사이드바는 첫 번째 캡처 수준으로 폭 고정 */
     @media (min-width: 900px) {
+        section[data-testid="stSidebar"] {
+            flex: 0 0 var(--cime-sidebar-width) !important;
+            width: var(--cime-sidebar-width) !important;
+            min-width: var(--cime-sidebar-width) !important;
+            max-width: var(--cime-sidebar-width) !important;
+            transform: translateX(0) !important;
+            transition: transform 180ms ease, width 180ms ease, min-width 180ms ease, max-width 180ms ease !important;
+            overflow: hidden auto !important;
+            z-index: 999996 !important;
+        }
+
+        /* 핵심: 접힌 상태는 300px로 강제하지 않고 0px로 완전히 접는다 */
         section[data-testid="stSidebar"][aria-expanded="false"] {
-            min-width: 300px !important;
-            width: 300px !important;
-            max-width: 300px !important;
-            transform: translateX(0px) !important;
-            left: 0 !important;
+            flex-basis: 0 !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            transform: translateX(calc(-1 * var(--cime-sidebar-width))) !important;
+            border-right: 0 !important;
+            box-shadow: none !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+
+        section[data-testid="stSidebar"][aria-expanded="false"] * {
+            pointer-events: none !important;
         }
     }
     </style>
     """,
     unsafe_allow_html=True,
-)
-
-st.components.v1.html(
-    """
-    <script>
-    (function () {
-      const root = window.parent.document;
-
-      function looksClosed(sidebar) {
-        if (!sidebar) return true;
-        const rect = sidebar.getBoundingClientRect();
-        const style = root.defaultView.getComputedStyle(sidebar);
-        return rect.width < 80 || rect.right < 80 || style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0';
-      }
-
-      function findOpenButton() {
-        const selectors = [
-          '[data-testid="collapsedControl"] button',
-          '[data-testid="stSidebarCollapsedControl"] button',
-          '[data-testid="stSidebarCollapseButton"] button',
-          'button[aria-label="Open sidebar"]',
-          'button[title="Open sidebar"]',
-          'button[aria-label="사이드바 열기"]',
-          'button[title="사이드바 열기"]'
-        ];
-        for (const selector of selectors) {
-          const el = root.querySelector(selector);
-          if (el) return el;
-        }
-        const buttons = Array.from(root.querySelectorAll('button'));
-        return buttons.find((btn) => {
-          const label = ((btn.getAttribute('aria-label') || '') + ' ' + (btn.title || '') + ' ' + (btn.innerText || '')).toLowerCase();
-          return label.includes('open sidebar') || label.includes('사이드바 열기');
-        }) || null;
-      }
-
-      function forceSidebarOpen() {
-        const sidebar = root.querySelector('section[data-testid="stSidebar"]');
-        if (!looksClosed(sidebar)) return;
-
-        const openBtn = findOpenButton();
-        if (openBtn) {
-          openBtn.click();
-          return;
-        }
-
-        /* 버튼 탐색 실패 시 최소한 사이드바 영역을 직접 복구 */
-        if (sidebar) {
-          sidebar.style.display = 'block';
-          sidebar.style.visibility = 'visible';
-          sidebar.style.opacity = '1';
-          sidebar.style.pointerEvents = 'auto';
-          sidebar.style.transform = 'translateX(0px)';
-          sidebar.style.left = '0px';
-          sidebar.style.minWidth = '300px';
-          sidebar.style.width = '300px';
-          sidebar.style.maxWidth = '300px';
-          sidebar.style.zIndex = '999996';
-        }
-      }
-
-      setTimeout(forceSidebarOpen, 120);
-      setTimeout(forceSidebarOpen, 450);
-      setTimeout(forceSidebarOpen, 1000);
-    })();
-    </script>
-    """,
-    height=0,
-    width=0,
 )
 
 
