@@ -2672,6 +2672,159 @@ if st.session_state.page == "스타시드":
     )
 
 
+# =========================================================
+# SIDEBAR FORCE OPEN GUARD - 반드시 page routing/st.stop 이전에 실행
+# - 홈/스타트레일에서는 아래쪽 코드가 st.stop()으로 중단되므로,
+#   사이드바 복구 코드는 with st.sidebar 및 page 분기보다 먼저 있어야 함.
+# - 문제 원인: 이전 복구 코드는 파일 하단에 있어 홈 화면에서는 실행되지 않았음.
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* 헤더는 숨기지 않는다. 사이드바 열기 버튼이 헤더 영역에 붙는 Streamlit 버전 대응 */
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        min-height: 2.4rem !important;
+        height: 2.4rem !important;
+        max-height: 2.4rem !important;
+        background: transparent !important;
+        overflow: visible !important;
+        z-index: 999990 !important;
+    }
+
+    /* 사이드바 열기/닫기 버튼은 항상 접근 가능하게 유지 */
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] *,
+    button[aria-label="Open sidebar"],
+    button[aria-label="Close sidebar"],
+    button[aria-label="사이드바 열기"],
+    button[aria-label="사이드바 닫기"],
+    button[title="Open sidebar"],
+    button[title="Close sidebar"],
+    button[kind="header"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+        z-index: 999999 !important;
+    }
+
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important;
+        top: 0.55rem !important;
+        left: 0.55rem !important;
+    }
+
+    /* collapsed 상태가 브라우저에 남아 있어도 사이드바 자체가 0px로 고정되지 않게 보정 */
+    section[data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 999996 !important;
+    }
+
+    @media (min-width: 900px) {
+        section[data-testid="stSidebar"][aria-expanded="false"] {
+            min-width: 300px !important;
+            width: 300px !important;
+            max-width: 300px !important;
+            transform: translateX(0px) !important;
+            left: 0 !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.components.v1.html(
+    """
+    <script>
+    (function () {
+      const root = window.parent.document;
+
+      function looksClosed(sidebar) {
+        if (!sidebar) return true;
+        const rect = sidebar.getBoundingClientRect();
+        const style = root.defaultView.getComputedStyle(sidebar);
+        return rect.width < 80 || rect.right < 80 || style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0';
+      }
+
+      function findOpenButton() {
+        const selectors = [
+          '[data-testid="collapsedControl"] button',
+          '[data-testid="stSidebarCollapsedControl"] button',
+          '[data-testid="stSidebarCollapseButton"] button',
+          'button[aria-label="Open sidebar"]',
+          'button[title="Open sidebar"]',
+          'button[aria-label="사이드바 열기"]',
+          'button[title="사이드바 열기"]'
+        ];
+        for (const selector of selectors) {
+          const el = root.querySelector(selector);
+          if (el) return el;
+        }
+        const buttons = Array.from(root.querySelectorAll('button'));
+        return buttons.find((btn) => {
+          const label = ((btn.getAttribute('aria-label') || '') + ' ' + (btn.title || '') + ' ' + (btn.innerText || '')).toLowerCase();
+          return label.includes('open sidebar') || label.includes('사이드바 열기');
+        }) || null;
+      }
+
+      function forceSidebarOpen() {
+        const sidebar = root.querySelector('section[data-testid="stSidebar"]');
+        if (!looksClosed(sidebar)) return;
+
+        const openBtn = findOpenButton();
+        if (openBtn) {
+          openBtn.click();
+          return;
+        }
+
+        /* 버튼 탐색 실패 시 최소한 사이드바 영역을 직접 복구 */
+        if (sidebar) {
+          sidebar.style.display = 'block';
+          sidebar.style.visibility = 'visible';
+          sidebar.style.opacity = '1';
+          sidebar.style.pointerEvents = 'auto';
+          sidebar.style.transform = 'translateX(0px)';
+          sidebar.style.left = '0px';
+          sidebar.style.minWidth = '300px';
+          sidebar.style.width = '300px';
+          sidebar.style.maxWidth = '300px';
+          sidebar.style.zIndex = '999996';
+        }
+      }
+
+      setTimeout(forceSidebarOpen, 120);
+      setTimeout(forceSidebarOpen, 450);
+      setTimeout(forceSidebarOpen, 1000);
+    })();
+    </script>
+    """,
+    height=0,
+    width=0,
+)
+
+
 with st.sidebar:
     html(
         """
