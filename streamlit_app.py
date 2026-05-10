@@ -2857,19 +2857,25 @@ with st.sidebar:
         },
     }
 
+    def _go_page(page_name: str) -> None:
+        # Streamlit button callback은 본문 렌더링 전에 실행된다.
+        # 기존처럼 버튼 클릭 후 st.rerun()을 다시 호출하면
+        # 홈/중간 화면이 한 번 보였다가 스타시드로 이동하는 이중 rerun 플래시가 생길 수 있다.
+        st.session_state.page = page_name
+        st.session_state.card = None
+
     for page, item in NAV_ITEMS.items():
         is_active = st.session_state.page == page
 
-        if st.button(
+        st.button(
             item["label"],
             key=f"nav_{page}",
             use_container_width=True,
             type="primary" if is_active else "secondary",
             icon=item["icon"],
-        ):
-            st.session_state.page = page
-            st.session_state.card = None
-            st.rerun()
+            on_click=_go_page,
+            args=(page,),
+        )
 
 def render_planet_home():
     html(
@@ -8070,3 +8076,53 @@ if st.session_state.get("page") == "스타시드":
         unsafe_allow_html=True,
     )
 
+
+
+# =========================================================
+# 100. 최종 보정: 홈 상단 여백 추가 압축 + 사이드바 페이지 전환 플래시 완화
+# - 홈 화면에서 상단 빈 공간을 줄이되 행성/카드 겹침은 방지
+# - 사이드바 버튼은 callback 방식으로 처리되어 별도 st.rerun() 없이 1회 렌더링만 수행
+# =========================================================
+if st.session_state.get("page") == "대시보드 홈":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* 홈 전용 상단 여백: header 토글은 유지하고 본문만 위로 당김 */
+            .block-container:has(.planet-home-wrap) {
+                padding-top: 0 !important;
+                margin-top: -4.6rem !important;
+                padding-bottom: 2.2rem !important;
+            }
+
+            .planet-home-wrap {
+                transform: translateY(-34px) !important;
+                margin-bottom: -34px !important;
+            }
+
+            .planet-home-wrap .hero-title {
+                margin-top: 0 !important;
+                margin-bottom: 10px !important;
+            }
+
+            .planet-home-wrap .hero-subtitle {
+                margin-bottom: 4px !important;
+            }
+
+            .planet-home-wrap .planet-area {
+                height: 326px !important;
+                margin-top: -12px !important;
+                margin-bottom: -6px !important;
+            }
+
+            /* 카드와 버튼이 행성 영역에 과하게 끌려 올라와 겹치는 것을 방지 */
+            .planet-home-wrap + div,
+            .planet-home-wrap ~ div {
+                position: relative !important;
+                z-index: 5 !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
