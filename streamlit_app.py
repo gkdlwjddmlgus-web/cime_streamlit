@@ -26,7 +26,6 @@ import html as html_lib
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 import plotly.express as px
 import plotly.graph_objects as go
 # =========================================================
@@ -49,6 +48,77 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# =========================================================
+# Streamlit 기본 Deploy 버튼/상단 툴바 숨김 - 사이드바 토글 보존 버전
+# - header/stHeader는 숨기지 않음: 사이드바 접힘/펼침 버튼이 header 영역에 붙는 Streamlit 버전 대응
+# - Deploy/Toolbar 계열만 숨김
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* 헤더 자체는 살려둔다. 숨기면 사이드바 펼침 버튼이 같이 사라질 수 있음 */
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        height: 2.4rem !important;
+        min-height: 2.4rem !important;
+        max-height: 2.4rem !important;
+        background: transparent !important;
+        overflow: visible !important;
+    }
+
+    /* Deploy/Toolbar 계열만 숨김 */
+    [data-testid="stToolbar"],
+    [data-testid="stToolbar"] *,
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDeployButton"],
+    [data-testid="stAppDeployButton"],
+    .stDeployButton,
+    .stAppDeployButton,
+    button[title="Deploy"],
+    button[aria-label="Deploy"],
+    a[title="Deploy"],
+    a[aria-label="Deploy"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* 사이드바 접힘/펼침 컨트롤 복구 */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"],
+    button[kind="header"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    .block-container {
+        padding-top: 0.25rem !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # =========================================================
 # 0-1. CIME STREAM PLANET 네비게이션 상태
@@ -7213,11 +7283,15 @@ if st.session_state.page == "스타시드":
         clean_html(
             """
             <style>
-            /* Streamlit 기본 상단 검은 헤더 영역 압축 */
+            /* Streamlit 기본 헤더는 사이드바 토글 때문에 보존 */
             [data-testid="stHeader"] {
-                height: 0px !important;
-                min-height: 0px !important;
+                display: block !important;
+                visibility: visible !important;
+                height: 2.4rem !important;
+                min-height: 2.4rem !important;
+                max-height: 2.4rem !important;
                 background: transparent !important;
+                overflow: visible !important;
             }
 
             [data-testid="stToolbar"],
@@ -7292,10 +7366,13 @@ st.markdown(
         }
 
         [data-testid="stHeader"] {
-            display: none !important;
-            height: 0 !important;
-            min-height: 0 !important;
+            display: block !important;
+            visibility: visible !important;
+            height: 2.4rem !important;
+            min-height: 2.4rem !important;
+            max-height: 2.4rem !important;
             background: transparent !important;
+            overflow: visible !important;
         }
 
         /* 홈 화면만 위로 당기는 전용 클래스 */
@@ -7342,17 +7419,19 @@ st.markdown(
     clean_html(
         """
         <style>
-        /* Streamlit 상단 헤더 전체 숨김 */
+        /* Streamlit 헤더는 사이드바 토글 때문에 보존 */
         header,
         header[data-testid="stHeader"],
         [data-testid="stHeader"] {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0 !important;
-            min-height: 0 !important;
-            max-height: 0 !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            height: 2.4rem !important;
+            min-height: 2.4rem !important;
+            max-height: 2.4rem !important;
             background: transparent !important;
-            overflow: hidden !important;
+            overflow: visible !important;
         }
 
         /* Deploy 버튼/툴바 숨김: Streamlit 버전별 선택자 대응 */
@@ -7400,9 +7479,7 @@ st.markdown(
     clean_html(
         """
         <style>
-        /* Deploy / Streamlit 툴바 숨김 유지 */
-        header,
-        [data-testid="stHeader"],
+        /* Deploy / Streamlit 툴바 숨김 유지: header/stHeader는 사이드바 토글 때문에 제외 */
         [data-testid="stToolbar"],
         [data-testid="stDecoration"],
         [data-testid="stStatusWidget"],
@@ -7679,3 +7756,73 @@ if st.session_state.page == "스타시드":
         ),
         unsafe_allow_html=True,
     )
+
+
+# =========================================================
+# Sidebar toggle safety override
+# - 팀원 수정본의 header 숨김 CSS가 다시 추가되어도 마지막에 복구
+# - 사이드바 접힘/펼침 버튼을 보존하면서 Deploy/Toolbar만 숨김
+# =========================================================
+st.markdown(
+    """
+    <style>
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        height: 2.4rem !important;
+        min-height: 2.4rem !important;
+        max-height: 2.4rem !important;
+        background: transparent !important;
+        overflow: visible !important;
+        z-index: 999997 !important;
+    }
+
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"],
+    button[kind="header"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+        z-index: 999999 !important;
+    }
+
+    [data-testid="stToolbar"],
+    [data-testid="stToolbar"] *,
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDeployButton"],
+    [data-testid="stAppDeployButton"],
+    .stDeployButton,
+    .stAppDeployButton,
+    button[title="Deploy"],
+    button[aria-label="Deploy"],
+    a[title="Deploy"],
+    a[aria-label="Deploy"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
