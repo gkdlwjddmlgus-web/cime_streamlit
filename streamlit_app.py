@@ -50,15 +50,15 @@ st.set_page_config(
 )
 
 # =========================================================
-# 0-0. Streamlit sidebar custom toggle guard - 안정화 버전
-# - Streamlit 기본 header는 유지하되 우측 Share/Deploy/GitHub류 액션만 숨김
-# - 기본 << / >> 토글은 화면에서 숨기고, CIME 커스텀 버튼만 고정 노출
-# - 커스텀 버튼은 내부적으로 기본 sidebar toggle을 클릭하지만 기본 토글을 다시 보이게 만들지 않음
+# 0-0. Streamlit sidebar floating toggle guard
+# - Streamlit Cloud/버전별 DOM 차이로 기본 사이드바 토글이 CSS에 묻히는 문제 대응
+# - 기본 토글이 안 보여도 좌상단 고정 버튼으로 sidebar open/close를 다시 호출
+# - stToolbar 전체를 숨기지 않는 것이 중요함
 # =========================================================
 st.markdown(
     """
     <style>
-    /* header는 DOM에 남겨둔다. 일부 Streamlit 버전에서 sidebar toggle 이벤트가 header 계층에 붙음 */
+    /* header는 반드시 남긴다. sidebar open/close control이 이 영역에 붙는 버전이 있음 */
     header,
     header[data-testid="stHeader"],
     [data-testid="stHeader"] {
@@ -66,43 +66,11 @@ st.markdown(
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        max-height: 0 !important;
-        background: transparent !important;
         overflow: visible !important;
         z-index: 999990 !important;
     }
 
-    /* 우측 상단 toolbar/action만 숨김. sidebar 자체는 건드리지 않음 */
-    [data-testid="stToolbar"],
-    [data-testid="stToolbar"] *,
-    [data-testid="stHeaderActionElements"],
-    [data-testid="stHeaderActionElements"] *,
-    [data-testid="stDecoration"],
-    [data-testid="stStatusWidget"],
-    [data-testid="stDeployButton"],
-    [data-testid="stAppDeployButton"],
-    .stDeployButton,
-    .stAppDeployButton,
-    button[title="Deploy"],
-    button[aria-label="Deploy"],
-    a[title="Deploy"],
-    a[aria-label="Deploy"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
-        max-width: 0 !important;
-        max-height: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* Streamlit 기본 << / >> 토글은 DOM에는 남기되 화면에서는 숨김 */
+    /* Streamlit 기본 사이드바 컨트롤 후보는 숨기지 않는다 */
     [data-testid="collapsedControl"],
     [data-testid="collapsedControl"] *,
     [data-testid="stSidebarCollapsedControl"],
@@ -117,20 +85,18 @@ st.markdown(
     button[title="Close sidebar"],
     button[title="사이드바 열기"],
     button[title="사이드바 닫기"] {
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-        width: 1px !important;
-        height: 1px !important;
-        min-width: 1px !important;
-        min-height: 1px !important;
-        max-width: 1px !important;
-        max-height: 1px !important;
-        overflow: hidden !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 1000000 !important;
     }
 
-    .block-container {
-        padding-top: 0.25rem !important;
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"] {
+        position: fixed !important;
+        top: 0.6rem !important;
+        left: 0.6rem !important;
     }
     </style>
     """,
@@ -150,59 +116,6 @@ components.html(
         const style = doc.createElement("style");
         style.id = STYLE_ID;
         style.textContent = `
-          /* Streamlit Cloud 우측 상단 액션 숨김: header 자체는 유지 */
-          [data-testid="stToolbar"],
-          [data-testid="stToolbar"] *,
-          [data-testid="stHeaderActionElements"],
-          [data-testid="stHeaderActionElements"] *,
-          [data-testid="stDeployButton"],
-          [data-testid="stAppDeployButton"],
-          [data-testid="stDecoration"],
-          [data-testid="stStatusWidget"],
-          .stDeployButton,
-          .stAppDeployButton,
-          button[title="Deploy"],
-          button[aria-label="Deploy"],
-          a[title="Deploy"],
-          a[aria-label="Deploy"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            max-width: 0 !important;
-            max-height: 0 !important;
-            overflow: hidden !important;
-          }
-
-          /* 기본 sidebar toggle은 숨긴다. 커스텀 버튼만 사용자에게 보임 */
-          [data-testid="collapsedControl"],
-          [data-testid="collapsedControl"] *,
-          [data-testid="stSidebarCollapsedControl"],
-          [data-testid="stSidebarCollapsedControl"] *,
-          [data-testid="stSidebarCollapseButton"],
-          [data-testid="stSidebarCollapseButton"] *,
-          button[aria-label="Open sidebar"],
-          button[aria-label="Close sidebar"],
-          button[aria-label="사이드바 열기"],
-          button[aria-label="사이드바 닫기"],
-          button[title="Open sidebar"],
-          button[title="Close sidebar"],
-          button[title="사이드바 열기"],
-          button[title="사이드바 닫기"] {
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-            width: 1px !important;
-            height: 1px !important;
-            min-width: 1px !important;
-            min-height: 1px !important;
-            max-width: 1px !important;
-            max-height: 1px !important;
-            overflow: hidden !important;
-          }
-
           #${BTN_ID} {
             position: fixed !important;
             top: 10px !important;
@@ -254,6 +167,7 @@ components.html(
           const el = doc.querySelector(selector);
           if (el && el.id !== BTN_ID) return el;
         }
+
         const buttons = Array.from(doc.querySelectorAll('button'));
         return buttons.find((b) => {
           const aria = (b.getAttribute('aria-label') || '').toLowerCase();
@@ -262,28 +176,23 @@ components.html(
         });
       }
 
-      function isSidebarOpen() {
-        const sidebar = doc.querySelector('section[data-testid="stSidebar"]');
-        if (!sidebar) return false;
-        const expanded = sidebar.getAttribute('aria-expanded');
-        if (expanded === 'true') return true;
-        if (expanded === 'false') return false;
-        return sidebar.getBoundingClientRect().width > 80;
-      }
-
-      function updateButton() {
-        const btn = doc.getElementById(BTN_ID);
-        if (!btn) return;
-        btn.textContent = '☰';
-        btn.title = isSidebarOpen() ? '사이드바 닫기' : '사이드바 열기';
+      function forceClickable(el) {
+        let cur = el;
+        for (let i = 0; i < 4 && cur; i += 1) {
+          cur.style.setProperty('display', 'flex', 'important');
+          cur.style.setProperty('visibility', 'visible', 'important');
+          cur.style.setProperty('opacity', '1', 'important');
+          cur.style.setProperty('pointer-events', 'auto', 'important');
+          cur.style.setProperty('z-index', '2147483647', 'important');
+          cur = cur.parentElement;
+        }
       }
 
       function toggleSidebar() {
         const nativeBtn = getNativeToggle();
         if (nativeBtn) {
+          forceClickable(nativeBtn);
           nativeBtn.click();
-          setTimeout(updateButton, 160);
-          setTimeout(updateButton, 420);
           return;
         }
         console.warn('[CIME] Native Streamlit sidebar toggle was not found.');
@@ -296,18 +205,17 @@ components.html(
           btn = doc.createElement('button');
           btn.id = BTN_ID;
           btn.type = 'button';
+          btn.title = '사이드바 열기/닫기';
           btn.setAttribute('aria-label', 'CIME sidebar toggle');
           btn.textContent = '☰';
           btn.addEventListener('click', toggleSidebar);
           doc.body.appendChild(btn);
         }
-        updateButton();
       }
 
       ensureButton();
       const observer = new MutationObserver(ensureButton);
-      observer.observe(doc.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-expanded', 'style', 'class'] });
-      window.addEventListener('resize', updateButton);
+      observer.observe(doc.body, { childList: true, subtree: true });
     })();
     </script>
     """,
@@ -2939,9 +2847,13 @@ if st.session_state.page == "스타시드":
 
 
 # =========================================================
-# SIDEBAR WIDTH / NATIVE TOGGLE CLEANUP
-# - 펼쳐진 사이드바 폭만 고정
-# - Streamlit 기본 << / >> 토글은 숨기고 CIME 커스텀 토글만 사용
+# SIDEBAR TOGGLE SAFE FIX - 접힘 후 재오픈 토글 보존 버전
+# - 핵심 수정:
+#   1) collapsed 상태에서 sidebar 내부 div를 visibility:hidden 처리하지 않는다.
+#      해당 div 안/근처에 Streamlit 토글 버튼이 같이 묶이면 토글까지 사라질 수 있다.
+#   2) stToolbar 전체를 숨기지 않는다.
+#      일부 Streamlit 버전에서 sidebar open/close 컨트롤이 header/toolbar 계층에 같이 잡힌다.
+#   3) 펼쳐진 상태의 sidebar 폭만 고정하고, 접힌 상태는 Streamlit 기본 동작에 맡긴다.
 # =========================================================
 st.markdown(
     """
@@ -2950,6 +2862,7 @@ st.markdown(
         --cime-sidebar-width: 300px;
     }
 
+    /* Header는 유지: sidebar open/close control이 header 영역에 붙는 Streamlit 버전 대응 */
     header,
     header[data-testid="stHeader"],
     [data-testid="stHeader"] {
@@ -2957,18 +2870,19 @@ st.markdown(
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        max-height: 0 !important;
+        height: 2.4rem !important;
+        min-height: 2.4rem !important;
+        max-height: 2.4rem !important;
         background: transparent !important;
         overflow: visible !important;
         z-index: 999990 !important;
     }
 
-    [data-testid="stToolbar"],
-    [data-testid="stToolbar"] *,
-    [data-testid="stHeaderActionElements"],
-    [data-testid="stHeaderActionElements"] *,
+    /*
+      Toolbar 전체를 display:none 처리하지 않는다.
+      전체 숨김 시 접힌 sidebar를 다시 여는 컨트롤까지 같이 사라지는 Streamlit 버전이 있다.
+      대신 배포/상태 위젯처럼 명확한 요소만 숨긴다.
+    */
     [data-testid="stDecoration"],
     [data-testid="stStatusWidget"],
     [data-testid="stDeployButton"],
@@ -2992,6 +2906,7 @@ st.markdown(
         overflow: hidden !important;
     }
 
+    /* 펼쳐진 상태의 sidebar 폭만 고정 */
     @media (min-width: 900px) {
         section[data-testid="stSidebar"][aria-expanded="true"] {
             flex: 0 0 var(--cime-sidebar-width) !important;
@@ -3003,12 +2918,16 @@ st.markdown(
         }
     }
 
+    /*
+      중요:
+      collapsed 상태에서 section 또는 section > div:first-child를 숨기지 않는다.
+      Streamlit이 기본으로 sidebar를 접고, open control을 남기도록 한다.
+    */
+
+    /* sidebar open/close control은 항상 보이게 */
     [data-testid="collapsedControl"],
-    [data-testid="collapsedControl"] *,
     [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapsedControl"] *,
     [data-testid="stSidebarCollapseButton"],
-    [data-testid="stSidebarCollapseButton"] *,
     button[aria-label="Open sidebar"],
     button[aria-label="Close sidebar"],
     button[aria-label="사이드바 열기"],
@@ -3017,16 +2936,26 @@ st.markdown(
     button[title="Close sidebar"],
     button[title="사이드바 열기"],
     button[title="사이드바 닫기"] {
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-        width: 1px !important;
-        height: 1px !important;
-        min-width: 1px !important;
-        min-height: 1px !important;
-        max-width: 1px !important;
-        max-height: 1px !important;
-        overflow: hidden !important;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 1000000 !important;
+    }
+
+    /* 접힌 상태에서 Streamlit이 생성하는 열기 버튼 위치 보정 */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important;
+        top: 0.55rem !important;
+        left: 0.55rem !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
     }
     </style>
     """,
