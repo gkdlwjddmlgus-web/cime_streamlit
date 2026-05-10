@@ -100,6 +100,125 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+# =========================================================
+# 0-0-1. Streamlit 우측 상단 액션 버튼 숨김
+# - header 자체는 유지해야 기본 사이드바 토글이 정상 작동함
+# - Share / Deploy / GitHub / Star / Fork 등 우측 액션만 숨김
+# - 좌측 사이드바 열기/닫기 토글은 유지
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* header는 보존: 사이드바 토글 이벤트가 header에 의존할 수 있음 */
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        background: transparent !important;
+        overflow: visible !important;
+    }
+
+    /* 우측 상단 Share/Deploy/GitHub 등 액션 영역만 숨김 */
+    header [data-testid="stHeaderActionElements"],
+    header [data-testid="stHeaderActionElements"] *,
+    [data-testid="stHeaderActionElements"],
+    [data-testid="stHeaderActionElements"] *,
+    header [data-testid="stToolbarActionButton"],
+    header [data-testid="stToolbarActionButton"] *,
+    header [data-testid="stDeployButton"],
+    header [data-testid="stAppDeployButton"],
+    header .stDeployButton,
+    header .stAppDeployButton,
+    header button[title="Share"],
+    header button[aria-label="Share"],
+    header a[title="Share"],
+    header a[aria-label="Share"],
+    header button[title="Deploy"],
+    header button[aria-label="Deploy"],
+    header a[title="Deploy"],
+    header a[aria-label="Deploy"],
+    header button[title*="GitHub"],
+    header a[title*="GitHub"],
+    header button[aria-label*="GitHub"],
+    header a[aria-label*="GitHub"],
+    header button[title="Fork"],
+    header button[aria-label="Fork"],
+    header a[title="Fork"],
+    header a[aria-label="Fork"],
+    header button[title="Star"],
+    header button[aria-label="Star"],
+    header a[title="Star"],
+    header a[aria-label="Star"],
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDeployButton"],
+    [data-testid="stAppDeployButton"],
+    .stDeployButton,
+    .stAppDeployButton {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        pointer-events: none !important;
+        overflow: hidden !important;
+    }
+
+    /* Streamlit 버전에 따라 우측 액션이 toolbar로 잡히는 경우만 숨김.
+       collapsedControl이 포함된 toolbar는 건드리지 않음. */
+    header [data-testid="stToolbar"]:not(:has([data-testid="collapsedControl"])):not(:has([data-testid="stSidebarCollapsedControl"])),
+    header [data-testid="stToolbar"]:not(:has([data-testid="collapsedControl"])):not(:has([data-testid="stSidebarCollapsedControl"])) * {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* 좌측 사이드바 토글은 명시적으로 보존 */
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] *,
+    button[aria-label="Open sidebar"],
+    button[aria-label="Close sidebar"],
+    button[aria-label="사이드바 열기"],
+    button[aria-label="사이드바 닫기"],
+    button[title="Open sidebar"],
+    button[title="Close sidebar"],
+    button[title="사이드바 열기"],
+    button[title="사이드바 닫기"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        padding: initial !important;
+        margin: initial !important;
+        pointer-events: auto !important;
+        overflow: visible !important;
+        z-index: 1000000 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # =========================================================
 # 0-1. CIME STREAM PLANET 네비게이션 상태
 # =========================================================
