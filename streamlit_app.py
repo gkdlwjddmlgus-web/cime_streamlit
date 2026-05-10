@@ -102,18 +102,20 @@ st.markdown(
 
 
 # =========================================================
-# 0-0-1. Streamlit 우측 상단 액션 버튼 숨김
-# - header 자체는 유지해야 기본 사이드바 토글이 정상 작동함
-# - Share / Deploy / GitHub / Star / Fork 등 우측 액션만 숨김
-# - 좌측 사이드바 열기/닫기 토글은 유지
+# 0-0-1. Streamlit 우측 상단 액션 버튼 숨김 - 토글 보존형
+# - header/stToolbar 컨테이너는 절대 숨기지 않음
+# - 사이드바 토글은 Streamlit 기본 컨트롤이므로 항상 보존
+# - Share / Deploy / GitHub / Star / Fork 등 우측 액션 "개별 버튼"만 숨김
 # =========================================================
 st.markdown(
     """
     <style>
-    /* header는 보존: 사이드바 토글 이벤트가 header에 의존할 수 있음 */
+    /* header는 보존: 사이드바 토글 이벤트가 header 내부 컨트롤에 의존할 수 있음 */
     header,
     header[data-testid="stHeader"],
-    [data-testid="stHeader"] {
+    [data-testid="stHeader"],
+    header [data-testid="stToolbar"],
+    [data-testid="stToolbar"] {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -122,25 +124,28 @@ st.markdown(
         overflow: visible !important;
     }
 
-    /* 우측 상단 Share/Deploy/GitHub 등 액션 영역만 숨김 */
-    header [data-testid="stHeaderActionElements"],
-    header [data-testid="stHeaderActionElements"] *,
-    [data-testid="stHeaderActionElements"],
-    [data-testid="stHeaderActionElements"] *,
-    header [data-testid="stToolbarActionButton"],
-    header [data-testid="stToolbarActionButton"] *,
-    header [data-testid="stDeployButton"],
-    header [data-testid="stAppDeployButton"],
-    header .stDeployButton,
-    header .stAppDeployButton,
+    /*
+      중요:
+      stHeaderActionElements / stToolbar / stToolbarActionButton 컨테이너 전체를 숨기면
+      Streamlit 버전에 따라 sidebar open/close 토글까지 같이 사라질 수 있음.
+      따라서 우측 액션으로 식별 가능한 개별 버튼/링크만 숨긴다.
+    */
     header button[title="Share"],
     header button[aria-label="Share"],
     header a[title="Share"],
     header a[aria-label="Share"],
+    header button[title*="Share"],
+    header button[aria-label*="Share"],
+    header a[title*="Share"],
+    header a[aria-label*="Share"],
     header button[title="Deploy"],
     header button[aria-label="Deploy"],
     header a[title="Deploy"],
     header a[aria-label="Deploy"],
+    header button[title*="Deploy"],
+    header button[aria-label*="Deploy"],
+    header a[title*="Deploy"],
+    header a[aria-label*="Deploy"],
     header button[title*="GitHub"],
     header a[title*="GitHub"],
     header button[aria-label*="GitHub"],
@@ -149,11 +154,18 @@ st.markdown(
     header button[aria-label="Fork"],
     header a[title="Fork"],
     header a[aria-label="Fork"],
+    header button[title*="Fork"],
+    header button[aria-label*="Fork"],
+    header a[title*="Fork"],
+    header a[aria-label*="Fork"],
     header button[title="Star"],
     header button[aria-label="Star"],
     header a[title="Star"],
     header a[aria-label="Star"],
-    [data-testid="stDecoration"],
+    header button[title*="Star"],
+    header button[aria-label*="Star"],
+    header a[title*="Star"],
+    header a[aria-label*="Star"],
     [data-testid="stStatusWidget"],
     [data-testid="stDeployButton"],
     [data-testid="stAppDeployButton"],
@@ -162,29 +174,24 @@ st.markdown(
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
-        width: 0 !important;
-        min-width: 0 !important;
-        max-width: 0 !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        max-height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
         pointer-events: none !important;
-        overflow: hidden !important;
     }
 
-    /* Streamlit 버전에 따라 우측 액션이 toolbar로 잡히는 경우만 숨김.
-       collapsedControl이 포함된 toolbar는 건드리지 않음. */
-    header [data-testid="stToolbar"]:not(:has([data-testid="collapsedControl"])):not(:has([data-testid="stSidebarCollapsedControl"])),
-    header [data-testid="stToolbar"]:not(:has([data-testid="collapsedControl"])):not(:has([data-testid="stSidebarCollapsedControl"])) * {
+    /*
+      GitHub/Share/Star 아이콘이 title/aria-label 없이 우측 액션 영역 버튼으로만 잡히는 경우:
+      - 사이드바 토글은 보통 left: 0 근처에 렌더링됨
+      - 우측 toolbar 버튼만 시각적으로 숨김
+      - 단, Open/Close sidebar 라벨이 있는 버튼은 아래 보존 규칙으로 다시 살림
+    */
+    header button[style*="right"],
+    header a[style*="right"] {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
     }
 
-    /* 좌측 사이드바 토글은 명시적으로 보존 */
+    /* 좌측 사이드바 토글은 최종적으로 반드시 보존 */
     [data-testid="collapsedControl"],
     [data-testid="collapsedControl"] *,
     [data-testid="stSidebarCollapsedControl"],
