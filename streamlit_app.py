@@ -5402,6 +5402,22 @@ else:
     delta_avg_score = target_filtered_kpi["avg_score"] - base_filtered_kpi["avg_score"] if pd.notna(base_filtered_kpi["avg_score"]) else np.nan
     delta_high_priority = target_filtered_kpi["high_priority"] - base_filtered_kpi["high_priority"] if pd.notna(base_filtered_kpi["high_priority"]) else np.nan
 
+# KPI 카드 하단 비교 기준 문구
+# 예: "2026-05-01 대비 현재 변화", "2026-05-01 대비 2026-05-07 변화"
+def _kpi_compare_note(base_label, target_label):
+    base_txt = str(base_label or "").strip()
+    target_txt = str(target_label or "").strip()
+
+    if not base_txt or base_txt == "-":
+        return "기준 시점 대비 변화"
+
+    if not target_txt or target_txt == "-":
+        target_txt = "현재"
+
+    return f"{base_txt} 대비 {target_txt} 변화"
+
+kpi_compare_note = _kpi_compare_note(tracking_base_label, tracking_target_label)
+
 # ---------------------------------------------------------
 # 9. 변화 추적 mini 데이터 생성
 # ---------------------------------------------------------
@@ -5512,10 +5528,10 @@ html(
             </div>
         </div>
         <div class="board-kpi-grid">
-            <div class="board-kpi-card"><div class="board-kpi-icon">👥</div><div class="board-kpi-content"><div class="board-kpi-label">전체 분석 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['total'], 0, '명')}</div>{_delta_badge(delta_total, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
-            <div class="board-kpi-card"><div class="board-kpi-icon">▾</div><div class="board-kpi-content"><div class="board-kpi-label">1차 선별 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{_delta_badge(delta_shortlist, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
-            <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div class="board-kpi-content"><div class="board-kpi-label">평균 추천 점수</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{_delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
-            <div class="board-kpi-card"><div class="board-kpi-icon">◎</div><div class="board-kpi-content"><div class="board-kpi-label">즉시 검토 후보</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{_delta_badge(delta_high_priority, 0, '명')}<span class="board-kpi-note">지난 분석 대비</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">👥</div><div class="board-kpi-content"><div class="board-kpi-label">전체 분석 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['total'], 0, '명')}</div>{_delta_badge(delta_total, 0, '명')}<span class="board-kpi-note">{kpi_compare_note}</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">▾</div><div class="board-kpi-content"><div class="board-kpi-label">1차 선별 후보</div><div class="board-kpi-value">{_fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{_delta_badge(delta_shortlist, 0, '명')}<span class="board-kpi-note">{kpi_compare_note}</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div class="board-kpi-content"><div class="board-kpi-label">평균 추천 점수</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{_delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">{kpi_compare_note}</span></div></div>
+            <div class="board-kpi-card"><div class="board-kpi-icon">◎</div><div class="board-kpi-content"><div class="board-kpi-label">즉시 검토 후보</div><div class="board-kpi-value">{_fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{_delta_badge(delta_high_priority, 0, '명')}<span class="board-kpi-note">{kpi_compare_note}</span></div></div>
         </div>
     </div>
     """
