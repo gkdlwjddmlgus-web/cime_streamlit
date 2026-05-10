@@ -50,15 +50,14 @@ st.set_page_config(
 )
 
 # =========================================================
-# 0-0. Streamlit sidebar floating toggle guard
-# - Streamlit Cloud/버전별 DOM 차이로 기본 사이드바 토글이 CSS에 묻히는 문제 대응
-# - 기본 토글이 안 보여도 좌상단 고정 버튼으로 sidebar open/close를 다시 호출
-# - stToolbar 전체를 숨기지 않는 것이 중요함
+# 0-0. Streamlit sidebar 안정화 설정
+# - 커스텀 JS 토글 제거: MutationObserver/DOM 강제 클릭으로 앱이 대기 상태에 빠지는 문제 방지
+# - Streamlit 기본 사이드바 토글을 그대로 사용
+# - header/toolbar를 숨기지 않음: 기본 토글 동작 보존
 # =========================================================
 st.markdown(
     """
     <style>
-    /* header는 반드시 남긴다. sidebar open/close control이 이 영역에 붙는 버전이 있음 */
     header,
     header[data-testid="stHeader"],
     [data-testid="stHeader"] {
@@ -67,10 +66,10 @@ st.markdown(
         opacity: 1 !important;
         pointer-events: auto !important;
         overflow: visible !important;
-        z-index: 999990 !important;
+        background: transparent !important;
     }
 
-    /* Streamlit 기본 사이드바 컨트롤 후보는 숨기지 않는다 */
+    /* 기본 사이드바 토글은 숨기지 않는다. 닫힌 뒤 다시 여는 핵심 컨트롤임 */
     [data-testid="collapsedControl"],
     [data-testid="collapsedControl"] *,
     [data-testid="stSidebarCollapsedControl"],
@@ -85,205 +84,12 @@ st.markdown(
     button[title="Close sidebar"],
     button[title="사이드바 열기"],
     button[title="사이드바 닫기"] {
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        z-index: 1000000 !important;
-    }
-
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"] {
-        position: fixed !important;
-        top: 0.6rem !important;
-        left: 0.6rem !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-components.html(
-    """
-    <script>
-    (function () {
-      const doc = window.parent.document;
-      const BTN_ID = "cime-sidebar-floating-toggle";
-      const STYLE_ID = "cime-sidebar-floating-toggle-style";
-
-      function ensureStyle() {
-        if (doc.getElementById(STYLE_ID)) return;
-        const style = doc.createElement("style");
-        style.id = STYLE_ID;
-        style.textContent = `
-          #${BTN_ID} {
-            position: fixed !important;
-            top: 10px !important;
-            left: 10px !important;
-            width: 38px !important;
-            height: 38px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border-radius: 999px !important;
-            border: 1px solid rgba(124,255,158,0.50) !important;
-            background: rgba(6,18,26,0.92) !important;
-            color: #DFFFF6 !important;
-            font-size: 20px !important;
-            font-weight: 900 !important;
-            line-height: 1 !important;
-            box-shadow: 0 0 18px rgba(124,255,158,0.22) !important;
-            z-index: 2147483647 !important;
-            cursor: pointer !important;
-            user-select: none !important;
-            backdrop-filter: blur(6px) !important;
-          }
-          #${BTN_ID}:hover {
-            transform: translateY(-1px) !important;
-            box-shadow: 0 0 24px rgba(124,255,158,0.36) !important;
-          }
-        `;
-        doc.head.appendChild(style);
-      }
-
-      function getNativeToggle() {
-        const directSelectors = [
-          '[data-testid="collapsedControl"] button',
-          '[data-testid="stSidebarCollapsedControl"] button',
-          '[data-testid="stSidebarCollapseButton"] button',
-          '[data-testid="collapsedControl"]',
-          '[data-testid="stSidebarCollapsedControl"]',
-          '[data-testid="stSidebarCollapseButton"]',
-          'button[aria-label="Open sidebar"]',
-          'button[aria-label="Close sidebar"]',
-          'button[aria-label="사이드바 열기"]',
-          'button[aria-label="사이드바 닫기"]',
-          'button[title="Open sidebar"]',
-          'button[title="Close sidebar"]',
-          'button[title="사이드바 열기"]',
-          'button[title="사이드바 닫기"]'
-        ];
-        for (const selector of directSelectors) {
-          const el = doc.querySelector(selector);
-          if (el && el.id !== BTN_ID) return el;
-        }
-
-        const buttons = Array.from(doc.querySelectorAll('button'));
-        return buttons.find((b) => {
-          const aria = (b.getAttribute('aria-label') || '').toLowerCase();
-          const title = (b.getAttribute('title') || '').toLowerCase();
-          return (aria.includes('sidebar') || title.includes('sidebar') || aria.includes('사이드바') || title.includes('사이드바'));
-        });
-      }
-
-      function forceClickable(el) {
-        let cur = el;
-        for (let i = 0; i < 4 && cur; i += 1) {
-          cur.style.setProperty('display', 'flex', 'important');
-          cur.style.setProperty('visibility', 'visible', 'important');
-          cur.style.setProperty('opacity', '1', 'important');
-          cur.style.setProperty('pointer-events', 'auto', 'important');
-          cur.style.setProperty('z-index', '2147483647', 'important');
-          cur = cur.parentElement;
-        }
-      }
-
-      function toggleSidebar() {
-        const nativeBtn = getNativeToggle();
-        if (nativeBtn) {
-          forceClickable(nativeBtn);
-          nativeBtn.click();
-          return;
-        }
-        console.warn('[CIME] Native Streamlit sidebar toggle was not found.');
-      }
-
-      function ensureButton() {
-        ensureStyle();
-        let btn = doc.getElementById(BTN_ID);
-        if (!btn) {
-          btn = doc.createElement('button');
-          btn.id = BTN_ID;
-          btn.type = 'button';
-          btn.title = '사이드바 열기/닫기';
-          btn.setAttribute('aria-label', 'CIME sidebar toggle');
-          btn.textContent = '☰';
-          btn.addEventListener('click', toggleSidebar);
-          doc.body.appendChild(btn);
-        }
-      }
-
-      ensureButton();
-      const observer = new MutationObserver(ensureButton);
-      observer.observe(doc.body, { childList: true, subtree: true });
-    })();
-    </script>
-    """,
-    height=0,
-    width=0,
-)
-
-
-# =========================================================
-# Streamlit 기본 Deploy 버튼/상단 툴바 숨김 - 사이드바 토글 보존 버전
-# - header/stHeader는 숨기지 않음: 사이드바 접힘/펼침 버튼이 header 영역에 붙는 Streamlit 버전 대응
-# - Deploy/Toolbar 계열만 숨김
-# =========================================================
-st.markdown(
-    """
-    <style>
-    /* 헤더 자체는 살려둔다. 숨기면 사이드바 펼침 버튼이 같이 사라질 수 있음 */
-    header,
-    header[data-testid="stHeader"],
-    [data-testid="stHeader"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        height: 2.4rem !important;
-        min-height: 2.4rem !important;
-        max-height: 2.4rem !important;
-        background: transparent !important;
-        overflow: visible !important;
-    }
-
-    /* Deploy/Toolbar 계열만 숨김 */
-    [data-testid="stDecoration"],
-    [data-testid="stStatusWidget"],
-    [data-testid="stDeployButton"],
-    [data-testid="stAppDeployButton"],
-    .stDeployButton,
-    .stAppDeployButton,
-    button[title="Deploy"],
-    button[aria-label="Deploy"],
-    a[title="Deploy"],
-    a[aria-label="Deploy"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
-        max-width: 0 !important;
-        max-height: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* 사이드바 접힘/펼침 컨트롤 복구 */
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"],
-    button[kind="header"] {
         display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        width: auto !important;
-        height: auto !important;
-        min-width: auto !important;
-        min-height: auto !important;
         overflow: visible !important;
+        z-index: 1000000 !important;
     }
 
     .block-container {
@@ -2847,13 +2653,10 @@ if st.session_state.page == "스타시드":
 
 
 # =========================================================
-# SIDEBAR TOGGLE SAFE FIX - 접힘 후 재오픈 토글 보존 버전
-# - 핵심 수정:
-#   1) collapsed 상태에서 sidebar 내부 div를 visibility:hidden 처리하지 않는다.
-#      해당 div 안/근처에 Streamlit 토글 버튼이 같이 묶이면 토글까지 사라질 수 있다.
-#   2) stToolbar 전체를 숨기지 않는다.
-#      일부 Streamlit 버전에서 sidebar open/close 컨트롤이 header/toolbar 계층에 같이 잡힌다.
-#   3) 펼쳐진 상태의 sidebar 폭만 고정하고, 접힌 상태는 Streamlit 기본 동작에 맡긴다.
+# SIDEBAR WIDTH / NATIVE TOGGLE SAFE MODE
+# - 사이드바가 펼쳐졌을 때 폭만 고정
+# - 접힘/펼침 동작은 Streamlit 기본 로직에 맡김
+# - 기본 << / >> 토글은 반드시 보이게 유지
 # =========================================================
 st.markdown(
     """
@@ -2862,51 +2665,6 @@ st.markdown(
         --cime-sidebar-width: 300px;
     }
 
-    /* Header는 유지: sidebar open/close control이 header 영역에 붙는 Streamlit 버전 대응 */
-    header,
-    header[data-testid="stHeader"],
-    [data-testid="stHeader"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        height: 2.4rem !important;
-        min-height: 2.4rem !important;
-        max-height: 2.4rem !important;
-        background: transparent !important;
-        overflow: visible !important;
-        z-index: 999990 !important;
-    }
-
-    /*
-      Toolbar 전체를 display:none 처리하지 않는다.
-      전체 숨김 시 접힌 sidebar를 다시 여는 컨트롤까지 같이 사라지는 Streamlit 버전이 있다.
-      대신 배포/상태 위젯처럼 명확한 요소만 숨긴다.
-    */
-    [data-testid="stDecoration"],
-    [data-testid="stStatusWidget"],
-    [data-testid="stDeployButton"],
-    [data-testid="stAppDeployButton"],
-    .stDeployButton,
-    .stAppDeployButton,
-    button[title="Deploy"],
-    button[aria-label="Deploy"],
-    a[title="Deploy"],
-    a[aria-label="Deploy"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
-        max-width: 0 !important;
-        max-height: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* 펼쳐진 상태의 sidebar 폭만 고정 */
     @media (min-width: 900px) {
         section[data-testid="stSidebar"][aria-expanded="true"] {
             flex: 0 0 var(--cime-sidebar-width) !important;
@@ -2918,16 +2676,17 @@ st.markdown(
         }
     }
 
-    /*
-      중요:
-      collapsed 상태에서 section 또는 section > div:first-child를 숨기지 않는다.
-      Streamlit이 기본으로 sidebar를 접고, open control을 남기도록 한다.
-    */
+    /* 접힌 상태는 강제로 width 0 처리하지 않음. Streamlit 기본 토글 재오픈 기능 보존 */
+    section[data-testid="stSidebar"][aria-expanded="false"] {
+        pointer-events: auto !important;
+    }
 
-    /* sidebar open/close control은 항상 보이게 */
     [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
     [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] *,
     [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] *,
     button[aria-label="Open sidebar"],
     button[aria-label="Close sidebar"],
     button[aria-label="사이드바 열기"],
@@ -2940,22 +2699,8 @@ st.markdown(
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        z-index: 1000000 !important;
-    }
-
-    /* 접힌 상태에서 Streamlit이 생성하는 열기 버튼 위치 보정 */
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"] {
-        position: fixed !important;
-        top: 0.55rem !important;
-        left: 0.55rem !important;
-        width: auto !important;
-        height: auto !important;
-        min-width: auto !important;
-        min-height: auto !important;
-        max-width: none !important;
-        max-height: none !important;
         overflow: visible !important;
+        z-index: 1000000 !important;
     }
     </style>
     """,
