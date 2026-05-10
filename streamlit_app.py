@@ -7912,3 +7912,161 @@ if st.session_state.page == "스타시드":
         ),
         unsafe_allow_html=True,
     )
+
+# =========================================================
+# 99. 최종 보정: 사이드바 토글 위치 통일 + STAR SEED 상단 여백 압축
+# - 우측 상단 Share/GitHub 액션은 건드리지 않음: sidebar 토글 안정성을 우선함
+# - 접힌 상태의 >> 버튼과 펼친 상태의 << 버튼을 같은 y축에 고정
+# - 펼친 상태의 << 버튼은 sidebar 최우측 상단에 위치
+# - STAR SEED 페이지의 상단 빈 여백만 추가 압축
+# =========================================================
+st.markdown(
+    clean_html(
+        """
+        <style>
+        :root {
+            --cime-sidebar-width: 300px;
+            --cime-sidebar-toggle-top: 22px;
+            --cime-sidebar-toggle-size: 34px;
+            --cime-sidebar-toggle-left: 16px;
+        }
+
+        /* header는 사이드바 기본 토글이 의존할 수 있으므로 절대 제거하지 않음 */
+        header,
+        header[data-testid="stHeader"],
+        [data-testid="stHeader"],
+        header [data-testid="stToolbar"],
+        [data-testid="stToolbar"] {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            overflow: visible !important;
+            background: transparent !important;
+            z-index: 999990 !important;
+        }
+
+        /* 닫힌 상태의 sidebar open 토글: 항상 동일 위치 */
+        [data-testid="collapsedControl"],
+        [data-testid="stSidebarCollapsedControl"] {
+            position: fixed !important;
+            top: var(--cime-sidebar-toggle-top) !important;
+            left: var(--cime-sidebar-toggle-left) !important;
+            width: var(--cime-sidebar-toggle-size) !important;
+            height: var(--cime-sidebar-toggle-size) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            overflow: visible !important;
+            z-index: 1000000 !important;
+        }
+
+        /* 펼친 상태의 sidebar close 토글: sidebar 내부 최우측 상단 */
+        section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
+        section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
+        section[data-testid="stSidebar"] button[title="Close sidebar"],
+        section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
+        section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
+            position: fixed !important;
+            top: var(--cime-sidebar-toggle-top) !important;
+            left: calc(var(--cime-sidebar-width) - var(--cime-sidebar-toggle-size) - 12px) !important;
+            width: var(--cime-sidebar-toggle-size) !important;
+            height: var(--cime-sidebar-toggle-size) !important;
+            min-width: var(--cime-sidebar-toggle-size) !important;
+            min-height: var(--cime-sidebar-toggle-size) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            overflow: visible !important;
+            z-index: 1000001 !important;
+            margin: 0 !important;
+        }
+
+        /* 버튼 모양 통일 */
+        [data-testid="collapsedControl"] button,
+        [data-testid="stSidebarCollapsedControl"] button,
+        section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button,
+        section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
+        section[data-testid="stSidebar"] button[title="Close sidebar"],
+        section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
+        section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
+            width: var(--cime-sidebar-toggle-size) !important;
+            height: var(--cime-sidebar-toggle-size) !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(118, 242, 226, 0.42) !important;
+            background: rgba(7, 22, 38, 0.86) !important;
+            box-shadow: 0 0 14px rgba(95,255,232,0.16) !important;
+        }
+
+        /* sidebar 내용이 우측 상단 닫기 버튼과 겹치지 않게 최소 여백 */
+        section[data-testid="stSidebar"] > div:first-child {
+            padding-top: 4.1rem !important;
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
+if st.session_state.get("page") == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* STAR SEED 대시보드 상단 여백 최종 압축 */
+            [data-testid="stHeader"] {
+                height: 1.55rem !important;
+                min-height: 1.55rem !important;
+                max-height: 1.55rem !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            .block-container {
+                padding-top: 0 !important;
+                margin-top: -2.8rem !important;
+            }
+
+            .starseed-board {
+                margin-top: -58px !important;
+                padding-top: 0 !important;
+            }
+
+            .board-hero,
+            .board-hero-compact {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: 6px !important;
+                margin-bottom: 8px !important;
+            }
+
+            .board-head-left {
+                min-height: 62px !important;
+            }
+
+            .board-title-icon {
+                width: 50px !important;
+                height: 50px !important;
+            }
+
+            .board-title,
+            .board-title-ko {
+                margin-top: 0 !important;
+                margin-bottom: 4px !important;
+            }
+
+            .board-subtitle {
+                margin-top: 0 !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+
