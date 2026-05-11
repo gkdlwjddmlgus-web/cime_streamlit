@@ -1989,9 +1989,9 @@ elif st.session_state.page == "스타트레일":
     render_startrail_dashboard()
     st.stop()
 
-# elif st.session_state.page == "스타시드":
-#     render_starseed_dashboard()
-#     st.stop()
+elif st.session_state.page == "스타시드":
+    render_starseed_dashboard()
+    st.stop()
 
 # =========================================================
 # 5. 스타시드 로딩 패널
