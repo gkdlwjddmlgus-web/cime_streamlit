@@ -2498,7 +2498,7 @@ with right_col:
                 <div class="detail-content-area">
                     <div class="detail-name-row"><div class="detail-name-main">{channel_link(sel_name, selected_row)}</div>{action_tag(sel_action)}</div>
                     <div class="detail-metric-grid">
-                        <div class="detail-metric-box"><div class="detail-metric-label">추천 점수</div><div class="detail-metric-value">{fmt_num(sel_score, 1, '점')}</div></div>
+                        <div class="detail-metric-box"><div class="detail-metric-label">영입 점수</div><div class="detail-metric-value">{fmt_num(sel_score, 1, '점')}</div></div>
                         <div class="detail-metric-box"><div class="detail-metric-label">성장성</div><div class="detail-metric-value">{fmt_num(sel_growth, 3, '')}</div></div>
                         <div class="detail-metric-box"><div class="detail-metric-label">구독자수</div><div class="detail-metric-value">{fmt_num(sel_subs, 0, '')}</div></div>
                         <div class="detail-metric-box"><div class="detail-metric-label">팬밀도</div><div class="detail-metric-value">{fmt_num(sel_fan, 3, '')}</div></div>
@@ -2520,7 +2520,7 @@ if segment_col and segment_col in classified_filtered.columns:
     unclassified_mask = classified_filtered[segment_col].fillna("미분류").astype(str).str.contains("미분류|None|nan", case=False, na=False)
     classified_filtered = classified_filtered[~unclassified_mask].copy()
 
-GRAPH_OPTIONS = ["콘텐츠 유형별 추천 점수", "검토 단계별 후보 분포", "후보군 콘텐츠 비율"]
+GRAPH_OPTIONS = ["콘텐츠 유형별 영입 점수", "검토 단계별 후보 분포", "후보군 콘텐츠 비율"]
 
 def set_graph_view(mode: str) -> None:
     st.session_state["mock_graph_view"] = mode
@@ -2534,7 +2534,7 @@ graph_title_col, graph_btn_col_1, graph_btn_col_2, graph_btn_col_3 = st.columns(
 with graph_title_col:
     st.markdown('<div class="graph-header-title">📊 후보군 비교 그래프</div>', unsafe_allow_html=True)
 with graph_btn_col_1:
-    st.button("콘텐츠 유형별 추천 점수", key="graph_view_score_button", use_container_width=True, type="primary" if current_graph_view == "콘텐츠 유형별 추천 점수" else "secondary", on_click=set_graph_view, args=("콘텐츠 유형별 추천 점수",))
+    st.button("콘텐츠 유형별 영입 점수", key="graph_view_score_button", use_container_width=True, type="primary" if current_graph_view == "콘텐츠 유형별 영입 점수" else "secondary", on_click=set_graph_view, args=("콘텐츠 유형별 영입 점수",))
 with graph_btn_col_2:
     st.button("검토 단계별 후보 분포", key="graph_view_bucket_button", use_container_width=True, type="primary" if current_graph_view == "검토 단계별 후보 분포" else "secondary", on_click=set_graph_view, args=("검토 단계별 후보 분포",))
 with graph_btn_col_3:
@@ -2544,15 +2544,15 @@ graph_view = st.session_state.get("mock_graph_view", GRAPH_OPTIONS[0])
 graph_left, graph_right = st.columns([0.23, 0.77], gap="small")
 
 with graph_left:
-    if graph_view == "콘텐츠 유형별 추천 점수":
-        html('<div class="graph-explain"><div class="graph-explain-title">콘텐츠 유형별 추천 점수</div><div class="graph-explain-text">어떤 콘텐츠군의 후보가 평균적으로 높은 추천 점수를 받는지 비교합니다. 점수가 높은 콘텐츠군은 우선 탐색 영역으로 볼 수 있습니다.</div></div>')
+    if graph_view == "콘텐츠 유형별 영입 점수":
+        html('<div class="graph-explain"><div class="graph-explain-title">콘텐츠 유형별 영입 점수</div><div class="graph-explain-text">어떤 콘텐츠군의 후보가 평균적으로 높은 영입 점수를 받는지 비교합니다. 점수가 높은 콘텐츠군은 우선 탐색 영역으로 볼 수 있습니다.</div></div>')
     elif graph_view == "검토 단계별 후보 분포":
         html('<div class="graph-explain"><div class="graph-explain-title">검토 단계별 후보 분포</div><div class="graph-explain-text">즉시검토, 성장관찰, 검증필요 등 운영 단계별 후보 수를 비교합니다. 검증필요가 많으면 리스크 검토 공수가 큽니다.</div></div>')
     else:
         html('<div class="graph-explain"><div class="graph-explain-title">후보군 콘텐츠 비율</div><div class="graph-explain-text">현재 후보 풀이 특정 콘텐츠군에 쏠려 있는지 확인합니다. 쏠림이 크면 수집 키워드와 필터 편향을 점검합니다.</div></div>')
 
 with graph_right:
-    if graph_view == "콘텐츠 유형별 추천 점수":
+    if graph_view == "콘텐츠 유형별 영입 점수":
         if segment_col and score_display_col and not classified_filtered.empty:
             seg_score = classified_filtered.copy()
             seg_score["__score__"] = pd.to_numeric(seg_score[score_display_col], errors="coerce")
@@ -2560,7 +2560,7 @@ with graph_right:
             seg_summary = seg_score.groupby("__segment__", dropna=False).agg(추천점수=("__score__", "mean"), 후보수=("__score__", "size")).reset_index().sort_values("추천점수", ascending=False).head(8)
             fig = px.bar(seg_summary, x="__segment__", y="추천점수", text="추천점수", custom_data=["후보수"], color="__segment__", color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=282)
             fig.update_traces(texttemplate="%{y:.1f}", textposition="outside", cliponaxis=False, hovertemplate="콘텐츠군=%{x}<br>추천점수=%{y:.1f}<br>후보수=%{customdata[0]}명<extra></extra>")
-            fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=12, r=12, t=16, b=54), xaxis_title="", yaxis_title="추천 점수", xaxis=dict(tickangle=0, tickfont=dict(size=10, color="#d7cdeb")), yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")), font=dict(color="#eee8ff"))
+            fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=12, r=12, t=16, b=54), xaxis_title="", yaxis_title="영입 점수", xaxis=dict(tickangle=0, tickfont=dict(size=10, color="#d7cdeb")), yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")), font=dict(color="#eee8ff"))
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("콘텐츠군별 점수를 만들 수 있는 컬럼이 부족합니다.")
@@ -2593,7 +2593,7 @@ with graph_right:
 
 with st.expander("KPI 해석 방법", expanded=False):
     st.markdown(
-        '<div class="explain-box"><b>분석한 전체 채널</b>: 수집/전처리 후 대시보드에 올라온 전체 후보 수입니다.<br><br><b>1차 조건 통과 후보</b>: shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다.<br><br><b>추천 점수 평균</b>: 현재 필터 조건에 남은 후보들의 평균 영입 점수입니다.<br><br><b>바로 검토할 후보</b>: 우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다.</div>',
+        '<div class="explain-box"><b>분석한 전체 채널</b>: 수집/전처리 후 대시보드에 올라온 전체 후보 수입니다.<br><br><b>1차 조건 통과 후보</b>: shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다.<br><br><b>영입 점수 평균</b>: 현재 필터 조건에 남은 후보들의 평균 영입 점수입니다.<br><br><b>바로 검토할 후보</b>: 우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다.</div>',
         unsafe_allow_html=True,
     )
 
