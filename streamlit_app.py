@@ -252,10 +252,34 @@ st.markdown(
         overflow: visible !important;
         z-index: 1000000 !important;
     }
+    <style>
+    /* 화면 우측 상단 고정 액션 영역 강제 숨김 */
+    div[data-testid="stToolbar"],
+    div[data-testid="stHeaderActionElements"],
+    div[class*="stToolbar"],
+    div[class*="toolbar"],
+    div[class*="Action"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* 단, sidebar collapse/open control은 제외하고 다시 살림 */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+
 
 if "bg_html" not in st.session_state:
     random.seed(42)
