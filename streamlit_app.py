@@ -1548,7 +1548,28 @@ def render_startrail_dashboard():
             if radar_labels:
                 fig_radar = go.Figure()
                 fig_radar.add_trace(go.Scatterpolar(r=radar_values + [radar_values[0]], theta=radar_labels + [radar_labels[0]], fill="toself", name="능력치", line=dict(width=2, color="#8FB8FF"), fillcolor="rgba(143,184,255,0.26)", opacity=0.92))
-                fig_radar.update_layout(polar=dict(bgcolor=STARTRAIL_TRANSPARENT, radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=8, color="#8b949e"), gridcolor="rgba(255,255,255,0.13)"), angularaxis=dict(tickfont=dict(size=11, color="white"), gridcolor="rgba(255,255,255,0.13)")), showlegend=False, margin=dict(l=22, r=22, t=10, b=24), paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", height=250)
+                fig_radar.update_layout(
+                    polar=dict(
+                        domain=dict(x=[0.10, 0.90], y=[0.10, 0.90]),
+                        bgcolor=STARTRAIL_TRANSPARENT,
+                        radialaxis=dict(
+                            visible=True,
+                            range=[0, 100],
+                            tickfont=dict(size=7, color="#8b949e"),
+                            gridcolor="rgba(255,255,255,0.13)"
+                        ),
+                        angularaxis=dict(
+                            tickfont=dict(size=10, color="white"),
+                            gridcolor="rgba(255,255,255,0.13)"
+                        )
+                    ),
+                    showlegend=False,
+                    margin=dict(l=18, r=18, t=4, b=12),
+                    paper_bgcolor=STARTRAIL_TRANSPARENT,
+                    plot_bgcolor=STARTRAIL_TRANSPARENT,
+                    font_color="white",
+                    height=220
+                )
                 st.plotly_chart(fig_radar, use_container_width=True)
 
     with left_area:
