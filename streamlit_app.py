@@ -1640,9 +1640,12 @@ def render_startrail_dashboard():
             if radar_labels:
                 fig_radar = go.Figure()
                 fig_radar.add_trace(go.Scatterpolar(r=radar_values + [radar_values[0]], theta=radar_labels + [radar_labels[0]], fill="toself", name="능력치", line=dict(width=2, color="#8FB8FF"), fillcolor="rgba(143,184,255,0.26)", opacity=0.92))
+                # 우측 상세 오각형 그래프
+                # - polar domain을 안쪽으로 살짝 줄여 축 라벨이 카드 밖으로 잘리지 않게 조정
+                # - 좌/우/하단 margin을 늘려 "팬덤결집력", "외부유입가능성" 같은 긴 라벨 여백 확보
                 fig_radar.update_layout(
                     polar=dict(
-                        domain=dict(x=[0.05, 0.95], y=[0.08, 0.92]),
+                        domain=dict(x=[0.13, 0.87], y=[0.13, 0.87]),
                         bgcolor=STARTRAIL_TRANSPARENT,
                         radialaxis=dict(
                             visible=True,
@@ -1651,16 +1654,16 @@ def render_startrail_dashboard():
                             gridcolor="rgba(255,255,255,0.13)"
                         ),
                         angularaxis=dict(
-                            tickfont=dict(size=11, color="white"),
+                            tickfont=dict(size=10, color="white"),
                             gridcolor="rgba(255,255,255,0.13)"
                         )
                     ),
                     showlegend=False,
-                    margin=dict(l=12, r=12, t=20, b=24),
+                    margin=dict(l=34, r=34, t=24, b=36),
                     paper_bgcolor=STARTRAIL_TRANSPARENT,
                     plot_bgcolor=STARTRAIL_TRANSPARENT,
                     font_color="white",
-                    height=350
+                    height=340
                 )
                 # 상세 지표 박스와 오각형 그래프 사이 간격
                 st.markdown(
