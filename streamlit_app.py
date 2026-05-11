@@ -1636,6 +1636,179 @@ def inject_startrail_css():
                 min-width: 72px;
                 font-size: 30px;
             }
+
+            .startrail-hero {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 36px;
+            margin-top: 2.4rem;
+            margin-bottom: 28px;
+        }
+        
+        .startrail-hero-left {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .startrail-title-row {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+        }
+        
+        .startrail-logo-box {
+            width: 86px;
+            height: 86px;
+            border-radius: 18px;
+            border: 2px solid rgba(255, 212, 93, 0.62);
+            background:
+                radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.16), transparent 28%),
+                linear-gradient(145deg, rgba(42, 26, 74, 0.96), rgba(14, 12, 33, 0.96));
+            box-shadow:
+                0 0 24px rgba(255, 212, 93, 0.20),
+                0 0 34px rgba(139, 92, 255, 0.22),
+                inset 0 0 20px rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+        
+        .startrail-logo-box i {
+            font-size: 38px;
+            color: #FFD45D;
+            text-shadow:
+                0 0 10px rgba(255, 212, 93, 0.85),
+                0 0 22px rgba(255, 212, 93, 0.36);
+        }
+        
+        .startrail-main-title {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .startrail-main-title-ko {
+            font-size: 58px;
+            font-weight: 950;
+            letter-spacing: -2.8px;
+            color: #FFF8FF;
+            text-shadow:
+                0 0 8px rgba(255,255,255,0.38),
+                0 0 22px rgba(198,168,255,0.30);
+        }
+        
+        .startrail-main-title-en {
+            font-size: 32px;
+            font-weight: 950;
+            color: #FFD45D;
+            letter-spacing: -1.2px;
+            text-shadow:
+                0 0 12px rgba(255, 212, 93, 0.45),
+                0 0 22px rgba(255, 212, 93, 0.20);
+        }
+        
+        .startrail-title-line {
+            width: 285px;
+            height: 3px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+            background: linear-gradient(90deg, #FFD45D, rgba(155, 107, 255, 0.18));
+            box-shadow: 0 0 16px rgba(255, 212, 93, 0.42);
+        }
+        
+        .startrail-main-subtitle {
+            font-size: 18px;
+            font-weight: 850;
+            line-height: 1.45;
+            color: rgba(255, 255, 255, 0.84);
+            letter-spacing: -0.5px;
+            word-break: keep-all;
+        }
+        
+        .startrail-hero-right {
+            width: 560px;
+            flex: 0 0 560px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .startrail-period-card {
+            width: 100%;
+            min-height: 106px;
+            border-radius: 22px;
+            padding: 22px 26px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background:
+                linear-gradient(135deg, rgba(255, 212, 93, 0.13), rgba(21, 16, 47, 0.82) 42%, rgba(14, 12, 33, 0.94));
+            border: 1px solid rgba(255, 212, 93, 0.30);
+            box-shadow:
+                0 0 28px rgba(255, 212, 93, 0.10),
+                0 0 34px rgba(139, 92, 255, 0.14),
+                inset 0 0 22px rgba(255, 255, 255, 0.025);
+        }
+        
+        .startrail-period-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at 34% 28%, rgba(255,255,255,0.85), transparent 16%),
+                linear-gradient(135deg, #FFD45D, #9B6BFF);
+            box-shadow:
+                0 0 20px rgba(255, 212, 93, 0.34),
+                inset 0 0 16px rgba(255, 255, 255, 0.14);
+            flex: 0 0 auto;
+        }
+        
+        .startrail-period-title {
+            font-size: 17px;
+            font-weight: 950;
+            color: #FFF8FF;
+            margin-bottom: 8px;
+        }
+        
+        .startrail-period-desc {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.72);
+            word-break: keep-all;
+        }
+        
+        .startrail-period-desc span {
+            color: #FFD45D;
+            font-weight: 950;
+            text-shadow: 0 0 10px rgba(255, 212, 93, 0.28);
+        }
+        
+        @media (max-width: 1200px) {
+            .startrail-hero {
+                flex-direction: column;
+            }
+        
+            .startrail-hero-right {
+                width: 100%;
+                flex-basis: auto;
+            }
+        
+            .startrail-main-title-ko {
+                font-size: 46px;
+            }
+        
+            .startrail-main-title-en {
+                font-size: 25px;
+            }
         }
         </style>
         """
@@ -1683,48 +1856,44 @@ def render_startrail_dashboard():
 
     st.html(
         f"""
-        <div class="dashboard-hero">
-            <div class="hero-top-row">
+        <div class="startrail-hero">
+            <div class="startrail-hero-left">
 
-                <div class="trail-title-wrap">
-                    <div class="trail-logo-box">
+                <div class="startrail-title-row">
+                    <div class="startrail-logo-box">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
 
                     <div>
-                        <div class="hero-main-title">
-                            <span class="hero-main-title-ko">스타트레일</span>
-                            <span class="hero-main-title-en">Star Trail</span>
+                        <div class="startrail-main-title">
+                            <span class="startrail-main-title-ko">스타트레일</span>
+                            <span class="startrail-main-title-en">Star Trail</span>
                         </div>
 
-                        <div class="hero-title-underbar"></div>
+                        <div class="startrail-title-line"></div>
 
-                        <div class="hero-main-subtitle">
+                        <div class="startrail-main-subtitle">
                             기존 플랫폼의 성과와 팬덤 궤적을 따라 CIME 영입 우선 후보군을 찾습니다
                         </div>
-
-                        <div class="hero-date-pill">
-                            <img src="data:image/png;base64,{date_icon}" style="width:16px; height:16px; object-fit:contain;">
-                            <span>2025.01.01 ~ 2026.03.31</span>
-                        </div>
                     </div>
                 </div>
 
-                <div class="hero-right-area">
-                    <div class="hero-info-card">
-                        <div class="hero-info-icon">✦</div>
+            </div>
 
-                        <div>
-                            <div class="hero-info-title">후보를 선별하는 기준</div>
+            <div class="startrail-hero-right">
+                <div class="startrail-period-card">
+                    <div class="startrail-period-icon">
+                        <img src="data:image/png;base64,{date_icon}" style="width:28px; height:28px; object-fit:contain;">
+                    </div>
 
-                            <div class="hero-info-desc">
-                                기존 플랫폼에서 이미 확인된 <span class="trail-point">방송화력, 수익성, 팬덤 규모, 외부유입 가능성</span>을 함께 검토해<br>
-                                CIME가 우선 영입 검토할 스트리머 후보군을 정리합니다.
-                            </div>
+                    <div>
+                        <div class="startrail-period-title">분석 기간</div>
+                        <div class="startrail-period-desc">
+                            기존 플랫폼의 활동 데이터를 기준으로<br>
+                            <span>2025.01.01 ~ 2026.03.31</span> 기간의 후보군을 분석합니다.
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
         """
