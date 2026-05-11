@@ -1322,6 +1322,12 @@ section.main .stButton > button { margin-top: 0 !important; }
 div[data-testid="stPlotlyChart"] {
     min-height: 300px !important;
 }
+.trail-radar-spacer {
+    height: 22px !important;
+    min-height: 22px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -1577,26 +1583,27 @@ def render_startrail_dashboard():
                 fig_radar.add_trace(go.Scatterpolar(r=radar_values + [radar_values[0]], theta=radar_labels + [radar_labels[0]], fill="toself", name="능력치", line=dict(width=2, color="#8FB8FF"), fillcolor="rgba(143,184,255,0.26)", opacity=0.92))
                 fig_radar.update_layout(
                     polar=dict(
-                        domain=dict(x=[0.12, 0.88], y=[0.16, 0.84]),
+                        domain=dict(x=[0.05, 0.95], y=[0.08, 0.92]),
                         bgcolor=STARTRAIL_TRANSPARENT,
                         radialaxis=dict(
                             visible=True,
                             range=[0, 100],
-                            tickfont=dict(size=7, color="#8b949e"),
+                            tickfont=dict(size=8, color="#8b949e"),
                             gridcolor="rgba(255,255,255,0.13)"
                         ),
                         angularaxis=dict(
-                            tickfont=dict(size=10, color="white"),
+                            tickfont=dict(size=11, color="white"),
                             gridcolor="rgba(255,255,255,0.13)"
                         )
                     ),
                     showlegend=False,
-                    margin=dict(l=28, r=28, t=18, b=38),
+                    margin=dict(l=12, r=12, t=20, b=24),
                     paper_bgcolor=STARTRAIL_TRANSPARENT,
                     plot_bgcolor=STARTRAIL_TRANSPARENT,
                     font_color="white",
-                    height=300
+                    height=350
                 )
+                st.markdown('<div class="trail-radar-spacer"></div>', unsafe_allow_html=True)
                 st.plotly_chart(fig_radar, use_container_width=True)
 
     with left_area:
