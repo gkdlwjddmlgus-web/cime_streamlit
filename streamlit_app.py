@@ -1558,6 +1558,104 @@ div[data-testid="stPlotlyChart"] {
     line-height: 1.65 !important;
 }
 
+
+/* =========================================================
+   STARTRAIL PATCH: segment tooltip overflow correction
+   - 세그먼트 카드 안에서 툴팁이 잘리거나 본문처럼 보이는 문제 방지
+   - KPI 툴팁과 동일하게 기본 숨김, hover 시만 표시
+========================================================= */
+.trail-seg-card,
+.trail-seg-card.active {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.trail-seg-card:has(.trail-tooltip-wrap:hover),
+.trail-seg-card:hover {
+    z-index: 9999 !important;
+}
+
+.trail-seg-name {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.trail-tooltip-wrap {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    margin-left: 4px !important;
+    vertical-align: middle !important;
+    overflow: visible !important;
+    z-index: 10000 !important;
+}
+
+.trail-tooltip-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(217,200,255,.78) !important;
+    color: #D9C8FF !important;
+    background: rgba(12,10,31,.96) !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    cursor: help !important;
+    box-sizing: border-box !important;
+}
+
+.trail-tooltip-text {
+    display: block !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 150% !important;
+    transform: translateX(-50%) !important;
+    width: 260px !important;
+    max-width: 260px !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(196,143,255,.38) !important;
+    background: rgba(21,16,47,.98) !important;
+    color: #D9CFE8 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.55 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,.45) !important;
+    z-index: 99999 !important;
+}
+
+.trail-tooltip-wrap:hover .trail-tooltip-text {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* 양끝 카드의 툴팁은 화면 밖으로 밀리지 않도록 보정 */
+div[data-testid="column"]:first-child .trail-tooltip-text {
+    left: 0 !important;
+    transform: translateX(-8px) !important;
+}
+
+div[data-testid="column"]:last-child .trail-tooltip-text {
+    left: auto !important;
+    right: 0 !important;
+    transform: translateX(8px) !important;
+}
+
 @media (max-width: 1200px) {
     .trail-main-grid { grid-template-columns: 1fr !important; }
     .trail-rank-card { height: auto !important; min-height: 292px !important; }
