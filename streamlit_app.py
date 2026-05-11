@@ -1249,6 +1249,42 @@ section.main .stButton > button { margin-top: 0 !important; }
     .trail-top5-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
     .trail-bottom-grid { grid-template-columns:1fr; }
 }
+
+
+/* =========================================================
+   STARTRAIL PATCH: segment cards, tooltip, bottom alignment
+========================================================= */
+.trail-seg-card { min-height: 218px !important; height: 218px !important; padding: 26px 18px 20px !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:flex-start !important; }
+.trail-seg-card::before { left:28px !important; right:28px !important; top:18px !important; height:3px !important; background:rgba(156,82,182,.64) !important; box-shadow:0 0 14px rgba(196,143,255,.18) !important; }
+.trail-seg-card.active-성단 { border-color:rgba(255,107,138,.82) !important; box-shadow:0 0 28px rgba(255,107,138,.24), inset 0 0 24px rgba(255,107,138,.05) !important; }
+.trail-seg-card.active-프로토스타 { border-color:rgba(255,212,93,.82) !important; box-shadow:0 0 28px rgba(255,212,93,.22), inset 0 0 24px rgba(255,212,93,.05) !important; }
+.trail-seg-card.active-위성 { border-color:rgba(149,175,255,.74) !important; box-shadow:0 0 28px rgba(149,175,255,.20), inset 0 0 24px rgba(149,175,255,.05) !important; }
+.trail-seg-card.active-슈퍼노바 { border-color:rgba(255,157,245,.76) !important; box-shadow:0 0 28px rgba(255,157,245,.20), inset 0 0 24px rgba(255,157,245,.05) !important; }
+.trail-seg-card.active-코멧 { border-color:rgba(255,158,94,.76) !important; box-shadow:0 0 28px rgba(255,158,94,.20), inset 0 0 24px rgba(255,158,94,.05) !important; }
+.trail-seg-card.active-성단::before { background:#FF6B8A !important; box-shadow:0 0 18px rgba(255,107,138,.62) !important; }
+.trail-seg-card.active-프로토스타::before { background:#FFD45D !important; box-shadow:0 0 18px rgba(255,212,93,.62) !important; }
+.trail-seg-card.active-위성::before { background:#95AFFF !important; box-shadow:0 0 18px rgba(149,175,255,.58) !important; }
+.trail-seg-card.active-슈퍼노바::before { background:#FF9DF5 !important; box-shadow:0 0 18px rgba(255,157,245,.58) !important; }
+.trail-seg-card.active-코멧::before { background:#FF9E5E !important; box-shadow:0 0 18px rgba(255,158,94,.58) !important; }
+.trail-seg-icon-badge { width:68px !important; height:68px !important; margin:30px auto 18px !important; border-radius:999px !important; display:flex !important; align-items:center !important; justify-content:center !important; background:radial-gradient(circle at 36% 28%, rgba(255,255,255,.20), rgba(196,143,255,.10) 48%, rgba(21,16,47,.15) 100%) !important; border:1px solid rgba(196,143,255,.22) !important; box-shadow:0 0 20px rgba(196,143,255,.16), inset 0 0 20px rgba(255,255,255,.02) !important; }
+.trail-seg-icon-badge i { font-size:30px !important; color:#DDBBFF !important; text-shadow:0 0 18px rgba(221,187,255,.36) !important; }
+.trail-seg-card.active-성단 .trail-seg-icon-badge i, .trail-seg-card.active-성단 .trail-seg-name, .trail-seg-card.active-성단 .trail-seg-count { color:#FF7D98 !important; }
+.trail-seg-card.active-프로토스타 .trail-seg-icon-badge i, .trail-seg-card.active-프로토스타 .trail-seg-name, .trail-seg-card.active-프로토스타 .trail-seg-count { color:#FFD45D !important; }
+.trail-seg-card.active-위성 .trail-seg-icon-badge i, .trail-seg-card.active-위성 .trail-seg-name, .trail-seg-card.active-위성 .trail-seg-count { color:#95AFFF !important; }
+.trail-seg-card.active-슈퍼노바 .trail-seg-icon-badge i, .trail-seg-card.active-슈퍼노바 .trail-seg-name, .trail-seg-card.active-슈퍼노바 .trail-seg-count { color:#FF9DF5 !important; }
+.trail-seg-card.active-코멧 .trail-seg-icon-badge i, .trail-seg-card.active-코멧 .trail-seg-name, .trail-seg-card.active-코멧 .trail-seg-count { color:#FF9E5E !important; }
+.trail-seg-name { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:6px !important; min-height:30px !important; font-size:20px !important; line-height:1.25 !important; white-space:normal !important; }
+.trail-seg-count { font-size:30px !important; line-height:1.1 !important; margin-bottom:13px !important; }
+.trail-seg-desc { max-width:210px !important; margin:0 auto !important; min-height:42px !important; display:flex !important; align-items:center !important; justify-content:center !important; }
+.trail-tooltip-wrap { position:relative !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; vertical-align:middle !important; }
+.trail-tooltip-icon { width:17px !important; height:17px !important; min-width:17px !important; border-radius:50% !important; border:1px solid rgba(217,200,255,.78) !important; color:#D9C8FF !important; font-size:10px !important; font-weight:950 !important; line-height:15px !important; text-align:center !important; cursor:help !important; background:rgba(12,10,31,.92) !important; }
+.trail-tooltip-text { visibility:hidden !important; opacity:0 !important; width:220px !important; background:rgba(21,16,47,.98) !important; color:#D9CFE8 !important; text-align:left !important; border:1px solid rgba(196,143,255,.34) !important; border-radius:12px !important; padding:10px 12px !important; position:absolute !important; z-index:99999 !important; bottom:140% !important; left:50% !important; transform:translateX(-50%) !important; font-size:12px !important; line-height:1.45 !important; box-shadow:0 10px 28px rgba(0,0,0,.45) !important; white-space:normal !important; }
+.trail-tooltip-wrap:hover .trail-tooltip-text { visibility:visible !important; opacity:1 !important; }
+.trail-bottom-grid { gap:24px !important; margin-top:26px !important; align-items:start !important; }
+.trail-table th { padding:10px 7px !important; font-size:11px !important; }
+.trail-table td { padding:10px 7px !important; font-size:11px !important; height:56px !important; }
+.trail-bottom-title { min-height:36px !important; margin-bottom:10px !important; font-size:23px !important; }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1360,11 +1396,11 @@ def render_startrail_dashboard():
     ''', unsafe_allow_html=True)
 
     seg_data = {
-        "성단": {"icon": "👥", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "그룹/소속 기반 팬덤 이동 가능성이 있는 후보군"},
-        "프로토스타": {"icon": "🌱", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준", "desc": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군"},
-        "위성": {"icon": "🛰️", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군"},
-        "슈퍼노바": {"icon": "⭐", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준", "desc": "대중성과 팬덤 규모가 큰 간판형 후보군"},
-        "코멧": {"icon": "☄️", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군"},
+        "성단": {"icon_class": "fa-solid fa-user-group", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "그룹/소속 기반 팬덤 이동 가능성이 있는 후보군"},
+        "프로토스타": {"icon_class": "fa-solid fa-seedling", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준: 현재 규모는 작지만 방송 반응과 성장 가능성이 높은 후보군입니다.", "desc": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군"},
+        "위성": {"icon_class": "fa-solid fa-satellite", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군"},
+        "슈퍼노바": {"icon_class": "fa-solid fa-star", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준: 대중성과 팬덤 규모가 커서 간판 후보로 검토할 수 있는 후보군입니다.", "desc": "대중성과 팬덤 규모가 큰 간판형 후보군"},
+        "코멧": {"icon_class": "fa-solid fa-meteor", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군"},
     }
 
     st.markdown('<div class="startrail-page"><div class="trail-section-title">🛸 세그먼트 전략</div></div>', unsafe_allow_html=True)
@@ -1375,11 +1411,12 @@ def render_startrail_dashboard():
             active_class = f"active active-{seg}" if st.session_state.startrail_current_seg == seg else ""
             tooltip_html = ""
             if "tooltip" in info:
-                tooltip_html = f'<span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">{html_lib.escape(info["tooltip"])}</span></span>'
+                tooltip_html = f'<span class="trail-tooltip-wrap"><span class="trail-tooltip-icon">?</span><span class="trail-tooltip-text">{html_lib.escape(info["tooltip"])}</span></span>'
+            icon_class = html_lib.escape(info.get("icon_class", "fa-solid fa-star"))
             st.markdown(f'''
             <div class="trail-seg-card {active_class}">
-                <div class="trail-seg-icon">{info["icon"]}</div>
-                <div class="trail-seg-name">{html_lib.escape(seg)}{tooltip_html}</div>
+                <div class="trail-seg-icon-badge"><i class="{icon_class}"></i></div>
+                <div class="trail-seg-name"><span>{html_lib.escape(seg)}</span>{tooltip_html}</div>
                 <div class="trail-seg-count">{info["count"]}</div>
                 <div class="trail-seg-desc">{html_lib.escape(info["desc"])}</div>
             </div>
@@ -1515,7 +1552,7 @@ def render_startrail_dashboard():
             else:
                 table_html += "<th>순위</th><th>스트리머명</th><th>플랫폼</th><th>스코어</th><th>상위 %</th><th>팔로워수</th><th>평균시청자</th><th>평균 도네이션</th>"
             table_html += "</tr></thead><tbody>"
-            for _, row in filtered_df.head(10).iterrows():
+            for _, row in filtered_df.head(5).iterrows():
                 if current_seg == "성단":
                     table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('소속'))}</b></td><td style='color:#75CCFF; font-weight:950;'>{_num(row.get('스코어')):.0f}</td><td style='color:#FFD45D; font-weight:950;'>상위<br>{_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('멤버수')):,.0f}</td><td>{_num(row.get('합계_뷰어십')):,.0f}</td><td>₩ {_num(row.get('합계_도네이션')):,.0f}</td></tr>"
                 else:
@@ -1535,7 +1572,7 @@ def render_startrail_dashboard():
                     st.warning(f"히트맵 컬럼이 부족합니다: {missing}")
                 else:
                     fig = px.imshow(filtered_df.sort_values("영입우선_점수", ascending=False).head(15).set_index("소속")[heatmap_cols], text_auto=".0f", aspect="auto", color_continuous_scale="YlGnBu", zmin=0, zmax=100, labels=dict(color="점수"))
-                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=70, t=40, b=70), height=520)
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=70, t=40, b=70), height=380)
                     st.plotly_chart(fig, use_container_width=True)
             elif current_seg == "코멧":
                 comet_all_df = raw.copy()
@@ -1568,7 +1605,7 @@ def render_startrail_dashboard():
                             fig.add_trace(go.Scatter(x=temp["최고_팔로워"], y=temp["통합_외부화력"], mode="markers", name=route, marker=dict(size=14, color=color, line=dict(color="white", width=1.4)), text=text_values, hovertemplate=f"<b>%{{text}}</b><br>유입경로: {route}<br>최고 팔로워: %{{x:,.0f}}<br>통합 외부화력: %{{y:,.0f}}<extra></extra>"))
                     if not plot_comet_df.empty and plot_comet_df["최고_팔로워"].mean() > 0:
                         fig.add_vline(x=plot_comet_df["최고_팔로워"].mean(), line_dash="dot", line_width=2, line_color="#c9d1d9", opacity=0.75)
-                    fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=100, t=60, b=70), height=520, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=100, t=60, b=70), height=380, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
                     fig.update_xaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     fig.update_yaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     st.plotly_chart(fig, use_container_width=True)
@@ -1579,7 +1616,7 @@ def render_startrail_dashboard():
                     st.warning(f"산점도 컬럼이 부족합니다: {missing}")
                 else:
                     fig = px.scatter(filtered_df, x="평균시청자", y="스코어", size="뷰어십", color="플랫폼", hover_name="스트리머", color_discrete_map={"SOOP":"#75CCFF", "CHZZK":"#bf40bf"}, template="plotly_dark")
-                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, margin=dict(l=70, r=110, t=55, b=70), height=520, font_color="white", legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, margin=dict(l=70, r=110, t=55, b=70), height=380, font_color="white", legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
                     fig.update_xaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     st.plotly_chart(fig, use_container_width=True)
