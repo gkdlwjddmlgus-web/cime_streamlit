@@ -937,10 +937,28 @@ def render_home():
 # =========================================================
 
 STARTRAIL_DATA_FILES = {
-    "summary": "10_dashboard/data/startrail_대시보드요약.csv",
-    "kpi": "10_dashboard/data/startrail_핵심KPI.csv",
-    "candidate": "10_dashboard/data/startrail_개인후보통합테이블.csv",
-    "constellation": "10_dashboard/data/startrail_성단그룹후보테이블.csv",
+    # 현재 Git 구조: 10_dashboard/data/startrail_{파일명}.csv
+    # 팀원 개발본 호환: csv_folder/{파일명}.csv, 10_dashboard/data/{파일명}.csv
+    "summary": [
+        "10_dashboard/data/startrail_대시보드요약.csv",
+        "10_dashboard/data/대시보드요약.csv",
+        "csv_folder/대시보드요약.csv",
+    ],
+    "kpi": [
+        "10_dashboard/data/startrail_핵심KPI.csv",
+        "10_dashboard/data/핵심KPI.csv",
+        "csv_folder/핵심KPI.csv",
+    ],
+    "candidate": [
+        "10_dashboard/data/startrail_개인후보통합테이블.csv",
+        "10_dashboard/data/개인후보통합테이블.csv",
+        "csv_folder/개인후보통합테이블.csv",
+    ],
+    "constellation": [
+        "10_dashboard/data/startrail_성단그룹후보테이블.csv",
+        "10_dashboard/data/성단그룹후보테이블.csv",
+        "csv_folder/성단그룹후보테이블.csv",
+    ],
 }
 
 STARTRAIL_ASSET_FILES = {
@@ -953,8 +971,26 @@ STARTRAIL_GRAPH_BG = "#15102F"
 STARTRAIL_TRANSPARENT = "rgba(0,0,0,0)"
 
 
-def startrail_resolve_path(relative_path: str) -> Path:
-    rel = Path(relative_path)
+def startrail_resolve_path(relative_path) -> Path:
+    """
+    Streamlit Cloud/GitHub 배포 경로 차이를 흡수하는 경로 탐색기.
+    - 문자열 1개 또는 후보 경로 리스트를 받을 수 있다.
+    - assets/성단1.jpg처럼 새로 추가된 로컬 이미지도 여기서 탐색한다.
+    """
+    if isinstance(relative_path, (list, tuple)):
+        fallback = None
+        for item in relative_path:
+            resolved = startrail_resolve_path(item)
+            if resolved.exists():
+                return resolved
+            if fallback is None:
+                fallback = resolved
+        return fallback if fallback is not None else Path("")
+
+    rel = Path(str(relative_path))
+    if rel.is_absolute():
+        return rel
+
     here = Path(__file__).resolve().parent
 
     candidates = [
@@ -968,11 +1004,12 @@ def startrail_resolve_path(relative_path: str) -> Path:
         if p.exists():
             return p.resolve()
 
+    rel_posix = str(rel).replace("\\", "/")
     for root in [here, here.parent, Path.cwd(), Path.cwd().parent]:
         try:
             matches = list(root.rglob(rel.name))
             for m in matches:
-                if str(m).replace("\\", "/").endswith(str(rel).replace("\\", "/")):
+                if str(m).replace("\\", "/").endswith(rel_posix):
                     return m.resolve()
             if matches:
                 return matches[0].resolve()
@@ -989,6 +1026,56 @@ def startrail_img_to_base64(relative_path: str) -> str:
             return base64.b64encode(f.read()).decode()
     except Exception:
         return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+
+
+def startrail_local_image_src(relative_path: str) -> str:
+    """로컬 assets 이미지를 HTML img src에서 바로 쓸 수 있는 data URL로 변환한다."""
+    if not relative_path:
+        return ""
+
+    text = str(relative_path).strip()
+    if text.startswith(("http://", "https://", "data:image/")):
+        return text
+
+    path = startrail_resolve_path(text)
+    if not path.exists() or not path.is_file():
+        return text
+
+    ext = path.suffix.lower().lstrip(".")
+    if ext == "jpg":
+        ext = "jpeg"
+    if ext not in {"png", "jpeg", "webp", "gif", "svg"}:
+        ext = "png"
+
+    try:
+        encoded = base64.b64encode(path.read_bytes()).decode()
+        return f"data:image/{ext};base64,{encoded}"
+    except Exception:
+        return text
+
+
+def startrail_constellation_asset_path(rank) -> str:
+    """성단 TOP 이미지 매핑: assets/성단{순위}.jpg 우선, 없으면 png/jpeg까지 확인."""
+    try:
+        rank = int(rank)
+    except Exception:
+        return ""
+
+    candidates = [
+        f"assets/성단{rank}.jpg",
+        f"assets/성단{rank}.png",
+        f"assets/성단{rank}.jpeg",
+    ]
+
+    # 팀원 개발본에서 11위는 png였던 케이스를 안전하게 지원
+    if rank == 11:
+        candidates = [f"assets/성단{rank}.png", f"assets/성단{rank}.jpg", f"assets/성단{rank}.jpeg"]
+
+    for candidate in candidates:
+        if startrail_resolve_path(candidate).exists():
+            return candidate
+
+    return candidates[0] if 1 <= rank <= 99 else ""
 
 
 def startrail_read_csv(relative_path: str) -> pd.DataFrame:
@@ -1048,6 +1135,16 @@ def load_startrail_constellation_data():
 
     const = const.sort_values("스코어", ascending=False).reset_index(drop=True)
     const["순위"] = const.index + 1
+
+    # 팀원 보완본에서 추가한 assets/성단{순위}.jpg 이미지를 성단 후보에 연결한다.
+    # 기존 CSV에 이미지URL이 있더라도 비어 있으면 순위 기반 로컬 asset으로 보완한다.
+    if "이미지URL" not in const.columns:
+        const["이미지URL"] = ""
+    const["이미지URL"] = const["이미지URL"].fillna("").astype(str).str.strip()
+    generated_assets = const["순위"].apply(startrail_constellation_asset_path)
+    empty_image_mask = const["이미지URL"].isin(["", "nan", "None", "none", "-"])
+    const.loc[empty_image_mask, "이미지URL"] = generated_assets[empty_image_mask]
+
     const["상위퍼센트"] = (const["순위"] / len(const) * 100).round(2) if len(const) else 0
 
     return const
@@ -1088,8 +1185,14 @@ def build_startrail_candidate_data(raw: pd.DataFrame) -> pd.DataFrame:
 
         if seg == "코멧" and "코멧유입경로" in temp.columns:
             temp["세그먼트필터"] = temp["코멧유입경로"].fillna("해당 없음")
-        elif seg == "슈퍼노바" and "슈퍼노바_구분" in temp.columns:
-            temp["세그먼트필터"] = temp["슈퍼노바_구분"].fillna("해당 없음")
+        elif seg == "슈퍼노바":
+            # 팀원 보완본 기준: 슈퍼노바 필터는 소속 여부로 개인/그룹 구분
+            if "소속" in temp.columns:
+                affiliation = temp["소속"].fillna("").astype(str).str.strip()
+                temp["세그먼트필터"] = "개인"
+                temp.loc[~affiliation.isin(["", "nan", "None", "none", "-"]), "세그먼트필터"] = "그룹"
+            else:
+                temp["세그먼트필터"] = "개인"
         else:
             temp["세그먼트필터"] = "해당 없음"
 
@@ -1415,8 +1518,8 @@ def render_startrail_dashboard():
 
     def _avatar(row, name):
         image_url = _safe_text(row.get("이미지URL", ""), "")
-        if image_url and image_url.lower() != "nan":
-            return image_url
+        if image_url and image_url.lower() not in ["", "nan", "none", "-"]:
+            return startrail_local_image_src(image_url)
         return f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(str(name))}"
 
     def _platform_badge(platform):
@@ -1603,7 +1706,7 @@ def render_startrail_dashboard():
                     display_name = _safe_text(row.get("소속", "-"))
                     display_segment = "성단"
                     score_text = f'{_num(row.get("스코어")):.0f}'
-                    avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(display_name)}"
+                    avatar_url = _avatar(row, display_name)
                 else:
                     display_name = _display_name_from_row(row, current_seg)
                     display_segment = _safe_text(row.get("세그먼트", current_seg))
@@ -1641,7 +1744,7 @@ def render_startrail_dashboard():
                 st.session_state.startrail_selected_streamer = s
                 detail_seg = _safe_text(s.get("세그먼트", current_seg))
                 detail_name = _display_name_from_row(s, detail_seg)
-            avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(detail_name)}" if detail_seg == "성단" else _avatar(s, detail_name)
+            avatar_url = _avatar(s, detail_name)
             platform_html = "" if detail_seg == "성단" else _platform_badge(s.get("플랫폼", ""))
             if detail_seg == "성단":
                 metrics = [("멤버 수", s.get("멤버수", 0), 20, "#83F6A0"), ("뷰어십 합계", s.get("합계_뷰어십", 0), 1000000, "#FF7B86"), ("도네이션 합계", s.get("합계_도네이션", 0), 10000000, "#FFD45D")]
