@@ -1114,7 +1114,7 @@ def build_startrail_candidate_data(raw: pd.DataFrame) -> pd.DataFrame:
 
 def inject_startrail_css():
     st.markdown(
-        """
+        clean_html("""
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
         <style>
@@ -2024,7 +2024,7 @@ def inject_startrail_css():
             }
         }
         </style>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -2069,7 +2069,7 @@ def render_startrail_dashboard():
     avg_donation = _num(kpi.get("평균 도네이션"))
 
     st.markdown(
-        f"""
+        clean_html(f"""
         <div class="startrail-page">
             <div class="trail-dashboard-hero">
                 <div class="trail-hero-grid">
@@ -2124,7 +2124,7 @@ def render_startrail_dashboard():
 
             <div class="trail-section-divider"></div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
