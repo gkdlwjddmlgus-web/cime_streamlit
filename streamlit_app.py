@@ -1734,8 +1734,8 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
 .trail-table-team-style .col-score { width: 17% !important; }
 .trail-table-team-style .col-percent { width: 29% !important; }
 .trail-table-team-style th {
-    height: 58px !important;
-    padding: 10px 8px !important;
+    height: 50px !important;
+    padding: 8px 8px !important;
     font-size: 12.2px !important;
     letter-spacing: -0.035em !important;
     white-space: nowrap !important;
@@ -1743,8 +1743,8 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
     text-align: center !important;
 }
 .trail-table-team-style td {
-    height: 82px !important;
-    padding: 10px 8px !important;
+    height: 52px !important;
+    padding: 6px 8px !important;
     font-size: 12.4px !important;
     letter-spacing: -0.02em !important;
     white-space: nowrap !important;
@@ -1793,7 +1793,7 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
     font-weight: 950 !important;
 }
 .trail-detail-button-title {
-    height: 58px !important;
+    height: 50px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1809,15 +1809,17 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
     margin-top: 0 !important;
 }
 div[data-testid="column"]:has(.trail-detail-button-title) .stButton {
-    height: 82px !important;
-    min-height: 82px !important;
+    height: 52px !important;
+    min-height: 52px !important;
     display: flex !important;
     align-items: center !important;
     margin: 0 !important;
 }
 div[data-testid="column"]:has(.trail-detail-button-title) .stButton > button {
-    height: 38px !important;
-    min-height: 38px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     border-radius: 999px !important;
     padding: 0 10px !important;
     font-size: 15px !important;
@@ -1827,6 +1829,27 @@ div[data-testid="column"]:has(.trail-detail-button-title) .stButton > button {
     color: #EAF7FF !important;
     box-shadow: 0 0 12px rgba(117,204,255,.08) !important;
 }
+
+/* STARTRAIL PATCH: compact table rows and row-aligned detail buttons */
+div[data-testid="column"]:has(.trail-detail-button-title) {
+    padding-top: 0 !important;
+}
+div[data-testid="column"]:has(.trail-detail-button-title) [data-testid="stVerticalBlock"],
+div[data-testid="column"]:has(.trail-detail-button-title) [data-testid="stVerticalBlock"] > div {
+    gap: 0 !important;
+    row-gap: 0 !important;
+}
+div[data-testid="column"]:has(.trail-detail-button-title) .element-container {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.trail-table-team-style tbody tr {
+    height: 52px !important;
+}
+.trail-table-team-style thead tr {
+    height: 50px !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
