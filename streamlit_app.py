@@ -1234,7 +1234,7 @@ def inject_startrail_css():
 .trail-detail-avatar { width:132px; height:132px; border-radius:999px; overflow:hidden; margin:0 auto 18px; border:4px solid rgba(117,204,255,.84); box-shadow:0 0 18px rgba(117,204,255,.24); }
 .trail-detail-avatar img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
 .trail-detail-name { color:#FFF9FF; font-size:24px; font-weight:950; text-align:center; margin-bottom:12px; word-break:keep-all; }
-.trail-detail-tags { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:22px; } .trail-detail-tags img { height:28px; border-radius:8px; object-fit:contain; }
+.trail-detail-tags { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 auto 22px; width:fit-content; max-width:100%; } .trail-detail-tags .trail-tag { margin:0 !important; flex:0 0 auto; } .trail-detail-tags img { height:28px; border-radius:8px; object-fit:contain; flex:0 0 auto; display:block; }
 .trail-bar-row { margin:13px 0 16px; } .trail-bar-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:10px; } .trail-bar-label { color:#FFF9FF; font-size:13px; font-weight:950; } .trail-bar-value { font-size:13px; font-weight:950; } .trail-bar-track { height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.07); } .trail-bar-fill { height:100%; border-radius:999px; }
 .trail-bottom-grid { display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap:28px; margin-top:34px; }
 .trail-bottom-title { min-height:42px; display:flex; align-items:center; margin:0 0 14px 0; font-size:25px; font-weight:950; color:#FFF9FF; letter-spacing:-.05em; white-space:nowrap; }
