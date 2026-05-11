@@ -2746,13 +2746,36 @@ def delta_badge(delta, ndigits=0, suffix=""):
     return f'<span class="board-kpi-delta {cls}">{arrow} {val}{suffix}</span>'
 
 
+def normalize_text_value(value) -> str:
+    """화면/필터 판정용 문자열 정규화.
+
+    - NaN/None 계열을 빈 문자열로 통일
+    - zero-width, nbsp 등 눈에 잘 안 보이는 공백 제거
+    - 내부 공백도 제거해서 '미 분류', '미분류 ' 같은 값을 잡는다.
+    """
+    if pd.isna(value):
+        return ""
+    text = str(value)
+    for ch in ["\u200b", "\u200c", "\u200d", "\ufeff", "\xa0"]:
+        text = text.replace(ch, "")
+    return "".join(text.strip().split())
+
+
 def is_unclassified_value(series: pd.Series) -> pd.Series:
-    return series.astype(str).str.strip().isin(["", "미분류", "None", "none", "nan", "NaN", "NULL", "null", "<NA>"])
+    normalized = series.map(normalize_text_value)
+    lowered = normalized.str.lower()
+    return (
+        normalized.eq("")
+        | normalized.str.contains("미분류", na=False)
+        | lowered.isin(["none", "nan", "null", "<na>", "na", "n/a", "unknown", "undefined", "-", "미정"])
+    )
 
 
 CONTENT_SEGMENT_COL_CANDIDATES = [
     "주요콘텐츠군",
     "주요 콘텐츠군",
+    "주요콘텐츠군_표시",
+    "주요 콘텐츠군_표시",
     "대표상위세그먼트",
     "상위 콘텐츠군",
     "콘텐츠군",
@@ -2763,30 +2786,77 @@ CONTENT_SEGMENT_COL_CANDIDATES = [
 ]
 
 
+ACTION_COL_CANDIDATES = [
+    "액션버킷",
+    "검토 단계",
+    "검토단계",
+    "현재 검토 단계",
+    "현재검토단계",
+    "action_bucket",
+]
+
+
+def find_content_segment_columns(data: pd.DataFrame, seg_col: str | None = None) -> list[str]:
+    """미분류 판정에 사용할 콘텐츠군/세그먼트 계열 컬럼을 최대한 넓게 찾는다."""
+    check_cols: list[str] = []
+    if seg_col and seg_col in data.columns:
+        check_cols.append(seg_col)
+
+    for col in CONTENT_SEGMENT_COL_CANDIDATES:
+        if col in data.columns and col not in check_cols:
+            check_cols.append(col)
+
+    # 실제 파일마다 컬럼명이 조금씩 달라질 수 있어 키워드 기반으로도 보강한다.
+    for col in data.columns:
+        col_text = str(col).replace(" ", "")
+        lower_col = col_text.lower()
+        looks_like_content_col = (
+            ("콘텐츠" in col_text and ("군" in col_text or "유형" in col_text or "분류" in col_text))
+            or ("세그먼트" in col_text)
+            or ("segment" in lower_col)
+            or ("content" in lower_col)
+        )
+        # 추천사유/설명류 긴 텍스트 컬럼은 제외한다.
+        excluded = any(k in col_text for k in ["추천사유", "주의사유", "설명", "요약", "근거", "비율"])
+        if looks_like_content_col and not excluded and col not in check_cols:
+            check_cols.append(col)
+    return check_cols
+
+
 def apply_unclassified_hold_rule(data: pd.DataFrame, seg_col: str | None, action_col_name: str | None, output_col: str = "검토단계_표시") -> pd.DataFrame:
     """주요 콘텐츠군이 미분류/공백이면 검토단계를 보류로 강제한다.
 
-    화면용 컬럼(output_col)에만 반영하므로 원본 액션버킷 컬럼은 보존된다.
-    `주요콘텐츠군`처럼 공백 없는 컬럼명과 `주요 콘텐츠군`처럼 공백 있는 컬럼명을 모두 대응한다.
+    기존 문제 원인:
+    - 화면에는 `주요 콘텐츠군`이 미분류로 보이지만, 일부 파일에서는 컬럼명이 조금 다르거나
+      zero-width/nbsp 공백이 섞여 기존 `== "미분류"` 판정에서 누락될 수 있었다.
+    - 이후 TOP5/우선순위 표가 `즉시검토` 기준으로 먼저 필터링되면 미분류 후보가 계속 상단에 남았다.
+
+    처리 방식:
+    - 콘텐츠군/세그먼트 계열 컬럼을 넓게 탐색한다.
+    - 값 정규화 후 미분류/공백/None/nan 계열이면 `검토단계_표시 = 보류`로 강제한다.
+    - 화면에서 참조할 가능성이 있는 검토단계 계열 컬럼도 함께 보정해 후속 필터와 표시에 동일하게 반영한다.
     """
     out = data.copy()
-    out[output_col] = out[action_col_name] if action_col_name and action_col_name in out.columns else pd.NA
-    out[output_col] = out[output_col].replace(["None", "none", "nan", "NaN", "", None], pd.NA).fillna("미분류")
 
-    check_cols = []
-    if seg_col and seg_col in out.columns:
-        check_cols.append(seg_col)
-    for col in CONTENT_SEGMENT_COL_CANDIDATES:
-        if col in out.columns and col not in check_cols:
-            check_cols.append(col)
+    base_action = out[action_col_name] if action_col_name and action_col_name in out.columns else pd.Series(pd.NA, index=out.index)
+    out[output_col] = base_action.replace(["None", "none", "nan", "NaN", "", None], pd.NA).fillna("미분류")
 
+    check_cols = find_content_segment_columns(out, seg_col)
     if check_cols:
         hold_mask = pd.Series(False, index=out.index)
         for col in check_cols:
             hold_mask = hold_mask | is_unclassified_value(out[col])
-        out.loc[hold_mask, output_col] = "보류"
-    return out
 
+        out.loc[hold_mask, output_col] = "보류"
+        out.loc[hold_mask, "미분류_보류강제"] = True
+        out.loc[~hold_mask, "미분류_보류강제"] = False
+
+        # 이후 코드가 원본 action_col 또는 다른 검토단계 컬럼을 참조해도 같은 결과가 나오도록 보정한다.
+        for col in ACTION_COL_CANDIDATES:
+            if col in out.columns:
+                out.loc[hold_mask, col] = "보류"
+
+    return out
 
 def add_score_display_column(input_df: pd.DataFrame) -> pd.DataFrame:
     out = input_df.copy()
@@ -2895,7 +2965,7 @@ score_col = first_existing(df, ["최종점수", "최종점수_100점", "영입�
 rank_col = first_existing(df, ["운영우선순위", "최종순위", "현재 필터 기준 순위", "순위", "rank", "final_rank"])
 segment_col = first_existing(df, CONTENT_SEGMENT_COL_CANDIDATES)
 lower_segment_col = first_existing(df, ["대표하위세그먼트", "세부 콘텐츠 유형", "하위 콘텐츠군", "sub_segment", "대표하위세그먼트명", "segment_seed", "segment_seed_raw"])
-action_col = first_existing(df, ["액션버킷", "검토 단계", "현재 검토 단계", "현재검토단계", "action_bucket"])
+action_col = first_existing(df, ACTION_COL_CANDIDATES)
 shortlist_col = first_existing(df, ["shortlist_선정여부", "shortlist 선정 여부", "shortlist", "is_shortlist", "shortlist_selected"])
 subs_col = first_existing(df, ["채널구독자수", "채널 구독자 수", "구독자수", "구독자 수", "subscriber_count", "subscribers", "channel_subscriber_count"])
 view_col = first_existing(df, ["최근영상조회수평균", "최근 영상 평균 조회수", "최근 조회수 평균", "recent_view_avg", "avg_recent_view_count", "view_count_mean", "평균조회수"])
@@ -2933,6 +3003,11 @@ snapshot_prepared_df = prepare_snapshot_df(snapshot_df)
 
 filtered = df.copy()
 
+# 안전장치: apply_unclassified_hold_rule 이후에도 데이터/컬럼명이 달라 미분류가 남는 경우를 막기 위해
+# 필터 대상 데이터에도 한 번 더 보류 규칙을 적용한다.
+filtered = apply_unclassified_hold_rule(filtered, segment_col, original_action_col, output_col="검토단계_표시")
+action_col = "검토단계_표시"
+
 selected_segments = []
 selected_lower = []
 selected_actions = []
@@ -2946,6 +3021,15 @@ top_n = 10
 
 if hide_hold and action_col:
     filtered = filtered[~filtered[action_col].astype(str).str.contains("보류|제외", na=False)]
+
+    # 최종 안전장치: 주요 콘텐츠군/세그먼트가 미분류인 후보는 화면 TOP 후보군에서 제외한다.
+    # 이 조건이 있어야 `미분류 + 즉시검토`가 원본 데이터에 남아 있어도 추천 후보 TOP/우선순위 표에 섞이지 않는다.
+    content_check_cols = find_content_segment_columns(filtered, segment_col)
+    if content_check_cols:
+        unclassified_any_mask = pd.Series(False, index=filtered.index)
+        for _col in content_check_cols:
+            unclassified_any_mask = unclassified_any_mask | is_unclassified_value(filtered[_col])
+        filtered = filtered[~unclassified_any_mask]
 
 filtered = filtered.copy()
 filtered["표시순위"] = np.arange(1, len(filtered) + 1)
