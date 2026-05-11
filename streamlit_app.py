@@ -915,31 +915,22 @@ st.markdown(
 )
 
 
-if st.session_state.page == "대시보드 홈":
+def render_home():
     render_planet_home()
     render_mission_cards()
+
     if st.session_state.card == "trail":
         render_startrail_detail()
     elif st.session_state.card == "seed":
         render_starseed_detail()
     else:
-        html('<div class="empty-guide">스타트레일 또는 스타시드 카드를 선택하면 아래에 단계 설명이 표시됩니다.</div>')
-
-    st.components.v1.html("""
-    <script>
-    const scrollHomeTop = () => {
-        try {
-            window.parent.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-            const doc = window.parent.document;
-            const main = doc.querySelector('section.main') || doc.querySelector('[data-testid="stAppViewContainer"]');
-            if (main) main.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-        } catch(e) {}
-    };
-    scrollHomeTop(); setTimeout(scrollHomeTop, 80);
-    </script>
-    """, height=0)
-    st.stop()
-
+        html(
+            """
+            <div class="empty-guide">
+            스타트레일 또는 스타시드 카드를 선택하면 아래에 단계 설명이 표시됩니다.
+            </div>
+            """
+        )
 # =========================================================
 # STAR TRAIL 대시보드 통합 코드
 # =========================================================
@@ -1982,16 +1973,21 @@ def render_startrail_dashboard():
 
     st.markdown("</div>", unsafe_allow_html=True)
 
+# =========================================================
+# 페이지 라우팅
+# =========================================================
+
 if st.session_state.page == "대시보드 홈":
     render_home()
+    st.stop()
 
 elif st.session_state.page == "스타트레일":
     render_startrail_dashboard()
     st.stop()
 
-# elif st.session_state.page == "스타시드":
-#     render_starseed_dashboard()
-#     st.stop()
+elif st.session_state.page == "스타시드":
+    # 기존 스타시드 본문을 함수화하지 않았다면 여기서는 pass가 맞음
+    pass
 
 # =========================================================
 # 5. 스타시드 로딩 패널
