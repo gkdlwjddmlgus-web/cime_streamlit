@@ -1370,6 +1370,44 @@ def render_startrail_dashboard():
         text = str(v).strip()
         return text if text and text.lower() != "nan" else default
 
+    def _display_name_from_row(row, current_segment=None, default="-"):
+        """스타트레일 상세 패널/카드에서 사용할 표시 이름을 안정적으로 찾는다.
+        - 과거 session_state에 표시이름이 '-'로 남아있는 경우를 방지
+        - 개인 후보: 스트리머, 스트리머명, 채널명 등 후보 컬럼을 순차 fallback
+        - 성단: 소속 우선
+        """
+        if row is None:
+            return default
+
+        segment_value = _safe_text(
+            row.get("세그먼트", current_segment if current_segment is not None else ""),
+            ""
+        )
+
+        if segment_value == "성단" or current_segment == "성단":
+            candidate_cols = ["표시이름", "소속", "그룹명", "성단명"]
+        else:
+            candidate_cols = [
+                "표시이름",
+                "스트리머",
+                "스트리머명",
+                "채널명",
+                "channel_title",
+                "channel_name",
+                "이름",
+                "name",
+            ]
+
+        for col in candidate_cols:
+            if hasattr(row, "get"):
+                value = _safe_text(row.get(col, ""), "")
+            else:
+                value = ""
+            if value and value != "-":
+                return value
+
+        return default
+
     def _esc(v):
         return html_lib.escape(_safe_text(v))
 
@@ -1510,13 +1548,26 @@ def render_startrail_dashboard():
     top_5 = filtered_df.head(5).copy()
 
     if st.session_state.startrail_selected_streamer is not None:
-        selected = st.session_state.startrail_selected_streamer
+        selected = dict(st.session_state.startrail_selected_streamer)
     elif not top_5.empty:
         selected = top_5.iloc[0].to_dict()
         selected["세그먼트"] = "성단" if current_seg == "성단" else _safe_text(selected.get("세그먼트", current_seg))
-        selected["표시이름"] = _safe_text(selected.get("소속", selected.get("스트리머", "-")))
+        selected["표시이름"] = _display_name_from_row(selected, current_seg)
     else:
         selected = None
+
+    # 이전 버전 코드에서 session_state에 표시이름='-'가 저장된 경우가 있어
+    # 현재 세그먼트의 TOP1으로 안전하게 복구한다.
+    if selected is not None:
+        selected = dict(selected)
+        selected["세그먼트"] = "성단" if current_seg == "성단" else _safe_text(selected.get("세그먼트", current_seg))
+        selected_name = _display_name_from_row(selected, current_seg, default="")
+        if not selected_name and not top_5.empty:
+            selected = top_5.iloc[0].to_dict()
+            selected["세그먼트"] = "성단" if current_seg == "성단" else _safe_text(selected.get("세그먼트", current_seg))
+            selected_name = _display_name_from_row(selected, current_seg, default="-")
+        selected["표시이름"] = selected_name if selected_name else "-"
+        st.session_state.startrail_selected_streamer = selected
 
     with left_area:
         st.markdown(f'<div class="startrail-page"><div class="trail-section-title">🏆 {html_lib.escape(current_seg)} TOP 5</div></div>', unsafe_allow_html=True)
@@ -1531,7 +1582,7 @@ def render_startrail_dashboard():
                     score_text = f'{_num(row.get("스코어")):.0f}'
                     avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(display_name)}"
                 else:
-                    display_name = _safe_text(row.get("스트리머", "-"))
+                    display_name = _display_name_from_row(row, current_seg)
                     display_segment = _safe_text(row.get("세그먼트", current_seg))
                     score_text = f'{_num(row.get("스코어")):.2f}'
                     avatar_url = _avatar(row, display_name)
@@ -1557,8 +1608,16 @@ def render_startrail_dashboard():
     with right_area:
         if selected is not None:
             s = selected
-            detail_name = _safe_text(s.get("표시이름", s.get("스트리머", s.get("소속", "-"))))
             detail_seg = _safe_text(s.get("세그먼트", current_seg))
+            detail_name = _display_name_from_row(s, detail_seg)
+            if detail_name == "-" and not top_5.empty:
+                # 상세 패널 이름만 비어있는 stale session_state 방어
+                s = top_5.iloc[0].to_dict()
+                s["세그먼트"] = "성단" if current_seg == "성단" else _safe_text(s.get("세그먼트", current_seg))
+                s["표시이름"] = _display_name_from_row(s, current_seg)
+                st.session_state.startrail_selected_streamer = s
+                detail_seg = _safe_text(s.get("세그먼트", current_seg))
+                detail_name = _display_name_from_row(s, detail_seg)
             avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(detail_name)}" if detail_seg == "성단" else _avatar(s, detail_name)
             platform_html = "" if detail_seg == "성단" else _platform_badge(s.get("플랫폼", ""))
             if detail_seg == "성단":
