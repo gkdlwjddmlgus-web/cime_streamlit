@@ -287,6 +287,98 @@ st.markdown(
 
 st.markdown(f'<div class="star-layer">{st.session_state.bg_html}</div><div class="orbit-bg"></div>', unsafe_allow_html=True)
 
+
+# =========================================================
+# 사이드바 페이지별 active 색상 분리
+# - 홈: 보라색
+# - 스타시드: 초록색
+# - 스타트레일: 보라/골드 계열
+# =========================================================
+current_page_for_sidebar = st.session_state.get("page", "대시보드 홈")
+
+if current_page_for_sidebar == "스타시드":
+    sidebar_primary_css = """
+    section[data-testid="stSidebar"] .stButton > button[kind="primary"],
+    section[data-testid="stSidebar"] button[data-testid="stBaseButton-primary"],
+    section[data-testid="stSidebar"] button[data-testid="baseButton-primary"] {
+        background: linear-gradient(135deg, #22C55E 0%, #168557 100%) !important;
+        color: #F5FFF7 !important;
+        border: 1px solid rgba(152, 255, 171, 0.62) !important;
+        box-shadow:
+            0 0 18px rgba(72, 255, 135, 0.22),
+            inset 0 1px 0 rgba(255,255,255,0.14) !important;
+    }
+    """
+elif current_page_for_sidebar == "스타트레일":
+    sidebar_primary_css = """
+    section[data-testid="stSidebar"] .stButton > button[kind="primary"],
+    section[data-testid="stSidebar"] button[data-testid="stBaseButton-primary"],
+    section[data-testid="stSidebar"] button[data-testid="baseButton-primary"] {
+        background: linear-gradient(135deg, #7D42FF 0%, #4B2AA8 58%, #B88A2E 100%) !important;
+        color: #FFF9FF !important;
+        border: 1px solid rgba(255, 212, 93, 0.58) !important;
+        box-shadow:
+            0 0 18px rgba(255, 212, 93, 0.18),
+            inset 0 1px 0 rgba(255,255,255,0.12) !important;
+    }
+    """
+else:
+    sidebar_primary_css = """
+    section[data-testid="stSidebar"] .stButton > button[kind="primary"],
+    section[data-testid="stSidebar"] button[data-testid="stBaseButton-primary"],
+    section[data-testid="stSidebar"] button[data-testid="baseButton-primary"] {
+        background: linear-gradient(135deg, #8B4DFF 0%, #6D38E8 52%, #7D42FF 100%) !important;
+        color: #FFF9FF !important;
+        border: 1px solid rgba(229, 155, 255, 0.68) !important;
+        box-shadow:
+            0 0 20px rgba(125, 66, 255, 0.34),
+            inset 0 1px 0 rgba(255,255,255,0.13) !important;
+    }
+    """
+
+st.markdown(
+    f"""
+    <style>
+    /* 사이드바 공통 비활성 버튼 */
+    section[data-testid="stSidebar"] .stButton > button[kind="secondary"],
+    section[data-testid="stSidebar"] button[data-testid="stBaseButton-secondary"],
+    section[data-testid="stSidebar"] button[data-testid="baseButton-secondary"] {{
+        background: rgba(24, 17, 54, 0.88) !important;
+        color: #EDE5FF !important;
+        border: 1px solid rgba(196, 143, 255, 0.28) !important;
+        box-shadow: none !important;
+    }}
+
+    section[data-testid="stSidebar"] .stButton > button[kind="secondary"]:hover,
+    section[data-testid="stSidebar"] button[data-testid="stBaseButton-secondary"]:hover,
+    section[data-testid="stSidebar"] button[data-testid="baseButton-secondary"]:hover {{
+        background: rgba(42, 27, 88, 0.96) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(228, 205, 255, 0.58) !important;
+        box-shadow: 0 0 14px rgba(125, 66, 255, 0.16) !important;
+    }}
+
+    /* 현재 페이지 active 버튼 */
+    {sidebar_primary_css}
+
+    /* 버튼 안쪽 텍스트/아이콘 색상 강제 */
+    section[data-testid="stSidebar"] .stButton > button[kind="primary"] *,
+    section[data-testid="stSidebar"] button[data-testid="stBaseButton-primary"] *,
+    section[data-testid="stSidebar"] button[data-testid="baseButton-primary"] * {{
+        color: inherit !important;
+        font-weight: 900 !important;
+    }}
+
+    section[data-testid="stSidebar"] .stButton > button[kind="secondary"] *,
+    section[data-testid="stSidebar"] button[data-testid="stBaseButton-secondary"] *,
+    section[data-testid="stSidebar"] button[data-testid="baseButton-secondary"] * {{
+        color: inherit !important;
+        font-weight: 850 !important;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 # =========================================================
 # 3. 사이드바 네비게이션
 # =========================================================
