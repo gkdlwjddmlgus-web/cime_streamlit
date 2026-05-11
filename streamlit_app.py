@@ -1809,6 +1809,175 @@ def inject_startrail_css():
             .startrail-main-title-en {
                 font-size: 25px;
             }
+        /* =========================================================
+           Star Trail 상단: Star Seed 대시보드와 유사한 배치
+           - 좌측: 아이콘 + 대형 타이틀 + 설명
+           - 우측: 분석 기간 카드
+           - 색감: 보라/골드
+        ========================================================= */
+
+        .startrail-page .trail-dashboard-hero {
+            position: relative;
+            z-index: 3;
+            margin-top: 18px;
+            margin-bottom: 26px;
+        }
+
+        .startrail-page .trail-hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 0.58fr;
+            gap: 36px;
+            align-items: center;
+        }
+
+        .startrail-page .trail-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .startrail-page .trail-title-icon {
+            width: 88px;
+            height: 88px;
+            border-radius: 18px;
+            border: 2px solid rgba(255, 212, 93, 0.62);
+            background:
+                radial-gradient(circle at 38% 30%, rgba(255,255,255,0.42), transparent 18%),
+                linear-gradient(135deg, rgba(255, 212, 93, 0.18), rgba(125, 66, 255, 0.18)),
+                rgba(8, 16, 31, 0.86);
+            box-shadow:
+                0 0 22px rgba(255, 212, 93, 0.20),
+                0 0 28px rgba(125, 66, 255, 0.22),
+                inset 0 0 18px rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: #FFD45D;
+        }
+
+        .startrail-page .trail-title-main {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .startrail-page .trail-title-ko {
+            font-size: 54px;
+            line-height: 1.02;
+            font-weight: 950;
+            letter-spacing: -2px;
+            color: #FFF9FF;
+            text-shadow:
+                0 0 10px rgba(255,255,255,0.28),
+                0 0 22px rgba(125,66,255,0.36);
+        }
+
+        .startrail-page .trail-title-en {
+            font-size: 30px;
+            line-height: 1;
+            font-weight: 950;
+            color: #FFD45D;
+            text-shadow:
+                0 0 12px rgba(255, 212, 93, 0.36),
+                0 0 20px rgba(125, 66, 255, 0.28);
+        }
+
+        .startrail-page .trail-title-underline {
+            width: 360px;
+            height: 4px;
+            border-radius: 999px;
+            margin-top: 10px;
+            background: linear-gradient(90deg, #FFD45D, #7D42FF, transparent);
+            box-shadow:
+                0 0 16px rgba(255, 212, 93, 0.34),
+                0 0 18px rgba(125, 66, 255, 0.26);
+        }
+
+        .startrail-page .trail-title-desc {
+            margin-top: 12px;
+            font-size: 17px;
+            font-weight: 800;
+            line-height: 1.55;
+            color: #E8DFFF;
+            word-break: keep-all;
+        }
+
+        .startrail-page .trail-period-card {
+            min-height: 116px;
+            border-radius: 22px;
+            padding: 22px 26px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background:
+                linear-gradient(135deg, rgba(255, 212, 93, 0.12), rgba(125, 66, 255, 0.10)),
+                rgba(8, 16, 31, 0.88);
+            border: 1px solid rgba(255, 212, 93, 0.36);
+            box-shadow:
+                0 0 24px rgba(255, 212, 93, 0.12),
+                0 0 24px rgba(125, 66, 255, 0.18),
+                inset 0 0 18px rgba(255,255,255,0.025);
+        }
+
+        .startrail-page .trail-period-icon {
+            min-width: 64px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 35% 30%, rgba(255,255,255,0.88), transparent 18%),
+                linear-gradient(135deg, #FFD45D, #7D42FF);
+            box-shadow:
+                0 0 18px rgba(255, 212, 93, 0.32),
+                0 0 22px rgba(125, 66, 255, 0.26);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #140B2F;
+            font-weight: 950;
+        }
+
+        .startrail-page .trail-period-title {
+            font-size: 16px;
+            font-weight: 950;
+            color: #FFF9FF;
+            margin-bottom: 7px;
+        }
+
+        .startrail-page .trail-period-desc {
+            font-size: 13px;
+            line-height: 1.55;
+            color: rgba(255,255,255,0.76);
+            font-weight: 700;
+            word-break: keep-all;
+        }
+
+        .startrail-page .trail-period-date {
+            color: #FFD45D;
+            font-weight: 950;
+        }
+
+        @media (max-width: 1200px) {
+            .startrail-page .trail-hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .startrail-page .trail-title-ko {
+                font-size: 42px;
+            }
+
+            .startrail-page .trail-title-en {
+                font-size: 24px;
+            }
+
+            .startrail-page .trail-title-icon {
+                width: 74px;
+                height: 74px;
+                font-size: 34px;
+            }
         }
         </style>
         """
@@ -1856,44 +2025,43 @@ def render_startrail_dashboard():
 
     st.html(
         f"""
-        <div class="startrail-hero">
-            <div class="startrail-hero-left">
+        <div class="trail-dashboard-hero">
+            <div class="trail-hero-grid">
 
-                <div class="startrail-title-row">
-                    <div class="startrail-logo-box">
+                <div class="trail-title-wrap">
+                    <div class="trail-title-icon">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
 
                     <div>
-                        <div class="startrail-main-title">
-                            <span class="startrail-main-title-ko">스타트레일</span>
-                            <span class="startrail-main-title-en">Star Trail</span>
+                        <div class="trail-title-main">
+                            <span class="trail-title-ko">스타트레일</span>
+                            <span class="trail-title-en">Star Trail</span>
                         </div>
 
-                        <div class="startrail-title-line"></div>
+                        <div class="trail-title-underline"></div>
 
-                        <div class="startrail-main-subtitle">
-                            기존 플랫폼의 성과와 팬덤 궤적을 따라 CIME 영입 우선 후보군을 찾습니다
+                        <div class="trail-title-desc">
+                            기존 플랫폼의 성과와 팬덤 궤적을 따라<br>
+                            CIME 영입 우선 후보군을 찾습니다
                         </div>
                     </div>
                 </div>
 
-            </div>
-
-            <div class="startrail-hero-right">
-                <div class="startrail-period-card">
-                    <div class="startrail-period-icon">
-                        <img src="data:image/png;base64,{date_icon}" style="width:28px; height:28px; object-fit:contain;">
+                <div class="trail-period-card">
+                    <div class="trail-period-icon">
+                        <i class="fa-regular fa-calendar-days"></i>
                     </div>
 
                     <div>
-                        <div class="startrail-period-title">분석 기간</div>
-                        <div class="startrail-period-desc">
+                        <div class="trail-period-title">분석 기간</div>
+                        <div class="trail-period-desc">
                             기존 플랫폼의 활동 데이터를 기준으로<br>
-                            <span>2025.01.01 ~ 2026.03.31</span> 기간의 후보군을 분석합니다.
+                            <span class="trail-period-date">2025.01.01 ~ 2026.03.31</span> 기간의 후보군을 분석합니다.
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
         """
