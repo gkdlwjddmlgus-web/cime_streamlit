@@ -149,17 +149,19 @@ def inject_button_theme_by_page():
 inject_button_theme_by_page()
 
 # =========================================================
-# Streamlit 우측 상단 액션 UI 숨김
-# - Share / Star / Edit / GitHub 등 우측 toolbar만 숨김
-# - 좌측 sidebar open/close 토글은 유지
+# Streamlit 우측 액션 버튼 최소 숨김
+# - toolbar 컨테이너는 숨기지 않음
+# - sidebar toggle 안정성 우선
 # =========================================================
 st.markdown(
     """
     <style>
-    /* header 자체는 sidebar toggle 때문에 유지 */
+    /* header 자체와 toolbar 컨테이너는 유지 */
     header,
     header[data-testid="stHeader"],
-    [data-testid="stHeader"] {
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stHeaderActionElements"] {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -168,51 +170,39 @@ st.markdown(
         overflow: visible !important;
     }
 
-    /* 우측 toolbar/action 영역 숨김 */
-    [data-testid="stToolbar"],
-    [data-testid="stHeaderActionElements"],
-    [data-testid="stActionButton"],
-    [data-testid="stAppViewBlockContainer"] [data-testid="stToolbar"],
-    header [data-testid="stToolbar"],
-    header [data-testid="stHeaderActionElements"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* Streamlit Cloud 우측 액션 버튼 개별 대응 */
+    /* 명확하게 식별 가능한 우측 액션 버튼만 숨김 */
     header button[title="Share"],
     header button[aria-label="Share"],
-    header a[title="Share"],
-    header a[aria-label="Share"],
     header button[title*="Share"],
     header button[aria-label*="Share"],
     header a[title*="Share"],
     header a[aria-label*="Share"],
+
     header button[title*="GitHub"],
     header button[aria-label*="GitHub"],
     header a[title*="GitHub"],
     header a[aria-label*="GitHub"],
+
     header button[title*="Fork"],
     header button[aria-label*="Fork"],
     header a[title*="Fork"],
     header a[aria-label*="Fork"],
+
     header button[title*="Star"],
     header button[aria-label*="Star"],
     header a[title*="Star"],
     header a[aria-label*="Star"],
+
     header button[title*="Edit"],
     header button[aria-label*="Edit"],
     header a[title*="Edit"],
     header a[aria-label*="Edit"],
+
     header button[title*="Deploy"],
     header button[aria-label*="Deploy"],
     header a[title*="Deploy"],
     header a[aria-label*="Deploy"],
+
     [data-testid="stDeployButton"],
     [data-testid="stAppDeployButton"],
     [data-testid="stStatusWidget"],
@@ -223,14 +213,9 @@ st.markdown(
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
-        overflow: hidden !important;
     }
 
-    /* sidebar 토글은 최종적으로 반드시 살림 */
+    /* sidebar open/close 토글은 반드시 유지 */
     [data-testid="collapsedControl"],
     [data-testid="collapsedControl"] *,
     [data-testid="stSidebarCollapsedControl"],
@@ -252,33 +237,10 @@ st.markdown(
         overflow: visible !important;
         z-index: 1000000 !important;
     }
-    <style>
-    /* 화면 우측 상단 고정 액션 영역 강제 숨김 */
-    div[data-testid="stToolbar"],
-    div[data-testid="stHeaderActionElements"],
-    div[class*="stToolbar"],
-    div[class*="toolbar"],
-    div[class*="Action"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-
-    /* 단, sidebar collapse/open control은 제외하고 다시 살림 */
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"] {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-    }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 
 
 if "bg_html" not in st.session_state:
