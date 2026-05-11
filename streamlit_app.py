@@ -1114,167 +1114,143 @@ def build_startrail_candidate_data(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def inject_startrail_css():
-    """스타트레일 전용 화면 스타일."""
-    st.markdown(
-        clean_html("""
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-        <style>
-        .startrail-page, .trail-hero-dashboard, .trail-section-title, .trail-section-divider {
-            position: relative;
-            z-index: 3;
-            color: #F8F2FF;
-        }
-
-        .block-container:has(.startrail-page) {
-            max-width: 1540px !important;
-            padding-top: 1.1rem !important;
-            padding-left: 3.2rem !important;
-            padding-right: 3.2rem !important;
-            padding-bottom: 4rem !important;
-        }
-
-        .trail-hero-dashboard { margin-top: 8px; margin-bottom: 34px; }
-        .trail-hero-top {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 520px;
-            gap: 42px;
-            align-items: start;
-            margin-bottom: 28px;
-        }
-        .trail-hero-title {
-            font-size: clamp(54px, 5.4vw, 76px);
-            line-height: 0.96;
-            font-weight: 950;
-            letter-spacing: 0.18em;
-            color: #FFF8FF;
-            text-shadow: 0 0 8px rgba(255,255,255,0.62), 0 0 22px rgba(214,187,255,0.55), 0 0 44px rgba(125,66,255,0.42);
-            margin: 0 0 18px 0;
-            white-space: nowrap;
-        }
-        .trail-hero-subtitle {
-            font-size: 18px;
-            font-weight: 850;
-            line-height: 1.55;
-            color: #E8DFFF;
-            margin-bottom: 22px;
-            word-break: keep-all;
-        }
-        .trail-date-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            height: 40px;
-            padding: 0 18px;
-            border-radius: 999px;
-            background: rgba(8, 26, 43, 0.72);
-            border: 1px solid rgba(255, 212, 93, 0.28);
-            color: #EDE5FF;
-            font-size: 14px;
-            font-weight: 900;
-            box-shadow: 0 0 18px rgba(255, 212, 93, 0.10), inset 0 0 18px rgba(255,255,255,0.025);
-        }
-        .trail-hero-info-card {
-            width: 100%;
-            min-height: 122px;
-            border-radius: 22px;
-            padding: 22px 26px;
-            display: grid;
-            grid-template-columns: 62px minmax(0, 1fr);
-            gap: 18px;
-            align-items: center;
-            background: radial-gradient(circle at 12% 44%, rgba(255, 212, 93, 0.10), transparent 32%), linear-gradient(135deg, rgba(21, 16, 47, 0.80), rgba(12, 10, 31, 0.94));
-            border: 1px solid rgba(196, 143, 255, 0.34);
-            box-shadow: 0 0 24px rgba(125, 66, 255, 0.18), inset 0 0 22px rgba(255,255,255,0.025);
-        }
-        .trail-hero-info-icon {
-            width: 58px;
-            height: 58px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #FFFFFF;
-            font-size: 23px;
-            background: radial-gradient(circle at 34% 26%, rgba(255,255,255,0.92), transparent 15%), linear-gradient(135deg, #FFD45D, #8B5CF6 58%, #5B2AD8);
-            box-shadow: 0 0 22px rgba(255, 212, 93, 0.24), 0 0 28px rgba(139, 92, 255, 0.24);
-        }
-        .trail-hero-info-title { color: #FFF9FF; font-size: 17px; font-weight: 950; margin-bottom: 7px; }
-        .trail-hero-info-desc { color: rgba(255,255,255,0.70); font-size: 13px; line-height: 1.62; font-weight: 650; word-break: keep-all; }
-        .trail-kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 22px 0 34px 0; }
-        .trail-kpi-card {
-            min-height: 118px;
-            border-radius: 22px;
-            padding: 26px 28px;
-            background: radial-gradient(circle at 12% 26%, rgba(255, 212, 93, 0.05), transparent 34%), linear-gradient(180deg, rgba(21, 16, 47, 0.88), rgba(9, 8, 28, 0.96));
-            border: 1px solid rgba(196, 143, 255, 0.26);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.24), 0 0 24px rgba(125, 66, 255, 0.12);
-        }
-        .trail-kpi-label { color: rgba(255,255,255,0.76); font-size: 14px; font-weight: 900; margin-bottom: 8px; }
-        .trail-kpi-value { color: #FFF9FF; font-size: 32px; font-weight: 950; line-height: 1.06; letter-spacing: -0.04em; text-shadow: 0 0 16px rgba(255,255,255,0.16); }
-        .trail-section-divider { height: 1px; width: 100%; background: rgba(196,143,255,0.23); margin: 0 0 32px 0; }
-        .trail-section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0 0 18px 0;
-            color: #FFF9FF;
-            font-size: 30px;
-            line-height: 1.2;
-            font-weight: 950;
-            letter-spacing: -0.04em;
-            text-shadow: 0 0 14px rgba(214,187,255,0.12);
-        }
-        .trail-seg-card {
-            position: relative;
-            min-height: 210px;
-            border-radius: 20px;
-            padding: 26px 18px 20px;
-            text-align: center;
-            background: rgba(21, 16, 47, 0.86);
-            border: 1px solid rgba(196, 143, 255, 0.18);
-            box-shadow: 0 0 24px rgba(112, 53, 255, 0.12), inset 0 0 24px rgba(255,255,255,0.018);
-            overflow: hidden;
-            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-        }
-        .trail-seg-card::before { content:""; position:absolute; left:22px; right:22px; top:16px; height:3px; border-radius:999px; background:rgba(240,140,255,0.36); box-shadow:0 0 14px rgba(240,140,255,0.20); }
-        .trail-seg-card.active { transform: translateY(-2px); border-color: rgba(255, 212, 93, 0.55); box-shadow: 0 0 28px rgba(255, 212, 93, 0.18), 0 0 34px rgba(125, 66, 255, 0.20), inset 0 0 26px rgba(255,255,255,0.025); }
-        .trail-seg-card.active::before { background:#FFD45D; box-shadow:0 0 18px rgba(255,212,93,0.62); }
-        .trail-seg-card.active-성단 { border-color:#FF6B8A; } .trail-seg-card.active-성단::before { background:#FF6B8A; box-shadow:0 0 18px rgba(255,107,138,0.62); }
-        .trail-seg-card.active-위성::before { background:#95AFFF; box-shadow:0 0 18px rgba(149,175,255,0.62); }
-        .trail-seg-card.active-슈퍼노바::before { background:#FF9DF5; box-shadow:0 0 18px rgba(255,157,245,0.62); }
-        .trail-seg-card.active-코멧::before { background:#FF9E5E; box-shadow:0 0 18px rgba(255,158,94,0.62); }
-        .trail-seg-icon { margin-top:22px; margin-bottom:16px; font-size:31px; color:#DDBBFF; text-shadow:0 0 18px rgba(221,187,255,0.28); }
-        .trail-seg-name { font-size:20px; font-weight:950; color:#FFF9FF; margin-bottom:10px; }
-        .trail-seg-count { font-size:28px; font-weight:950; color:#F08CFF; margin-bottom:14px; letter-spacing:-0.02em; }
-        .trail-seg-desc { font-size:12px; line-height:1.55; font-weight:700; color:rgba(255,255,255,0.66); word-break:keep-all; }
-        .tooltip-wrap { position:relative; display:inline-flex; align-items:center; justify-content:center; margin-left:6px; }
-        .tooltip-icon { width:17px; height:17px; border-radius:50%; border:1px solid rgba(217,200,255,0.75); color:#D9C8FF; font-size:11px; font-weight:900; line-height:17px; text-align:center; cursor:help; }
-        .tooltip-text { visibility:hidden; opacity:0; width:230px; background:rgba(21,16,47,0.98); color:#D9CFE8; text-align:left; border:1px solid rgba(196,143,255,0.34); border-radius:12px; padding:10px 12px; position:absolute; z-index:9999; bottom:135%; left:50%; transform:translateX(-50%); font-size:12px; line-height:1.45; box-shadow:0 10px 28px rgba(0,0,0,0.45); white-space:normal; }
-        .tooltip-wrap:hover .tooltip-text { visibility:visible; opacity:1; }
-        div[data-testid="column"] .stButton > button { margin-top: 0 !important; }
-        .trail-rank-card { position:relative; min-height:332px; border-radius:20px; padding:20px 16px 16px; background:radial-gradient(circle at 50% 18%, rgba(196,143,255,0.10), transparent 36%), rgba(21,16,47,0.88); border:1px solid rgba(196,143,255,0.22); box-shadow:0 0 24px rgba(112,53,255,0.14), inset 0 0 22px rgba(255,255,255,0.018); overflow:hidden; box-sizing:border-box; }
-        .trail-rank-badge { position:absolute; top:18px; left:18px; z-index:2; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:950; color:#1a112f; background:linear-gradient(135deg,#FFD45D,#C99700); box-shadow:0 0 16px rgba(255,212,93,0.42); }
-        .trail-rank-badge.rank-2 { background:linear-gradient(135deg,#F4E9FF,#B7A2DC); } .trail-rank-badge.rank-3 { background:linear-gradient(135deg,#D99666,#8B4A30); color:#fff; } .trail-rank-badge.rank-normal { background:rgba(255,255,255,0.10); color:#F8F2FF; border:1px solid rgba(255,255,255,0.16); }
-        .trail-avatar-wrap { width:120px; height:120px; border-radius:999px; margin:0 auto 18px; overflow:hidden; background:radial-gradient(circle at 32% 28%, #fff, #9c6aff 42%, #25154d 100%); border:3px solid rgba(255,212,93,0.40); box-shadow:0 0 18px rgba(255,212,93,0.16),0 0 22px rgba(125,66,255,0.18); }
-        .trail-avatar-wrap img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
-        .trail-rank-name { min-height:42px; display:flex; align-items:center; justify-content:center; text-align:center; color:#FFF9FF; font-size:20px; line-height:1.25; font-weight:950; word-break:keep-all; overflow:hidden; }
-        .trail-tag { display:inline-flex; align-items:center; justify-content:center; margin:10px auto 14px; padding:5px 12px; border-radius:999px; font-size:11px; line-height:1; font-weight:950; color:#FFD45D; background:rgba(255,212,93,0.12); border:1px solid rgba(255,212,93,0.42); }
-        .trail-score-label { color:rgba(255,255,255,0.40); font-size:12px; font-weight:850; margin-bottom:5px; } .trail-score-value { color:#FFD45D; font-size:25px; font-weight:950; line-height:1.1; text-shadow:0 0 12px rgba(255,212,93,0.24); }
-        .trail-side-card { border-radius:22px; padding:28px 26px; min-height:620px; background:radial-gradient(circle at 50% 8%, rgba(196,143,255,0.12), transparent 34%), rgba(21,16,47,0.88); border:1px solid rgba(196,143,255,0.28); box-shadow:0 0 28px rgba(112,53,255,0.16), inset 0 0 22px rgba(255,255,255,0.018); }
-        .trail-detail-avatar { width:132px; height:132px; border-radius:999px; overflow:hidden; margin:0 auto 18px; border:4px solid rgba(117,204,255,0.84); box-shadow:0 0 18px rgba(117,204,255,0.24); }
-        .trail-detail-avatar img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
-        .trail-detail-name { color:#FFF9FF; font-size:24px; font-weight:950; text-align:center; margin-bottom:12px; word-break:keep-all; } .trail-detail-tags { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:22px; } .trail-detail-tags img { height:28px; border-radius:8px; object-fit:contain; }
-        .trail-bar-row { margin:13px 0 16px; } .trail-bar-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:10px; } .trail-bar-label { color:#FFF9FF; font-size:13px; font-weight:950; } .trail-bar-value { font-size:13px; font-weight:950; } .trail-bar-track { height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,0.07); } .trail-bar-fill { height:100%; border-radius:999px; }
-        .bottom-title, .trail-bottom-title { height:42px; display:flex; align-items:center; margin:0 0 14px 0; font-size:26px; font-weight:950; color:#FFF9FF; letter-spacing:-0.5px; white-space:nowrap; }
-        .custom-table, .trail-table { width:100%; border-collapse:collapse; background:rgba(21,16,47,0.78) !important; border:1px solid rgba(196,143,255,0.20); border-radius:18px; overflow:hidden; table-layout:fixed; }
-        .custom-table th, .trail-table th { text-align:center; padding:12px 10px; border-bottom:1px solid rgba(196,143,255,0.22); color:#E8DFFF; font-size:13px; font-weight:950; background:rgba(255,255,255,0.045); }
-        .custom-table td, .trail-table td { text-align:center; padding:11px 10px; border-bottom:1px solid rgba(255,255,255,0.07); font-size:13px; color:#FFF9FF; font-weight:760; word-break:keep-all; }
-        div[data-testid="stPlotlyChart"] { background:rgba(21,16,47,0.78) !important; border-radius:22px !important; overflow:hidden !important; padding:0 !important; border:1px solid rgba(196,143,255,0.20) !important; box-shadow:0 0 24px rgba(125,66,255,0.12), inset 0 0 18px rgba(255,255,255,0.018) !important; }
-        @media (max-width: 1280px) { .trail-hero-top { grid-template-columns:1fr; } .trail-kpi-grid { grid-template-columns:1fr; } }
-        </style>
-        """),
-        unsafe_allow_html=True,
-    )
+    """스타트레일 전용 화면 스타일. CSS가 화면에 노출되지 않도록 짧은 style block만 주입한다."""
+    st.markdown("""
+<style>
+.block-container:has(.startrail-page) {
+    max-width: 1560px !important;
+    padding-top: 0.8rem !important;
+    padding-left: 2.8rem !important;
+    padding-right: 2.8rem !important;
+    padding-bottom: 4rem !important;
+}
+.startrail-page { position: relative; z-index: 3; color: #F8F2FF; }
+.startrail-hero { margin: 0 0 28px 0; }
+.trail-hero-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 520px;
+    gap: 42px;
+    align-items: start;
+    margin-bottom: 34px;
+}
+.trail-title {
+    font-size: clamp(58px, 5.8vw, 82px);
+    line-height: 0.95;
+    font-weight: 950;
+    letter-spacing: 0.19em;
+    color: #FFF8FF;
+    margin: 0 0 16px 0;
+    text-shadow: 0 0 8px rgba(255,255,255,.62), 0 0 24px rgba(214,187,255,.55), 0 0 48px rgba(125,66,255,.46);
+    white-space: nowrap;
+}
+.trail-subtitle {
+    font-size: 18px;
+    font-weight: 850;
+    line-height: 1.55;
+    color: #E8DFFF;
+    margin: 0 0 24px 0;
+    word-break: keep-all;
+}
+.trail-date-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    color: #EDE5FF;
+    font-size: 14px;
+    font-weight: 900;
+    background: rgba(8, 26, 43, 0.72);
+    border: 1px solid rgba(255, 212, 93, 0.28);
+    box-shadow: 0 0 18px rgba(255,212,93,.10), inset 0 0 18px rgba(255,255,255,.025);
+}
+.trail-info-card {
+    min-height: 122px;
+    border-radius: 22px;
+    padding: 22px 26px;
+    display: grid;
+    grid-template-columns: 62px minmax(0,1fr);
+    gap: 18px;
+    align-items: center;
+    background: radial-gradient(circle at 12% 44%, rgba(255,212,93,.10), transparent 32%), linear-gradient(135deg, rgba(21,16,47,.80), rgba(12,10,31,.94));
+    border: 1px solid rgba(196,143,255,.34);
+    box-shadow: 0 0 24px rgba(125,66,255,.18), inset 0 0 22px rgba(255,255,255,.025);
+}
+.trail-info-icon {
+    width: 58px; height: 58px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 24px;
+    background: radial-gradient(circle at 34% 26%, rgba(255,255,255,.92), transparent 15%), linear-gradient(135deg, #FFD45D, #8B5CF6 58%, #5B2AD8);
+    box-shadow: 0 0 22px rgba(255,212,93,.24), 0 0 28px rgba(139,92,255,.24);
+}
+.trail-info-title { color:#FFF9FF; font-size:17px; font-weight:950; margin-bottom:7px; }
+.trail-info-desc { color:rgba(255,255,255,.70); font-size:13px; line-height:1.62; font-weight:650; word-break:keep-all; }
+.trail-kpi-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin: 0 0 34px 0; }
+.trail-kpi-card {
+    min-height: 118px; border-radius: 22px; padding: 26px 28px;
+    background: radial-gradient(circle at 12% 26%, rgba(255,212,93,.05), transparent 34%), linear-gradient(180deg, rgba(21,16,47,.88), rgba(9,8,28,.96));
+    border: 1px solid rgba(196,143,255,.26);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 14px 30px rgba(0,0,0,.24), 0 0 24px rgba(125,66,255,.12);
+}
+.trail-kpi-label { color:rgba(255,255,255,.76); font-size:14px; font-weight:900; margin-bottom:8px; }
+.trail-kpi-value { color:#FFF9FF; font-size:32px; font-weight:950; line-height:1.06; letter-spacing:-.04em; text-shadow:0 0 16px rgba(255,255,255,.16); }
+.trail-divider { height:1px; width:100%; background:rgba(196,143,255,.23); margin: 0 0 32px 0; }
+.trail-section-title { display:flex; align-items:center; gap:10px; margin:0 0 18px 0; color:#FFF9FF; font-size:30px; line-height:1.2; font-weight:950; letter-spacing:-.04em; }
+.trail-seg-card {
+    position:relative; min-height:210px; border-radius:20px; padding:26px 18px 20px; text-align:center;
+    background:rgba(21,16,47,.86); border:1px solid rgba(196,143,255,.18);
+    box-shadow:0 0 24px rgba(112,53,255,.12), inset 0 0 24px rgba(255,255,255,.018); overflow:hidden;
+}
+.trail-seg-card::before { content:""; position:absolute; left:22px; right:22px; top:16px; height:3px; border-radius:999px; background:rgba(240,140,255,.36); }
+.trail-seg-card.active { transform:translateY(-2px); border-color:rgba(255,212,93,.55); box-shadow:0 0 28px rgba(255,212,93,.18), 0 0 34px rgba(125,66,255,.20), inset 0 0 26px rgba(255,255,255,.025); }
+.trail-seg-card.active::before { background:#FFD45D; box-shadow:0 0 18px rgba(255,212,93,.62); }
+.trail-seg-card.active-성단::before { background:#FF6B8A; } .trail-seg-card.active-위성::before { background:#95AFFF; } .trail-seg-card.active-슈퍼노바::before { background:#FF9DF5; } .trail-seg-card.active-코멧::before { background:#FF9E5E; }
+.trail-seg-icon { margin-top:22px; margin-bottom:16px; font-size:31px; color:#DDBBFF; text-shadow:0 0 18px rgba(221,187,255,.28); }
+.trail-seg-name { font-size:20px; font-weight:950; color:#FFF9FF; margin-bottom:10px; }
+.trail-seg-count { font-size:28px; font-weight:950; color:#F08CFF; margin-bottom:14px; letter-spacing:-.02em; }
+.trail-seg-desc { font-size:12px; line-height:1.55; font-weight:700; color:rgba(255,255,255,.66); word-break:keep-all; }
+.trail-main-grid { display:grid; grid-template-columns:minmax(0, 1fr) 340px; gap:34px; align-items:start; margin-top: 6px; }
+.trail-filter-wrap { margin: 0 0 18px 0; }
+.trail-top5-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px; align-items:stretch; }
+.trail-rank-card {
+    position:relative; min-height:332px; height:332px; border-radius:20px; padding:20px 16px 16px;
+    display:flex; flex-direction:column; align-items:center; text-align:center; box-sizing:border-box;
+    background:radial-gradient(circle at 50% 18%, rgba(196,143,255,.10), transparent 36%), rgba(21,16,47,.88);
+    border:1px solid rgba(196,143,255,.22); box-shadow:0 0 24px rgba(112,53,255,.14), inset 0 0 22px rgba(255,255,255,.018); overflow:hidden;
+}
+.trail-rank-badge { position:absolute; top:18px; left:18px; z-index:2; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:950; color:#1a112f; background:linear-gradient(135deg,#FFD45D,#C99700); box-shadow:0 0 16px rgba(255,212,93,.42); }
+.trail-rank-badge.rank-2 { background:linear-gradient(135deg,#F4E9FF,#B7A2DC); } .trail-rank-badge.rank-3 { background:linear-gradient(135deg,#D99666,#8B4A30); color:#fff; } .trail-rank-badge.rank-normal { background:rgba(255,255,255,.10); color:#F8F2FF; border:1px solid rgba(255,255,255,.16); }
+.trail-avatar-wrap { width:118px; height:118px; min-width:118px; min-height:118px; border-radius:999px; margin:0 auto 18px; overflow:hidden; background:radial-gradient(circle at 32% 28%, #fff, #9c6aff 42%, #25154d 100%); border:3px solid rgba(255,212,93,.40); box-shadow:0 0 18px rgba(255,212,93,.16),0 0 22px rgba(125,66,255,.18); }
+.trail-avatar-wrap img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
+.trail-rank-name { height:48px; display:flex; align-items:center; justify-content:center; color:#FFF9FF; font-size:20px; line-height:1.20; font-weight:950; word-break:keep-all; overflow:hidden; }
+.trail-tag { display:inline-flex; align-items:center; justify-content:center; margin:8px auto 12px; padding:5px 12px; border-radius:999px; font-size:11px; line-height:1; font-weight:950; color:#FFD45D; background:rgba(255,212,93,.12); border:1px solid rgba(255,212,93,.42); }
+.trail-score-label { color:rgba(255,255,255,.42); font-size:12px; font-weight:850; margin-bottom:5px; }
+.trail-score-value { color:#FFD45D; font-size:25px; font-weight:950; line-height:1.1; }
+.trail-card-button { margin-top:auto; width:100%; }
+.trail-side-card { border-radius:22px; padding:28px 26px; min-height:620px; background:radial-gradient(circle at 50% 8%, rgba(196,143,255,.12), transparent 34%), rgba(21,16,47,.88); border:1px solid rgba(196,143,255,.28); box-shadow:0 0 28px rgba(112,53,255,.16), inset 0 0 22px rgba(255,255,255,.018); }
+.trail-detail-avatar { width:132px; height:132px; border-radius:999px; overflow:hidden; margin:0 auto 18px; border:4px solid rgba(117,204,255,.84); box-shadow:0 0 18px rgba(117,204,255,.24); }
+.trail-detail-avatar img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
+.trail-detail-name { color:#FFF9FF; font-size:24px; font-weight:950; text-align:center; margin-bottom:12px; word-break:keep-all; }
+.trail-detail-tags { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:22px; } .trail-detail-tags img { height:28px; border-radius:8px; object-fit:contain; }
+.trail-bar-row { margin:13px 0 16px; } .trail-bar-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:10px; } .trail-bar-label { color:#FFF9FF; font-size:13px; font-weight:950; } .trail-bar-value { font-size:13px; font-weight:950; } .trail-bar-track { height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.07); } .trail-bar-fill { height:100%; border-radius:999px; }
+.trail-bottom-grid { display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap:28px; margin-top:34px; }
+.trail-bottom-title { min-height:42px; display:flex; align-items:center; margin:0 0 14px 0; font-size:25px; font-weight:950; color:#FFF9FF; letter-spacing:-.05em; white-space:nowrap; }
+.trail-table { width:100%; border-collapse:collapse; background:rgba(21,16,47,.78) !important; border:1px solid rgba(196,143,255,.20); border-radius:18px; overflow:hidden; table-layout:fixed; }
+.trail-table th { text-align:center; padding:12px 8px; border-bottom:1px solid rgba(196,143,255,.22); color:#E8DFFF; font-size:12px; font-weight:950; background:rgba(255,255,255,.045); }
+.trail-table td { text-align:center; padding:11px 8px; border-bottom:1px solid rgba(255,255,255,.07); font-size:12px; color:#FFF9FF; font-weight:760; word-break:keep-all; }
+div[data-testid="stPlotlyChart"] { background:rgba(21,16,47,.78) !important; border-radius:22px !important; overflow:hidden !important; padding:0 !important; border:1px solid rgba(196,143,255,.20) !important; box-shadow:0 0 24px rgba(125,66,255,.12), inset 0 0 18px rgba(255,255,255,.018) !important; }
+div[data-testid="column"] .stButton > button { margin-top: 0 !important; }
+section.main .stButton > button { margin-top: 0 !important; }
+@media (max-width: 1280px) {
+    .trail-hero-top { grid-template-columns:1fr; }
+    .trail-kpi-grid { grid-template-columns:1fr; }
+    .trail-main-grid { grid-template-columns:1fr; }
+    .trail-top5-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .trail-bottom-grid { grid-template-columns:1fr; }
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 def render_startrail_dashboard():
@@ -1326,9 +1302,9 @@ def render_startrail_dashboard():
     def _platform_badge(platform):
         platform = _safe_text(platform, "")
         if platform == "SOOP":
-            return f'<img src="data:image/png;base64,{soop_icon}" alt="SOOP">'
+            return f'<img src="data:image/png;base64,{soop_icon}" alt="SOOP" style="height:24px;border-radius:7px;object-fit:contain;">'
         if platform == "CHZZK":
-            return f'<img src="data:image/png;base64,{chzzk_icon}" alt="CHZZK">'
+            return f'<img src="data:image/png;base64,{chzzk_icon}" alt="CHZZK" style="height:24px;border-radius:7px;object-fit:contain;">'
         if platform:
             return f'<span style="color:#D9C8FF;font-size:13px;font-weight:850;">{html_lib.escape(platform)}</span>'
         return ""
@@ -1356,23 +1332,20 @@ def render_startrail_dashboard():
     avg_viewership = _num(kpi.get("평균 뷰어십"))
     avg_donation = _num(kpi.get("평균 도네이션"))
 
-    st.markdown(clean_html(f"""
+    st.markdown(f'''
     <div class="startrail-page">
-        <div class="trail-hero-dashboard">
+        <div class="startrail-hero">
             <div class="trail-hero-top">
                 <div>
-                    <div class="trail-hero-title">STAR TRAIL</div>
-                    <div class="trail-hero-subtitle">기존 플랫폼의 데이터 궤적을 따라 CIME 영입 후보군을 찾습니다</div>
-                    <div class="trail-date-pill"><i class="fa-regular fa-calendar-days"></i> 2025.01.01 ~ 2026.03.31</div>
+                    <div class="trail-title">STAR TRAIL</div>
+                    <div class="trail-subtitle">기존 플랫폼의 데이터 궤적을 따라 CIME 영입 후보군을 찾습니다</div>
+                    <div class="trail-date-pill">📅 2025.01.01 ~ 2026.03.31</div>
                 </div>
-                <div class="trail-hero-info-card">
-                    <div class="trail-hero-info-icon">✦</div>
+                <div class="trail-info-card">
+                    <div class="trail-info-icon">✦</div>
                     <div>
-                        <div class="trail-hero-info-title">스타트레일은 무엇을 찾나요?</div>
-                        <div class="trail-hero-info-desc">
-                            기존 플랫폼에서 이미 활동성과 팬덤이 확인된 스트리머를 대상으로<br>
-                            방송화력, 수익성, 외부유입 가능성을 함께 검토해 CIME 영입 후보를 선별합니다.
-                        </div>
+                        <div class="trail-info-title">스타트레일은 무엇을 찾나요?</div>
+                        <div class="trail-info-desc">기존 플랫폼에서 이미 활동성과 팬덤이 확인된 스트리머를 대상으로<br>방송화력, 수익성, 외부유입 가능성을 함께 검토해 CIME 영입 후보를 선별합니다.</div>
                     </div>
                 </div>
             </div>
@@ -1381,17 +1354,17 @@ def render_startrail_dashboard():
                 <div class="trail-kpi-card"><div class="trail-kpi-label">평균 뷰어십</div><div class="trail-kpi-value">{avg_viewership:,.0f}</div></div>
                 <div class="trail-kpi-card"><div class="trail-kpi-label">평균 도네이션</div><div class="trail-kpi-value">₩ {avg_donation:,.0f}</div></div>
             </div>
-            <div class="trail-section-divider"></div>
+            <div class="trail-divider"></div>
         </div>
     </div>
-    """), unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
     seg_data = {
-        "성단": {"icon": "fa-solid fa-users", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "성단설명"},
-        "프로토스타": {"icon": "fa-solid fa-leaf", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준", "desc": "프로토스타 설명"},
-        "위성": {"icon": "fa-solid fa-satellite", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "위성 설명"},
-        "슈퍼노바": {"icon": "fa-solid fa-star", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준", "desc": "슈퍼노바 설명"},
-        "코멧": {"icon": "fa-solid fa-meteor", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "코멧설명"},
+        "성단": {"icon": "👥", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "그룹/소속 기반 팬덤 이동 가능성이 있는 후보군"},
+        "프로토스타": {"icon": "🌱", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준", "desc": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군"},
+        "위성": {"icon": "🛰️", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군"},
+        "슈퍼노바": {"icon": "⭐", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준", "desc": "대중성과 팬덤 규모가 큰 간판형 후보군"},
+        "코멧": {"icon": "☄️", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군"},
     }
 
     st.markdown('<div class="startrail-page"><div class="trail-section-title">🛸 세그먼트 전략</div></div>', unsafe_allow_html=True)
@@ -1405,7 +1378,7 @@ def render_startrail_dashboard():
                 tooltip_html = f'<span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">{html_lib.escape(info["tooltip"])}</span></span>'
             st.markdown(f'''
             <div class="trail-seg-card {active_class}">
-                <div class="trail-seg-icon"><i class="{info["icon"]}"></i></div>
+                <div class="trail-seg-icon">{info["icon"]}</div>
                 <div class="trail-seg-name">{html_lib.escape(seg)}{tooltip_html}</div>
                 <div class="trail-seg-count">{info["count"]}</div>
                 <div class="trail-seg-desc">{html_lib.escape(info["desc"])}</div>
@@ -1416,26 +1389,16 @@ def render_startrail_dashboard():
                 st.session_state.startrail_selected_streamer = None
                 st.rerun()
 
-    st.markdown('<div class="startrail-page"><div class="trail-section-divider" style="margin-top:28px;"></div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="startrail-page"><div class="trail-divider" style="margin-top:28px;"></div></div>', unsafe_allow_html=True)
 
+    current_seg = st.session_state.startrail_current_seg
     platform_filter = "전체"
     segment_detail_filter = "전체"
-    if st.session_state.startrail_current_seg == "코멧":
-        _, f1, f2 = st.columns([2, 1, 1])
-        platform_filter = f1.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter_comet")
-        segment_detail_filter = f2.selectbox("세그먼트 필터", ["전체", "X 강세형", "유튜브 강세형", "하이브리드"], key="startrail_segment_detail_filter")
-    elif st.session_state.startrail_current_seg != "성단":
-        _, _, f1 = st.columns([2, 1, 1])
-        platform_filter = f1.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter")
 
-    if st.session_state.startrail_current_seg == "성단":
+    if current_seg == "성단":
         filtered_df = constellation_df.copy()
     else:
-        filtered_df = df[df["세그먼트"] == st.session_state.startrail_current_seg].copy() if "세그먼트" in df.columns else pd.DataFrame()
-        if platform_filter != "전체" and "플랫폼" in filtered_df.columns:
-            filtered_df = filtered_df[filtered_df["플랫폼"] == platform_filter].copy()
-        if segment_detail_filter != "전체" and "세그먼트필터" in filtered_df.columns:
-            filtered_df = filtered_df[filtered_df["세그먼트필터"] == segment_detail_filter].copy()
+        filtered_df = df[df["세그먼트"] == current_seg].copy() if "세그먼트" in df.columns else pd.DataFrame()
 
     if not filtered_df.empty:
         filtered_df = filtered_df.sort_values("스코어", ascending=False).reset_index(drop=True)
@@ -1444,55 +1407,73 @@ def render_startrail_dashboard():
     else:
         filtered_df = pd.DataFrame(columns=list(filtered_df.columns) + ["순위", "상위퍼센트"] if hasattr(filtered_df, 'columns') else ["순위", "상위퍼센트"])
 
+    # 오른쪽 상세 패널을 TOP5와 같은 높이에서 시작시키기 위해 큰 그리드로 묶음
+    left_area, right_area = st.columns([2.35, 0.85], gap="large")
+
+    with right_area:
+        if current_seg == "코멧":
+            platform_filter = st.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter_comet")
+            segment_detail_filter = st.selectbox("세그먼트 필터", ["전체", "X 강세형", "유튜브 강세형", "하이브리드"], key="startrail_segment_detail_filter")
+        elif current_seg != "성단":
+            platform_filter = st.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter")
+
+    if current_seg != "성단" and not filtered_df.empty:
+        if platform_filter != "전체" and "플랫폼" in filtered_df.columns:
+            filtered_df = filtered_df[filtered_df["플랫폼"] == platform_filter].copy()
+        if segment_detail_filter != "전체" and "세그먼트필터" in filtered_df.columns:
+            filtered_df = filtered_df[filtered_df["세그먼트필터"] == segment_detail_filter].copy()
+        filtered_df = filtered_df.sort_values("스코어", ascending=False).reset_index(drop=True)
+        filtered_df["순위"] = filtered_df.index + 1
+        filtered_df["상위퍼센트"] = (filtered_df["순위"] / len(filtered_df) * 100).round(2) if len(filtered_df) else 0
+
     top_5 = filtered_df.head(5).copy()
-    current_seg = st.session_state.startrail_current_seg
-    st.markdown(f'<div class="startrail-page"><div class="trail-section-title">🏆 {html_lib.escape(current_seg)} TOP 5</div></div>', unsafe_allow_html=True)
 
-    if top_5.empty:
-        st.warning("선택한 조건에 해당하는 후보가 없습니다.")
-    else:
-        card_cols = st.columns(5)
-        for i, (_, row) in enumerate(top_5.iterrows()):
-            if current_seg == "성단":
-                display_name = _safe_text(row.get("소속", "-"))
-                display_segment = "성단"
-                score_text = f'{_num(row.get("스코어")):.0f}'
-                avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(display_name)}"
-            else:
-                display_name = _safe_text(row.get("스트리머", "-"))
-                display_segment = _safe_text(row.get("세그먼트", current_seg))
-                score_text = f'{_num(row.get("스코어")):.2f}'
-                avatar_url = _avatar(row, display_name)
-            badge_class = "rank-normal" if i >= 3 else f"rank-{i+1}"
-            with card_cols[i]:
-                st.markdown(f'''
-                <div class="trail-rank-card">
-                    <div class="trail-rank-badge {badge_class}">{i + 1}</div>
-                    <div class="trail-avatar-wrap"><img src="{avatar_url}" alt="avatar"></div>
-                    <div class="trail-rank-name">{html_lib.escape(display_name)}</div>
-                    <div style="text-align:center;"><span class="trail-tag">{html_lib.escape(display_segment)}</span></div>
-                    <div style="text-align:center;"><div class="trail-score-label">스코어</div><div class="trail-score-value">{score_text}</div></div>
-                </div>
-                ''', unsafe_allow_html=True)
-                if st.button("상세 보기", key=f"startrail_streamer_btn_{display_segment}_{display_name}_{i}", use_container_width=True):
-                    selected_data = row.to_dict()
-                    selected_data["세그먼트"] = display_segment
-                    selected_data["표시이름"] = display_name
-                    st.session_state.startrail_selected_streamer = selected_data
-                    st.rerun()
-
-    selected = st.session_state.startrail_selected_streamer
-    if selected is None and not top_5.empty:
+    if st.session_state.startrail_selected_streamer is not None:
+        selected = st.session_state.startrail_selected_streamer
+    elif not top_5.empty:
         selected = top_5.iloc[0].to_dict()
-        if current_seg == "성단":
-            selected["세그먼트"] = "성단"
-            selected["표시이름"] = _safe_text(selected.get("소속", "-"))
+        selected["세그먼트"] = "성단" if current_seg == "성단" else _safe_text(selected.get("세그먼트", current_seg))
+        selected["표시이름"] = _safe_text(selected.get("소속", selected.get("스트리머", "-")))
+    else:
+        selected = None
+
+    with left_area:
+        st.markdown(f'<div class="startrail-page"><div class="trail-section-title">🏆 {html_lib.escape(current_seg)} TOP 5</div></div>', unsafe_allow_html=True)
+        if top_5.empty:
+            st.warning("선택한 조건에 해당하는 후보가 없습니다.")
         else:
-            selected["표시이름"] = _safe_text(selected.get("스트리머", "-"))
+            card_cols = st.columns(5, gap="medium")
+            for i, (_, row) in enumerate(top_5.iterrows()):
+                if current_seg == "성단":
+                    display_name = _safe_text(row.get("소속", "-"))
+                    display_segment = "성단"
+                    score_text = f'{_num(row.get("스코어")):.0f}'
+                    avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(display_name)}"
+                else:
+                    display_name = _safe_text(row.get("스트리머", "-"))
+                    display_segment = _safe_text(row.get("세그먼트", current_seg))
+                    score_text = f'{_num(row.get("스코어")):.2f}'
+                    avatar_url = _avatar(row, display_name)
+                badge_class = "rank-normal" if i >= 3 else f"rank-{i+1}"
+                with card_cols[i]:
+                    st.markdown(f"""
+                    <div class="trail-rank-card">
+                        <div class="trail-rank-badge {badge_class}">{i + 1}</div>
+                        <div class="trail-avatar-wrap"><img src="{avatar_url}" alt="avatar"></div>
+                        <div class="trail-rank-name">{html_lib.escape(display_name)}</div>
+                        <div><span class="trail-tag">{html_lib.escape(display_segment)}</span></div>
+                        <div class="trail-score-label">스코어</div>
+                        <div class="trail-score-value">{score_text}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    if st.button("상세 보기", key=f"startrail_streamer_btn_{display_segment}_{display_name}_{i}", use_container_width=True):
+                        selected_data = row.to_dict()
+                        selected_data["세그먼트"] = display_segment
+                        selected_data["표시이름"] = display_name
+                        st.session_state.startrail_selected_streamer = selected_data
+                        st.rerun()
 
-    lower_left, lower_right = st.columns([1.9, 0.72], gap="large")
-
-    with lower_right:
+    with right_area:
         if selected is not None:
             s = selected
             detail_name = _safe_text(s.get("표시이름", s.get("스트리머", s.get("소속", "-"))))
@@ -1500,20 +1481,10 @@ def render_startrail_dashboard():
             avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(detail_name)}" if detail_seg == "성단" else _avatar(s, detail_name)
             platform_html = "" if detail_seg == "성단" else _platform_badge(s.get("플랫폼", ""))
             if detail_seg == "성단":
-                metrics = [
-                    ("멤버 수", s.get("멤버수", 0), 20, "#83F6A0"),
-                    ("뷰어십 합계", s.get("합계_뷰어십", 0), 1000000, "#FF7B86"),
-                    ("도네이션 합계", s.get("합계_도네이션", 0), 10000000, "#FFD45D"),
-                ]
+                metrics = [("멤버 수", s.get("멤버수", 0), 20, "#83F6A0"), ("뷰어십 합계", s.get("합계_뷰어십", 0), 1000000, "#FF7B86"), ("도네이션 합계", s.get("합계_도네이션", 0), 10000000, "#FFD45D")]
                 radar_metrics = {"플랫폼체급": (_num(s.get("플랫폼체급_점수")), 100), "ARPU": (_num(s.get("ARPU_점수")), 100), "외부인기": (_num(s.get("외부인기_점수")), 100), "대중성": (_num(s.get("대중성_점수")), 100)}
             else:
-                metrics = [
-                    ("뷰어십", s.get("뷰어십", 0), 17000000, "#FF7B86"),
-                    ("도네이션", s.get("도네이션", 0), 7000000, "#FFD45D"),
-                    ("최고 팔로워", s.get("팔로워수", s.get("최고_팔로워", 0)), 414000, "#83F6A0"),
-                    ("평균 시청자", s.get("평균시청자", s.get("평균_시청자_최댓값", 0)), 47500, "#75CCFF"),
-                    ("최고 시청자", s.get("최고시청자", s.get("최고_시청자", 0)), 50000, "#F08CFF"),
-                ]
+                metrics = [("뷰어십", s.get("뷰어십", 0), 17000000, "#FF7B86"), ("도네이션", s.get("도네이션", 0), 7000000, "#FFD45D"), ("최고 팔로워", s.get("팔로워수", s.get("최고_팔로워", 0)), 414000, "#83F6A0"), ("평균 시청자", s.get("평균시청자", s.get("평균_시청자_최댓값", 0)), 47500, "#75CCFF"), ("최고 시청자", s.get("최고시청자", s.get("최고_시청자", 0)), 50000, "#F08CFF")]
                 radar_metrics = {"대중성": (_num(s.get("대중성_표준점수")), 100), "방송화력": (_num(s.get("방송화력_표준점수")), 100), "팬덤결집력": (_num(s.get("팬덤결집력_표준점수")), 100), "수익성": (_num(s.get("수익성_표준점수")), 100), "외부유입가능성": (_num(s.get("외부유입가능성_표준점수")), 100)}
             bar_html = "".join(_metric_bar(label, val, max_val, color) for label, val, max_val, color in metrics)
             st.markdown(f'''
@@ -1532,8 +1503,9 @@ def render_startrail_dashboard():
                 fig_radar.update_layout(polar=dict(bgcolor=STARTRAIL_TRANSPARENT, radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=8, color="#8b949e"), gridcolor="rgba(255,255,255,0.13)"), angularaxis=dict(tickfont=dict(size=11, color="white"), gridcolor="rgba(255,255,255,0.13)")), showlegend=False, margin=dict(l=22, r=22, t=10, b=24), paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", height=250)
                 st.plotly_chart(fig_radar, use_container_width=True)
 
-    with lower_left:
-        st.markdown('<div class="trail-section-divider" style="margin-top:12px;"></div>', unsafe_allow_html=True)
+    with left_area:
+        st.markdown('<div class="trail-divider" style="margin-top:34px;"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="trail-bottom-grid">', unsafe_allow_html=True)
         table_col, graph_col = st.columns([1.02, 1.05], gap="large")
         with table_col:
             st.markdown(f"<div class='trail-bottom-title'>📋 {html_lib.escape(current_seg)} 영입 우선순위 리스트</div>", unsafe_allow_html=True)
@@ -1585,13 +1557,15 @@ def render_startrail_dashboard():
                 else:
                     fig = go.Figure()
                     if not plot_all_df.empty:
-                        fig.add_trace(go.Scatter(x=plot_all_df["최고_팔로워"], y=plot_all_df["통합_외부화력"], mode="markers", name="일반 스트리머", marker=dict(size=6, color="rgba(217,217,217,0.35)"), text=plot_all_df["스트리머명"] if "스트리머명" in plot_all_df.columns else None, hovertemplate="<b>%{text}</b><br>최고 팔로워: %{x:,.0f}<br>통합 외부화력: %{y:,.0f}<extra></extra>"))
+                        text_values = plot_all_df["스트리머명"] if "스트리머명" in plot_all_df.columns else None
+                        fig.add_trace(go.Scatter(x=plot_all_df["최고_팔로워"], y=plot_all_df["통합_외부화력"], mode="markers", name="일반 스트리머", marker=dict(size=6, color="rgba(217,217,217,0.35)"), text=text_values, hovertemplate="<b>%{text}</b><br>최고 팔로워: %{x:,.0f}<br>통합 외부화력: %{y:,.0f}<extra></extra>"))
                     if "코멧유입경로" not in plot_comet_df.columns:
                         plot_comet_df["코멧유입경로"] = "해당 없음"
                     for route, color in {"유튜브 강세형":"#FF8A8A", "X 강세형":"#95AFFF", "하이브리드":"#FF9DF5", "해당 없음":"#FFD45D"}.items():
                         temp = plot_comet_df[plot_comet_df["코멧유입경로"].fillna("해당 없음") == route].copy()
                         if not temp.empty:
-                            fig.add_trace(go.Scatter(x=temp["최고_팔로워"], y=temp["통합_외부화력"], mode="markers", name=route, marker=dict(size=14, color=color, line=dict(color="white", width=1.4)), text=temp["스트리머"] if "스트리머" in temp.columns else None, hovertemplate=f"<b>%{{text}}</b><br>유입경로: {route}<br>최고 팔로워: %{{x:,.0f}}<br>통합 외부화력: %{{y:,.0f}}<extra></extra>"))
+                            text_values = temp["스트리머"] if "스트리머" in temp.columns else None
+                            fig.add_trace(go.Scatter(x=temp["최고_팔로워"], y=temp["통합_외부화력"], mode="markers", name=route, marker=dict(size=14, color=color, line=dict(color="white", width=1.4)), text=text_values, hovertemplate=f"<b>%{{text}}</b><br>유입경로: {route}<br>최고 팔로워: %{{x:,.0f}}<br>통합 외부화력: %{{y:,.0f}}<extra></extra>"))
                     if not plot_comet_df.empty and plot_comet_df["최고_팔로워"].mean() > 0:
                         fig.add_vline(x=plot_comet_df["최고_팔로워"].mean(), line_dash="dot", line_width=2, line_color="#c9d1d9", opacity=0.75)
                     fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=100, t=60, b=70), height=520, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
@@ -1609,8 +1583,7 @@ def render_startrail_dashboard():
                     fig.update_xaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     st.plotly_chart(fig, use_container_width=True)
-
-
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 페이지 라우팅
