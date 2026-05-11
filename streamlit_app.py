@@ -1434,6 +1434,109 @@ div[data-testid="stPlotlyChart"] {
     padding: 0 !important;
 }
 
+
+
+/* =========================================================
+   STARTRAIL TEAM MERGE PATCH v3
+   - 팀원 공유본의 큰 변경사항을 현재 통합본에 안전하게 흡수
+   - TOP5 카드 크기 보정 / 상세 패널 우측 고정 느낌 / 그래프 박스 높이 통일
+========================================================= */
+.startrail-page .trail-section-title,
+.trail-section-title {
+    margin-top: 0 !important;
+    margin-bottom: 18px !important;
+}
+
+.trail-main-grid {
+    grid-template-columns: minmax(0, 1fr) 340px !important;
+    gap: 34px !important;
+    align-items: start !important;
+}
+
+.trail-filter-wrap,
+div[data-testid="stSelectbox"] {
+    position: relative !important;
+    z-index: 20 !important;
+}
+
+.trail-rank-card {
+    min-height: 300px !important;
+    height: 300px !important;
+    padding: 18px 14px 14px !important;
+}
+.trail-avatar-wrap {
+    width: 104px !important;
+    height: 104px !important;
+    min-width: 104px !important;
+    min-height: 104px !important;
+    margin-bottom: 16px !important;
+}
+.trail-rank-name {
+    height: 42px !important;
+    font-size: 19px !important;
+}
+.trail-score-value {
+    font-size: 23px !important;
+}
+.trail-card-button,
+.trail-rank-card + div,
+.trail-rank-card ~ div {
+    margin-top: 0 !important;
+}
+
+.trail-side-card {
+    min-height: 560px !important;
+    padding: 22px 26px 28px !important;
+}
+.trail-detail-tags {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin: 0 auto 20px !important;
+}
+.trail-detail-tags .trail-tag {
+    margin: 0 !important;
+}
+.trail-detail-tags img {
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.trail-table {
+    min-height: 620px !important;
+}
+.trail-table th {
+    height: 58px !important;
+    padding: 12px 7px !important;
+    vertical-align: middle !important;
+}
+.trail-table td {
+    height: 74px !important;
+    padding: 10px 7px !important;
+    vertical-align: middle !important;
+}
+
+.trail-chart-card,
+div[data-testid="stPlotlyChart"] {
+    border-radius: 24px !important;
+    background: rgba(21,16,47,0.88) !important;
+    border: 1px solid rgba(196,143,255,0.18) !important;
+    box-shadow: 0 0 24px rgba(112,53,255,.12), inset 0 0 20px rgba(255,255,255,.018) !important;
+}
+
+.trail-tooltip-text {
+    width: 310px !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    line-height: 1.65 !important;
+}
+
+@media (max-width: 1200px) {
+    .trail-main-grid { grid-template-columns: 1fr !important; }
+    .trail-rank-card { height: auto !important; min-height: 292px !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -1583,11 +1686,36 @@ def render_startrail_dashboard():
     ''', unsafe_allow_html=True)
 
     seg_data = {
-        "성단": {"icon": "👥", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "그룹/소속 기반 팬덤 이동 가능성이 있는 후보군"},
-        "프로토스타": {"icon": "🌱", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준: 현재 규모는 작지만 방송 반응과 성장 가능성이 높은 후보군입니다.", "desc": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군"},
-        "위성": {"icon": "🛰️", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군"},
-        "슈퍼노바": {"icon": "⭐", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준: 대중성과 팬덤 규모가 커서 간판 후보로 검토할 수 있는 후보군입니다.", "desc": "대중성과 팬덤 규모가 큰 간판형 후보군"},
-        "코멧": {"icon": "☄️", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군"},
+        "성단": {
+            "icon": "👥",
+            "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개",
+            "tooltip": "팬덤이 함께 이동할 가능성이 높은 그룹형 후보군입니다. 주요 판단 기준은 그룹/소속성, 팬덤 결집, 멤버 단위 이동 가능성입니다. CIME에서는 여러 스트리머와 팬덤을 함께 유입시켜 초기 트래픽을 빠르게 확보하는 타깃입니다.",
+            "desc": "소속 개인 수 : 455명",
+        },
+        "프로토스타": {
+            "icon": "🌱",
+            "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명",
+            "tooltip": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군입니다. 시청자 반응, 채팅, 뷰어십, 팔로워 대비 성과를 함께 봅니다. 조기 발굴과 육성 관점의 후보군입니다.",
+            "desc": "S급 후보 수",
+        },
+        "위성": {
+            "icon": "🛰️",
+            "count": f"{_num(summary.get('위성 후보 수')):,.0f}명",
+            "tooltip": "소속 없이도 방송 성과가 검증된 개인형 후보군입니다. 도네이션, 채팅화력, 평균 시청자, 개인 활동 여부를 함께 확인합니다.",
+            "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군",
+        },
+        "슈퍼노바": {
+            "icon": "⭐",
+            "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명",
+            "tooltip": "대중성과 팬덤 규모가 큰 간판형 후보군입니다. 팔로워, 최고 시청자, 유튜브 구독자, 팬덤지수, 방송화력을 함께 봅니다. 플랫폼 주목도와 외부 유입을 높이는 후보군입니다.",
+            "desc": "핵심 후보군 수",
+        },
+        "코멧": {
+            "icon": "☄️",
+            "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명",
+            "tooltip": "방송 외부 채널에서 인지도가 높은 발견형 후보군입니다. 유튜브 구독자, X 팔로워, 외부 유입지수, 플랫폼 대비 외부 체급을 함께 봅니다.",
+            "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군",
+        },
     }
 
     st.markdown('<div class="startrail-page"><div class="trail-section-title">🛸 세그먼트 전략</div></div>', unsafe_allow_html=True)
@@ -1653,6 +1781,17 @@ def render_startrail_dashboard():
                     "세그먼트 필터",
                     ["전체", "X 강세형", "유튜브 강세형", "하이브리드"],
                     key="startrail_segment_detail_filter",
+                )
+            elif current_seg == "슈퍼노바":
+                platform_filter = st.selectbox(
+                    "플랫폼 필터",
+                    ["전체", "SOOP", "CHZZK"],
+                    key="startrail_platform_filter_supernova",
+                )
+                segment_detail_filter = st.selectbox(
+                    "세그먼트 필터",
+                    ["전체", "개인", "그룹"],
+                    key="startrail_supernova_segment_filter",
                 )
             elif current_seg != "성단":
                 platform_filter = st.selectbox(
@@ -1867,6 +2006,168 @@ def render_startrail_dashboard():
                     fig.update_xaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     fig.update_yaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     st.plotly_chart(fig, use_container_width=True)
+            elif current_seg == "프로토스타":
+                proto_order = ["S급 후보군", "A급 후보군", "기타 후보군"]
+                proto_colors = {
+                    "S급 후보군": "#FFD45D",
+                    "A급 후보군": "#F08CFF",
+                    "기타 후보군": "#75CCFF",
+                }
+                required = ["프로토스타_구분", "최고_팔로워", "평균_시청자_최댓값", "뷰어십", "6분_최고채팅", "프로토스타_score"]
+                missing = [c for c in required if c not in raw.columns]
+                if missing:
+                    st.warning(f"프로토스타 그래프 컬럼이 부족합니다: {missing}")
+                else:
+                    proto_plot_df = raw[raw["프로토스타_구분"].isin(proto_order)].copy()
+                    if platform_filter != "전체" and "플랫폼" in proto_plot_df.columns:
+                        proto_plot_df = proto_plot_df[proto_plot_df["플랫폼"] == platform_filter].copy()
+                    for col in ["최고_팔로워", "평균_시청자_최댓값", "뷰어십", "6분_최고채팅", "프로토스타_score"]:
+                        proto_plot_df[col] = pd.to_numeric(proto_plot_df[col], errors="coerce").fillna(0)
+                    proto_plot_df = proto_plot_df[(proto_plot_df["최고_팔로워"] > 0) & (proto_plot_df["평균_시청자_최댓값"] > 0)].copy()
+                    if proto_plot_df.empty:
+                        st.warning("프로토스타 그래프를 표시할 데이터가 없습니다.")
+                    else:
+                        fig = px.scatter(
+                            proto_plot_df,
+                            x="최고_팔로워",
+                            y="평균_시청자_최댓값",
+                            color="프로토스타_구분",
+                            size="프로토스타_score",
+                            hover_name="스트리머명" if "스트리머명" in proto_plot_df.columns else None,
+                            category_orders={"프로토스타_구분": proto_order},
+                            color_discrete_map=proto_colors,
+                            template="plotly_dark",
+                        )
+                        fig.update_layout(
+                            title=dict(text="프로토스타 팔로워 대비 평균 시청자", x=0.05, xanchor="left"),
+                            xaxis_title="최고 팔로워",
+                            yaxis_title="평균 시청자 최댓값",
+                            paper_bgcolor=STARTRAIL_TRANSPARENT,
+                            plot_bgcolor=STARTRAIL_TRANSPARENT,
+                            font_color="white",
+                            margin=dict(l=75, r=45, t=70, b=80),
+                            height=620,
+                            legend=dict(title="후보군", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"),
+                            uirevision=f"proto_{platform_filter}",
+                        )
+                        fig.update_xaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
+                        fig.update_yaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
+                        st.plotly_chart(fig, use_container_width=True)
+
+            elif current_seg == "위성":
+                def _log_minmax_local(series):
+                    s0 = pd.to_numeric(series, errors="coerce").fillna(0).clip(lower=0)
+                    logged = np.log1p(s0)
+                    min_v, max_v = logged.min(), logged.max()
+                    if pd.isna(min_v) or pd.isna(max_v) or max_v == min_v:
+                        return pd.Series(0.0, index=series.index)
+                    return (logged - min_v) / (max_v - min_v)
+
+                def _score_0_1_local(series):
+                    s0 = pd.to_numeric(series, errors="coerce").fillna(0)
+                    min_v, max_v = s0.min(), s0.max()
+                    if pd.isna(min_v) or pd.isna(max_v) or max_v == min_v:
+                        return pd.Series(0.0, index=series.index)
+                    if min_v >= 0 and max_v <= 1:
+                        return s0
+                    if min_v >= 0 and max_v <= 100:
+                        return s0 / 100
+                    return (s0 - min_v) / (max_v - min_v)
+
+                required = ["도네이션", "6분_최고채팅", "평균_시청자_최댓값", "팬덤지수", "최고_팔로워", "소속"]
+                missing = [c for c in required if c not in raw.columns]
+                if missing:
+                    st.warning(f"위성 그래프 컬럼이 부족합니다: {missing}")
+                else:
+                    sat_df = raw[required].copy()
+                    for col in ["도네이션", "6분_최고채팅", "평균_시청자_최댓값", "팬덤지수", "최고_팔로워"]:
+                        sat_df[col] = pd.to_numeric(sat_df[col], errors="coerce").fillna(0)
+                    affiliation = sat_df["소속"].fillna("").astype(str).str.strip()
+                    sat_df["솔로성분류"] = np.where(affiliation.isin(["", "nan", "None", "none", "없음", "-"]), "솔로추정", "소속/그룹추정")
+                    sat_df["도네이션_log_minmax"] = _log_minmax_local(sat_df["도네이션"])
+                    sat_df["6분_최고채팅_log_minmax"] = _log_minmax_local(sat_df["6분_최고채팅"])
+                    sat_df["평균_시청자_최댓값_log_minmax"] = _log_minmax_local(sat_df["평균_시청자_최댓값"])
+                    sat_df["팬덤지수_minmax"] = _score_0_1_local(sat_df["팬덤지수"])
+                    sat_df["위성점수_log_minmax"] = (
+                        sat_df["도네이션_log_minmax"] * 0.30
+                        + sat_df["6분_최고채팅_log_minmax"] * 0.30
+                        + sat_df["평균_시청자_최댓값_log_minmax"] * 0.30
+                        + sat_df["팬덤지수_minmax"] * 0.10
+                    )
+                    restrict_donation_cutoff = sat_df["도네이션"].quantile(0.95)
+                    restrict_peak_chat_cutoff = sat_df["6분_최고채팅"].quantile(0.95)
+                    satellite_donation_cutoff = sat_df["도네이션"].quantile(0.85)
+                    satellite_peak_chat_cutoff = sat_df["6분_최고채팅"].quantile(0.85)
+                    satellite_score_cutoff = sat_df["위성점수_log_minmax"].quantile(0.85)
+                    sat_df["영입제한여부"] = (
+                        (sat_df["솔로성분류"].isin(["솔로확정"]))
+                        & (sat_df["도네이션"] >= restrict_donation_cutoff)
+                        & (sat_df["6분_최고채팅"] >= restrict_peak_chat_cutoff)
+                        & (sat_df["평균_시청자_최댓값"] >= 10000)
+                        & (sat_df["위성점수_log_minmax"] >= 0.865)
+                    ) | (
+                        (sat_df["최고_팔로워"] >= 40000)
+                        & (sat_df["솔로성분류"].isin(["솔로확정", "솔로추정"]))
+                    )
+                    sat_df["위성여부"] = (
+                        ~sat_df["영입제한여부"]
+                        & sat_df["솔로성분류"].isin(["솔로확정", "솔로추정"])
+                        & (sat_df["도네이션"] >= satellite_donation_cutoff)
+                        & (sat_df["6분_최고채팅"] >= satellite_peak_chat_cutoff)
+                        & (sat_df["평균_시청자_최댓값"] >= 1000)
+                        & (sat_df["위성점수_log_minmax"] >= satellite_score_cutoff)
+                    )
+                    sat_df["비교그룹_logmm"] = np.select(
+                        [sat_df["영입제한여부"], sat_df["위성여부"]],
+                        ["영입제한", "위성(Satellite)"],
+                        default="기타",
+                    )
+                    metric_map = {
+                        "도네이션": "도네이션_log_minmax",
+                        "6분 최고채팅": "6분_최고채팅_log_minmax",
+                        "평균 시청자": "평균_시청자_최댓값_log_minmax",
+                        "팬덤지수": "팬덤지수_minmax",
+                        "위성점수": "위성점수_log_minmax",
+                    }
+                    metric_summary = (
+                        sat_df.groupby("비교그룹_logmm")[list(metric_map.values())]
+                        .mean()
+                        .reindex(["영입제한", "위성(Satellite)", "기타"])
+                        .reset_index()
+                        .rename(columns={v: k for k, v in metric_map.items()})
+                    )
+                    for col in metric_map.keys():
+                        metric_summary[col] = pd.to_numeric(metric_summary[col], errors="coerce") * 100
+                    metric_melt = metric_summary.melt(id_vars="비교그룹_logmm", var_name="지표", value_name="평균점수")
+                    fig = px.bar(
+                        metric_melt,
+                        x="비교그룹_logmm",
+                        y="평균점수",
+                        color="지표",
+                        barmode="group",
+                        text="평균점수",
+                        category_orders={"비교그룹_logmm": ["영입제한", "위성(Satellite)", "기타"], "지표": ["도네이션", "6분 최고채팅", "평균 시청자", "팬덤지수", "위성점수"]},
+                        color_discrete_map={"도네이션": "#FF6B8A", "6분 최고채팅": "#75CCFF", "평균 시청자": "#FFD45D", "팬덤지수": "#98FFAB", "위성점수": "#FF9DF5"},
+                        template="plotly_dark",
+                    )
+                    fig.update_traces(texttemplate="%{text:.1f}", textposition="outside", cliponaxis=False)
+                    fig.update_layout(
+                        title=dict(text="위성 구분별 핵심 지표 평균 비교", x=0.05, xanchor="left"),
+                        xaxis_title="위성 구분",
+                        yaxis_title="평균 점수(100점 기준)",
+                        yaxis=dict(range=[0, 110], gridcolor="rgba(255,255,255,0.12)"),
+                        paper_bgcolor=STARTRAIL_TRANSPARENT,
+                        plot_bgcolor=STARTRAIL_TRANSPARENT,
+                        font_color="white",
+                        margin=dict(l=70, r=50, t=75, b=75),
+                        height=620,
+                        legend=dict(title="지표", bgcolor="rgba(21,16,47,0.86)", bordercolor="rgba(255,255,255,0.18)", borderwidth=1, x=0.98, y=0.98, xanchor="right", yanchor="top"),
+                        uirevision=f"satellite_{platform_filter}",
+                    )
+                    fig.update_xaxes(automargin=True)
+                    fig.update_yaxes(automargin=True)
+                    st.plotly_chart(fig, use_container_width=True)
+
             else:
                 required_cols = ["평균시청자", "스코어", "뷰어십", "플랫폼", "스트리머"]
                 missing = [c for c in required_cols if c not in filtered_df.columns]
@@ -1874,7 +2175,7 @@ def render_startrail_dashboard():
                     st.warning(f"산점도 컬럼이 부족합니다: {missing}")
                 else:
                     fig = px.scatter(filtered_df, x="평균시청자", y="스코어", size="뷰어십", color="플랫폼", hover_name="스트리머", color_discrete_map={"SOOP":"#75CCFF", "CHZZK":"#bf40bf"}, template="plotly_dark")
-                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, margin=dict(l=70, r=110, t=55, b=70), height=460, font_color="white", legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, margin=dict(l=70, r=110, t=55, b=70), height=620, font_color="white", legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
                     fig.update_xaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     st.plotly_chart(fig, use_container_width=True)
