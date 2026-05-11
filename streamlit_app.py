@@ -1228,7 +1228,9 @@ def inject_startrail_css():
 .trail-score-label { color:rgba(255,255,255,.42); font-size:12px; font-weight:850; margin-bottom:5px; }
 .trail-score-value { color:#FFD45D; font-size:25px; font-weight:950; line-height:1.1; }
 .trail-card-button { margin-top:auto; width:100%; }
-.trail-side-card { border-radius:22px; padding:28px 26px; min-height:620px; background:radial-gradient(circle at 50% 8%, rgba(196,143,255,.12), transparent 34%), rgba(21,16,47,.88); border:1px solid rgba(196,143,255,.28); box-shadow:0 0 28px rgba(112,53,255,.16), inset 0 0 22px rgba(255,255,255,.018); }
+.trail-side-card { border-radius:22px; padding:22px 26px 28px; min-height:620px; background:radial-gradient(circle at 50% 8%, rgba(196,143,255,.12), transparent 34%), rgba(21,16,47,.88); border:1px solid rgba(196,143,255,.28); box-shadow:0 0 28px rgba(112,53,255,.16), inset 0 0 22px rgba(255,255,255,.018); }
+.trail-side-title { color:#FFF9FF; font-size:21px; font-weight:950; line-height:1.2; margin:0 0 26px 0; letter-spacing:-.04em; text-align:left; text-shadow:0 0 10px rgba(255,255,255,.10); }
+.trail-side-filter-spacer { height:4px; min-height:4px; margin:0; padding:0; }
 .trail-detail-avatar { width:132px; height:132px; border-radius:999px; overflow:hidden; margin:0 auto 18px; border:4px solid rgba(117,204,255,.84); box-shadow:0 0 18px rgba(117,204,255,.24); }
 .trail-detail-avatar img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
 .trail-detail-name { color:#FFF9FF; font-size:24px; font-weight:950; text-align:center; margin-bottom:12px; word-break:keep-all; }
@@ -1535,6 +1537,7 @@ def render_startrail_dashboard():
             segment_detail_filter = st.selectbox("세그먼트 필터", ["전체", "X 강세형", "유튜브 강세형", "하이브리드"], key="startrail_segment_detail_filter")
         elif current_seg != "성단":
             platform_filter = st.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter")
+        st.markdown('<div class="trail-side-filter-spacer"></div>', unsafe_allow_html=True)
 
     if current_seg != "성단" and not filtered_df.empty:
         if platform_filter != "전체" and "플랫폼" in filtered_df.columns:
@@ -1629,6 +1632,7 @@ def render_startrail_dashboard():
             bar_html = "".join(_metric_bar(label, val, max_val, color) for label, val, max_val, color in metrics)
             html(f'''
             <div class="trail-side-card">
+                <div class="trail-side-title">후보 상세 정보</div>
                 <div class="trail-detail-avatar"><img src="{avatar_url}" alt="avatar"></div>
                 <div class="trail-detail-name">{html_lib.escape(detail_name)}</div>
                 <div class="trail-detail-tags"><span class="trail-tag">{html_lib.escape(detail_seg)}</span>{platform_html}</div>
