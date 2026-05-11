@@ -1124,39 +1124,117 @@ def inject_startrail_css():
             color: #F8F2FF;
         }
 
+        /* ============================================================
+           STARTRAIL 상단 헤더
+           - 스타시드 대시보드와 유사한 좌측 타이틀 + 우측 설명 카드 구조
+           - 색감은 보라/골드 기반
+        ============================================================ */
+
         .startrail-page .dashboard-hero {
             position: relative;
             z-index: 3;
-            margin-top: 8px;
-            margin-bottom: 34px;
+            margin-top: 2px;
+            margin-bottom: 30px;
         }
 
         .startrail-page .hero-top-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            gap: 32px;
+            align-items: center;
+            gap: 34px;
+        }
+
+        .startrail-page .trail-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            min-width: 0;
+        }
+
+        .startrail-page .trail-logo-box {
+            width: 82px;
+            height: 82px;
+            min-width: 82px;
+            border-radius: 18px;
+            border: 2px solid rgba(255, 212, 93, 0.72);
+            background:
+                radial-gradient(circle at 35% 28%, rgba(255,255,255,0.24), transparent 20%),
+                linear-gradient(145deg, rgba(43, 34, 18, 0.96), rgba(18, 13, 35, 0.98));
+            box-shadow:
+                0 0 22px rgba(255, 212, 93, 0.20),
+                0 0 28px rgba(125, 66, 255, 0.18),
+                inset 0 0 20px rgba(255,255,255,0.035);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFD45D;
+            font-size: 36px;
         }
 
         .startrail-page .hero-main-title {
-            font-size: 72px;
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin: 0 0 8px 0;
+            line-height: 1.02;
+            word-break: keep-all;
+        }
+
+        .startrail-page .hero-main-title-ko {
+            font-size: 52px;
             font-weight: 950;
-            letter-spacing: 11px;
-            line-height: 0.95;
+            letter-spacing: -2.6px;
             color: #FFF8FF;
             text-shadow:
-                0 0 6px rgba(255,255,255,0.45),
-                0 0 16px rgba(198,168,255,0.45),
-                0 0 32px rgba(125,66,255,0.38);
-            margin: 0 0 14px 0;
+                0 0 7px rgba(255,255,255,0.36),
+                0 0 18px rgba(198,168,255,0.32),
+                0 0 30px rgba(125,66,255,0.30);
+        }
+
+        .startrail-page .hero-main-title-en {
+            font-size: 27px;
+            font-weight: 950;
+            letter-spacing: -1.3px;
+            color: #FFD45D;
+            text-shadow:
+                0 0 10px rgba(255, 212, 93, 0.42),
+                0 0 18px rgba(125, 66, 255, 0.18);
+        }
+
+        .startrail-page .hero-title-underbar {
+            width: 330px;
+            height: 3px;
+            border-radius: 999px;
+            margin: 2px 0 12px 0;
+            background: linear-gradient(90deg, #FFD45D, rgba(155, 107, 255, 0.85), transparent);
+            box-shadow:
+                0 0 14px rgba(255, 212, 93, 0.35),
+                0 0 18px rgba(155, 107, 255, 0.28);
         }
 
         .startrail-page .hero-main-subtitle {
             font-size: 17px;
-            font-weight: 750;
+            font-weight: 780;
             color: #E8DFFF;
-            margin-top: 6px;
+            margin-top: 7px;
             word-break: keep-all;
+        }
+
+        .startrail-page .hero-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 15px;
+            border-radius: 999px;
+            background: rgba(8, 18, 35, 0.78) !important;
+            border: 1px solid rgba(255, 212, 93, 0.32);
+            color: #F8E7A0;
+            font-size: 13px;
+            font-weight: 850;
+            box-shadow:
+                0 0 14px rgba(255, 212, 93, 0.14),
+                inset 0 0 12px rgba(255,255,255,0.02);
         }
 
         .startrail-page .hero-right-area {
@@ -1164,66 +1242,68 @@ def inject_startrail_css():
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            margin-top: 20px;
-        }
-
-        .startrail-page .hero-date-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            padding: 9px 17px;
-            border-radius: 999px;
-            background: #081A2B !important;
-            border: 1px solid rgba(117, 204, 255, 0.34);
-            color: #D9C8FF;
-            font-size: 14px;
-            font-weight: 850;
-            box-shadow: 0 0 16px rgba(125, 66, 255, 0.14);
         }
 
         .startrail-page .hero-info-card {
             width: 100%;
-            min-height: 92px;
+            min-height: 104px;
             border-radius: 22px;
-            background: #15102F !important;
-            border: 1px solid rgba(196, 143, 255, 0.28);
-            box-shadow: 0 0 20px rgba(125, 66, 255, 0.12);
-            padding: 18px 22px;
+            background:
+                linear-gradient(135deg, rgba(42, 31, 16, 0.86), rgba(18, 16, 47, 0.92)) !important;
+            border: 1px solid rgba(255, 212, 93, 0.30);
+            box-shadow:
+                0 0 24px rgba(255, 212, 93, 0.12),
+                0 0 26px rgba(125, 66, 255, 0.14),
+                inset 0 0 22px rgba(255,255,255,0.024);
+            padding: 20px 24px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 18px;
         }
 
         .startrail-page .hero-info-icon {
-            min-width: 50px;
-            width: 50px;
-            height: 50px;
+            min-width: 58px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             background:
-                radial-gradient(circle at 35% 30%, rgba(255,255,255,0.85), transparent 15%),
-                linear-gradient(135deg, #9B6BFF, #5B2AD8);
-            box-shadow: 0 0 14px rgba(155,107,255,0.38);
+                radial-gradient(circle at 35% 28%, rgba(255,255,255,0.95), transparent 16%),
+                linear-gradient(135deg, #FFE278, #C99700 48%, #7B42FF);
+            box-shadow:
+                0 0 18px rgba(255, 212, 93, 0.42),
+                0 0 26px rgba(125, 66, 255, 0.24),
+                inset 0 0 13px rgba(255,255,255,0.18);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 21px;
+            font-size: 23px;
+            color: #160F2D;
+            font-weight: 950;
         }
 
         .startrail-page .hero-info-title {
-            font-size: 15px;
-            font-weight: 900;
+            font-size: 17px;
+            font-weight: 950;
             color: #FFF9FF;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
 
         .startrail-page .hero-info-desc {
-            font-size: 12px;
-            line-height: 1.55;
-            color: rgba(255,255,255,0.68);
-            font-weight: 550;
+            font-size: 13px;
+            line-height: 1.62;
+            color: rgba(255,255,255,0.72);
+            font-weight: 650;
             word-break: keep-all;
         }
+
+        .startrail-page .hero-info-desc .trail-point {
+            color: #FFD45D;
+            font-weight: 900;
+        }
+
+        /* ============================================================
+           세그먼트 카드
+        ============================================================ */
 
         .startrail-page .segment-card {
             background: #15102F !important;
@@ -1320,6 +1400,10 @@ def inject_startrail_css():
             color: #FF9DF5 !important;
             border-color: #FF9DF5 !important;
         }
+
+        /* ============================================================
+           TOP 카드
+        ============================================================ */
 
         .startrail-page .rank-card {
             background: #15102F !important;
@@ -1430,6 +1514,10 @@ def inject_startrail_css():
             border:1px solid rgba(255,157,245,0.62);
         }
 
+        /* ============================================================
+           테이블 / 하단 제목
+        ============================================================ */
+
         .startrail-page .custom-table {
             width: 100%;
             border-collapse: collapse;
@@ -1466,6 +1554,10 @@ def inject_startrail_css():
             color: #FFF9FF;
             letter-spacing: -0.5px;
         }
+
+        /* ============================================================
+           Tooltip
+        ============================================================ */
 
         .startrail-page .tooltip-wrap {
             position: relative;
@@ -1510,9 +1602,14 @@ def inject_startrail_css():
             opacity: 1;
         }
 
+        /* ============================================================
+           반응형
+        ============================================================ */
+
         @media (max-width: 1200px) {
             .startrail-page .hero-top-row {
                 flex-direction: column;
+                align-items: stretch;
             }
 
             .startrail-page .hero-right-area {
@@ -1520,9 +1617,24 @@ def inject_startrail_css():
                 align-items: stretch;
             }
 
-            .startrail-page .hero-main-title {
-                font-size: 50px;
-                letter-spacing: 6px;
+            .startrail-page .trail-title-wrap {
+                align-items: flex-start;
+            }
+
+            .startrail-page .hero-main-title-ko {
+                font-size: 42px;
+                letter-spacing: -2px;
+            }
+
+            .startrail-page .hero-main-title-en {
+                font-size: 22px;
+            }
+
+            .startrail-page .trail-logo-box {
+                width: 72px;
+                height: 72px;
+                min-width: 72px;
+                font-size: 30px;
             }
         }
         </style>
@@ -1569,36 +1681,53 @@ def render_startrail_dashboard():
 
     st.markdown('<div class="startrail-page">', unsafe_allow_html=True)
 
-    st.markdown(
+    st.html(
         f"""
         <div class="dashboard-hero">
             <div class="hero-top-row">
-                <div>
-                    <div class="hero-main-title">STAR TRAIL</div>
-                    <div class="hero-main-subtitle">
-                    기존 플랫폼의 데이터 궤적을 따라 CIME 영입 후보군을 찾습니다
+
+                <div class="trail-title-wrap">
+                    <div class="trail-logo-box">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+
+                    <div>
+                        <div class="hero-main-title">
+                            <span class="hero-main-title-ko">스타트레일</span>
+                            <span class="hero-main-title-en">Star Trail</span>
+                        </div>
+
+                        <div class="hero-title-underbar"></div>
+
+                        <div class="hero-main-subtitle">
+                            기존 플랫폼의 성과와 팬덤 궤적을 따라 CIME 영입 우선 후보군을 찾습니다
+                        </div>
+
+                        <div class="hero-date-pill">
+                            <img src="data:image/png;base64,{date_icon}" style="width:16px; height:16px; object-fit:contain;">
+                            <span>2025.01.01 ~ 2026.03.31</span>
+                        </div>
                     </div>
                 </div>
+
                 <div class="hero-right-area">
-                    <div class="hero-date-pill">
-                        <img src="data:image/png;base64,{date_icon}" style="width:16px; height:16px; object-fit:contain;">
-                        2025.01.01 ~ 2026.03.31
-                    </div>
                     <div class="hero-info-card">
                         <div class="hero-info-icon">✦</div>
+
                         <div>
-                            <div class="hero-info-title">스타트레일은 무엇을 찾나요?</div>
+                            <div class="hero-info-title">후보를 선별하는 기준</div>
+
                             <div class="hero-info-desc">
-                            기존 플랫폼에서 이미 활동성과 팬덤이 확인된 스트리머를 대상으로
-                            방송화력, 수익성, 외부유입 가능성을 함께 검토해 CIME 영입 후보를 선별합니다.
+                                기존 플랫폼에서 이미 확인된 <span class="trail-point">방송화력, 수익성, 팬덤 규모, 외부유입 가능성</span>을 함께 검토해<br>
+                                CIME가 우선 영입 검토할 스트리머 후보군을 정리합니다.
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     k1, k2, k3 = st.columns(3)
