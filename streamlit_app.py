@@ -1385,60 +1385,87 @@ with st.expander("영입 점수 설명", expanded=False):
     )
 
 # =========================================================
-# STAR SEED 선택 버튼 색상 변경
-# - 영입 우선순위 TOP / 최근 순위 상승 후보
-# - 후보군 비교 그래프 3개 버튼
-# - 선택된 primary 버튼을 빨간색에서 스타시드 그린 계열로 변경
+# STAR SEED 선택 버튼 색상 최종 강제 오버라이드
+# - Streamlit 버전별 button selector 대응
+# - 빨간 primary 버튼을 스타시드 그린 계열로 변경
 # =========================================================
 if st.session_state.get("page") == "스타시드":
     st.markdown(
-        clean_html(
-            """
-            <style>
-            div[data-testid="column"] .stButton > button[kind="primary"],
-            button[kind="primary"][data-testid="baseButton-primary"] {
-                background: linear-gradient(
-                    135deg,
-                    rgba(38, 190, 103, 0.96),
-                    rgba(16, 126, 83, 0.96)
-                ) !important;
-                color: #F5FFF7 !important;
-                border: 1px solid rgba(131, 246, 160, 0.50) !important;
-                box-shadow:
-                    0 0 12px rgba(131, 246, 160, 0.14),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-            }
+        """
+        <style>
+        /* 선택된 버튼: Streamlit primary */
+        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-primary"],
+        html body .stApp div[data-testid="column"] button[data-testid="baseButton-primary"],
+        html body .stApp div[data-testid="column"] button[kind="primary"],
+        html body .stApp .stButton > button[data-testid="stBaseButton-primary"],
+        html body .stApp .stButton > button[data-testid="baseButton-primary"],
+        html body .stApp .stButton > button[kind="primary"] {
+            background: linear-gradient(
+                135deg,
+                rgba(32, 165, 92, 0.98),
+                rgba(12, 104, 72, 0.98)
+            ) !important;
+            background-color: rgb(32, 165, 92) !important;
+            color: #F5FFF7 !important;
+            border: 1px solid rgba(131, 246, 160, 0.56) !important;
+            box-shadow:
+                0 0 14px rgba(131, 246, 160, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+        }
 
-            div[data-testid="column"] .stButton > button[kind="primary"]:hover,
-            button[kind="primary"][data-testid="baseButton-primary"]:hover {
-                background: linear-gradient(
-                    135deg,
-                    rgba(48, 210, 120, 0.98),
-                    rgba(20, 140, 92, 0.98)
-                ) !important;
-                border-color: rgba(152, 255, 171, 0.70) !important;
-                box-shadow:
-                    0 0 16px rgba(131, 246, 160, 0.20),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
-            }
+        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-primary"] *,
+        html body .stApp div[data-testid="column"] button[data-testid="baseButton-primary"] *,
+        html body .stApp div[data-testid="column"] button[kind="primary"] *,
+        html body .stApp .stButton > button[data-testid="stBaseButton-primary"] *,
+        html body .stApp .stButton > button[data-testid="baseButton-primary"] *,
+        html body .stApp .stButton > button[kind="primary"] * {
+            color: #F5FFF7 !important;
+            font-weight: 900 !important;
+        }
 
-            div[data-testid="column"] .stButton > button[kind="secondary"],
-            button[kind="secondary"][data-testid="baseButton-secondary"] {
-                background: rgba(7, 18, 34, 0.84) !important;
-                color: #EAF7EF !important;
-                border: 1px solid rgba(131, 246, 160, 0.22) !important;
-                box-shadow: none !important;
-            }
+        /* 선택된 버튼 hover */
+        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-primary"]:hover,
+        html body .stApp div[data-testid="column"] button[data-testid="baseButton-primary"]:hover,
+        html body .stApp div[data-testid="column"] button[kind="primary"]:hover,
+        html body .stApp .stButton > button[data-testid="stBaseButton-primary"]:hover,
+        html body .stApp .stButton > button[data-testid="baseButton-primary"]:hover,
+        html body .stApp .stButton > button[kind="primary"]:hover {
+            background: linear-gradient(
+                135deg,
+                rgba(44, 190, 112, 1),
+                rgba(16, 124, 84, 1)
+            ) !important;
+            background-color: rgb(44, 190, 112) !important;
+            border-color: rgba(152, 255, 171, 0.74) !important;
+            box-shadow:
+                0 0 18px rgba(131, 246, 160, 0.24),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+        }
 
-            div[data-testid="column"] .stButton > button[kind="secondary"]:hover,
-            button[kind="secondary"][data-testid="baseButton-secondary"]:hover {
-                background: rgba(13, 34, 42, 0.92) !important;
-                color: #FFFFFF !important;
-                border-color: rgba(131, 246, 160, 0.42) !important;
-                box-shadow: 0 0 10px rgba(131, 246, 160, 0.10) !important;
-            }
-            </style>
-            """
-        ),
+        /* 선택되지 않은 버튼 */
+        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-secondary"],
+        html body .stApp div[data-testid="column"] button[data-testid="baseButton-secondary"],
+        html body .stApp div[data-testid="column"] button[kind="secondary"],
+        html body .stApp .stButton > button[data-testid="stBaseButton-secondary"],
+        html body .stApp .stButton > button[data-testid="baseButton-secondary"],
+        html body .stApp .stButton > button[kind="secondary"] {
+            background: rgba(7, 18, 34, 0.86) !important;
+            background-color: rgba(7, 18, 34, 0.86) !important;
+            color: #EAF7EF !important;
+            border: 1px solid rgba(131, 246, 160, 0.22) !important;
+            box-shadow: none !important;
+        }
+
+        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-secondary"] *,
+        html body .stApp div[data-testid="column"] button[data-testid="baseButton-secondary"] *,
+        html body .stApp div[data-testid="column"] button[kind="secondary"] *,
+        html body .stApp .stButton > button[data-testid="stBaseButton-secondary"] *,
+        html body .stApp .stButton > button[data-testid="baseButton-secondary"] *,
+        html body .stApp .stButton > button[kind="secondary"] * {
+            color: #EAF7EF !important;
+            font-weight: 850 !important;
+        }
+        </style>
+        """,
         unsafe_allow_html=True,
     )
