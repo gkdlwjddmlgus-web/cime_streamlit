@@ -1296,6 +1296,33 @@ section.main .stButton > button { margin-top: 0 !important; }
 .trail-table td { padding:10px 7px !important; font-size:11px !important; height:56px !important; }
 .trail-bottom-title { min-height:36px !important; margin-bottom:10px !important; font-size:23px !important; }
 
+
+/* =========================================================
+   STARTRAIL PATCH v2: remove orphan closing div, align bottom area, prevent radar clipping
+========================================================= */
+.trail-side-card {
+    min-height: 560px !important;
+    padding-bottom: 32px !important;
+}
+.trail-table {
+    min-height: 460px !important;
+}
+.trail-table th {
+    height: 52px !important;
+    vertical-align: middle !important;
+}
+.trail-table td {
+    height: 72px !important;
+    vertical-align: middle !important;
+}
+.trail-bottom-title {
+    min-height: 40px !important;
+    margin-bottom: 12px !important;
+}
+div[data-testid="stPlotlyChart"] {
+    min-height: 300px !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1535,14 +1562,14 @@ def render_startrail_dashboard():
                 metrics = [("뷰어십", s.get("뷰어십", 0), 17000000, "#FF7B86"), ("도네이션", s.get("도네이션", 0), 7000000, "#FFD45D"), ("최고 팔로워", s.get("팔로워수", s.get("최고_팔로워", 0)), 414000, "#83F6A0"), ("평균 시청자", s.get("평균시청자", s.get("평균_시청자_최댓값", 0)), 47500, "#75CCFF"), ("최고 시청자", s.get("최고시청자", s.get("최고_시청자", 0)), 50000, "#F08CFF")]
                 radar_metrics = {"대중성": (_num(s.get("대중성_표준점수")), 100), "방송화력": (_num(s.get("방송화력_표준점수")), 100), "팬덤결집력": (_num(s.get("팬덤결집력_표준점수")), 100), "수익성": (_num(s.get("수익성_표준점수")), 100), "외부유입가능성": (_num(s.get("외부유입가능성_표준점수")), 100)}
             bar_html = "".join(_metric_bar(label, val, max_val, color) for label, val, max_val, color in metrics)
-            st.markdown(f'''
+            html(f'''
             <div class="trail-side-card">
                 <div class="trail-detail-avatar"><img src="{avatar_url}" alt="avatar"></div>
                 <div class="trail-detail-name">{html_lib.escape(detail_name)}</div>
                 <div class="trail-detail-tags"><span class="trail-tag">{html_lib.escape(detail_seg)}</span>{platform_html}</div>
                 {bar_html}
             </div>
-            ''', unsafe_allow_html=True)
+            ''')
             radar_labels = list(radar_metrics.keys())
             radar_values = [max(0, min(_num(v) / max(_num(m), 1), 1.0)) * 100 for v, m in radar_metrics.values()]
             if radar_labels:
@@ -1550,7 +1577,7 @@ def render_startrail_dashboard():
                 fig_radar.add_trace(go.Scatterpolar(r=radar_values + [radar_values[0]], theta=radar_labels + [radar_labels[0]], fill="toself", name="능력치", line=dict(width=2, color="#8FB8FF"), fillcolor="rgba(143,184,255,0.26)", opacity=0.92))
                 fig_radar.update_layout(
                     polar=dict(
-                        domain=dict(x=[0.10, 0.90], y=[0.10, 0.90]),
+                        domain=dict(x=[0.12, 0.88], y=[0.16, 0.84]),
                         bgcolor=STARTRAIL_TRANSPARENT,
                         radialaxis=dict(
                             visible=True,
@@ -1564,17 +1591,16 @@ def render_startrail_dashboard():
                         )
                     ),
                     showlegend=False,
-                    margin=dict(l=18, r=18, t=4, b=12),
+                    margin=dict(l=28, r=28, t=18, b=38),
                     paper_bgcolor=STARTRAIL_TRANSPARENT,
                     plot_bgcolor=STARTRAIL_TRANSPARENT,
                     font_color="white",
-                    height=220
+                    height=300
                 )
                 st.plotly_chart(fig_radar, use_container_width=True)
 
     with left_area:
         st.markdown('<div class="trail-divider" style="margin-top:34px;"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="trail-bottom-grid">', unsafe_allow_html=True)
         table_col, graph_col = st.columns([1.02, 1.05], gap="large")
         with table_col:
             st.markdown(f"<div class='trail-bottom-title'>📋 {html_lib.escape(current_seg)} 영입 우선순위 리스트</div>", unsafe_allow_html=True)
@@ -1604,7 +1630,7 @@ def render_startrail_dashboard():
                     st.warning(f"히트맵 컬럼이 부족합니다: {missing}")
                 else:
                     fig = px.imshow(filtered_df.sort_values("영입우선_점수", ascending=False).head(15).set_index("소속")[heatmap_cols], text_auto=".0f", aspect="auto", color_continuous_scale="YlGnBu", zmin=0, zmax=100, labels=dict(color="점수"))
-                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=70, t=40, b=70), height=380)
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=70, t=40, b=70), height=460)
                     st.plotly_chart(fig, use_container_width=True)
             elif current_seg == "코멧":
                 comet_all_df = raw.copy()
@@ -1637,7 +1663,7 @@ def render_startrail_dashboard():
                             fig.add_trace(go.Scatter(x=temp["최고_팔로워"], y=temp["통합_외부화력"], mode="markers", name=route, marker=dict(size=14, color=color, line=dict(color="white", width=1.4)), text=text_values, hovertemplate=f"<b>%{{text}}</b><br>유입경로: {route}<br>최고 팔로워: %{{x:,.0f}}<br>통합 외부화력: %{{y:,.0f}}<extra></extra>"))
                     if not plot_comet_df.empty and plot_comet_df["최고_팔로워"].mean() > 0:
                         fig.add_vline(x=plot_comet_df["최고_팔로워"].mean(), line_dash="dot", line_width=2, line_color="#c9d1d9", opacity=0.75)
-                    fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=100, t=60, b=70), height=380, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=100, t=60, b=70), height=460, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
                     fig.update_xaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     fig.update_yaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     st.plotly_chart(fig, use_container_width=True)
@@ -1648,7 +1674,7 @@ def render_startrail_dashboard():
                     st.warning(f"산점도 컬럼이 부족합니다: {missing}")
                 else:
                     fig = px.scatter(filtered_df, x="평균시청자", y="스코어", size="뷰어십", color="플랫폼", hover_name="스트리머", color_discrete_map={"SOOP":"#75CCFF", "CHZZK":"#bf40bf"}, template="plotly_dark")
-                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, margin=dict(l=70, r=110, t=55, b=70), height=380, font_color="white", legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, margin=dict(l=70, r=110, t=55, b=70), height=460, font_color="white", legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
                     fig.update_xaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     st.plotly_chart(fig, use_container_width=True)
