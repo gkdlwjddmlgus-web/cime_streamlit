@@ -784,6 +784,135 @@ def render_starseed_detail():
         unsafe_allow_html=True,
     )
 
+st.markdown(
+    clean_html(
+        """
+        <style>
+        /* =====================================================
+           STAR SEED 5단계 카드 아이콘 교체
+           - 스타일/카드 구조는 유지
+           - 아이콘만 두 번째 캡처 기준으로 변경
+        ===================================================== */
+
+        .seed-icon-badge {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            transform: scale(1.08);
+            transform-origin: center center;
+        }
+
+        .seed-icon-badge::before,
+        .seed-icon-badge::after {
+            content: "";
+            position: absolute;
+            box-sizing: border-box;
+            filter: drop-shadow(0 0 6px rgba(152,255,171,0.22));
+        }
+
+        /* 01 후보 수집 기준: 돋보기 */
+        .seed-icon-search::before {
+            width: 29px;
+            height: 29px;
+            border: 3.6px solid #98FFAB;
+            border-radius: 50%;
+            left: 9px;
+            top: 9px;
+        }
+
+        .seed-icon-search::after {
+            width: 21px;
+            height: 3.6px;
+            background: #98FFAB;
+            border-radius: 999px;
+            left: 32px;
+            top: 35px;
+            transform: rotate(45deg);
+            transform-origin: left center;
+        }
+
+        /* 02 팬 반응 밀도: 말풍선 + 하트 */
+        .seed-icon-chat::before {
+            width: 58px;
+            height: 58px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%20stroke%3D%22%2398FFAB%22%20stroke-width%3D%223.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%2013h24a3.2%203.2%200%200%201%203.2%203.2v12.2a3.2%203.2%200%200%201-3.2%203.2H22.3l-7.4%205.2v-5.2H12a3.2%203.2%200%200%201-3.2-3.2V16.2A3.2%203.2%200%200%201%2012%2013Z%22%2F%3E%3Cpath%20d%3D%22M24%2026.6s-5-2.9-5-6.1c0-1.7%201.35-3%203-3%201.25%200%202.05.72%202.65%201.65.62-.93%201.43-1.65%202.65-1.65%201.65%200%203%201.3%203%203%200%203.25-5%206.1-5%206.1Z%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat;
+            border: none;
+        }
+
+        .seed-icon-chat::after {
+            display: none;
+        }
+
+        /* 03 라이브 전환성: 카메라 + 순환 화살표 */
+        .seed-icon-live::before {
+            width: 58px;
+            height: 58px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%20stroke%3D%22%2398FFAB%22%20stroke-width%3D%223.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%2214%22%20y%3D%2217%22%20width%3D%2216%22%20height%3D%2212%22%20rx%3D%222.8%22%2F%3E%3Cpath%20d%3D%22M30%2020l5.5-3.2v12.4L30%2026%22%2F%3E%3Cpath%20d%3D%22M11%2018.6c2.1-4.7%206.6-7.7%2011.7-7.9%22%2F%3E%3Cpath%20d%3D%22M19.4%208l4%202.4-3.9%202.5%22%2F%3E%3Cpath%20d%3D%22M37%2029.4c-2.1%204.7-6.6%207.7-11.7%207.9%22%2F%3E%3Cpath%20d%3D%22M28.6%2040l-4-2.4%203.9-2.5%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat;
+            border: none;
+        }
+
+        .seed-icon-live::after {
+            display: none;
+        }
+
+        /* 04 실전 리스크: 원형 마이너스 */
+        .seed-icon-filter::before {
+            width: 42px;
+            height: 42px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 3.3px solid #98FFAB;
+            border-radius: 50%;
+        }
+
+        .seed-icon-filter::after {
+            width: 17px;
+            height: 3.6px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #98FFAB;
+            border-radius: 999px;
+        }
+
+        /* 05 액션버킷: 체크박스 */
+        .seed-icon-check::before {
+            width: 38px;
+            height: 38px;
+            border: 3.5px solid #98FFAB;
+            border-radius: 10px;
+            left: 9px;
+            top: 9px;
+        }
+
+        .seed-icon-check::after {
+            width: 22px;
+            height: 13px;
+            border-left: 4.5px solid #98FFAB;
+            border-bottom: 4.5px solid #98FFAB;
+            left: 18px;
+            top: 21px;
+            transform: rotate(-45deg);
+        }
+        </style>
+        """
+    ),
+    unsafe_allow_html=True,
+)
+
 
 if st.session_state.page == "대시보드 홈":
     render_planet_home()
