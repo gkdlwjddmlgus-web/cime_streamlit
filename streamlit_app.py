@@ -1113,11 +1113,11 @@ def build_startrail_candidate_data(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def inject_startrail_css():
-    st.markdown(
+    st.html(
         """
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-        <style>
 
+        <style>
         .startrail-page {
             position: relative;
             z-index: 2;
@@ -1137,7 +1137,7 @@ def inject_startrail_css():
             align-items: flex-start;
             gap: 32px;
         }
-        
+
         .startrail-page .hero-main-title {
             font-size: 72px;
             font-weight: 950;
@@ -1284,27 +1284,42 @@ def inject_startrail_css():
         .startrail-page .segment-card.active-성단,
         .startrail-page .segment-card.active-성단 i,
         .startrail-page .segment-card.active-성단 .seg-name,
-        .startrail-page .segment-card.active-성단 .seg-count { color: #FF6B8A !important; border-color: #FF6B8A !important; }
+        .startrail-page .segment-card.active-성단 .seg-count {
+            color: #FF6B8A !important;
+            border-color: #FF6B8A !important;
+        }
 
         .startrail-page .segment-card.active-프로토스타,
         .startrail-page .segment-card.active-프로토스타 i,
         .startrail-page .segment-card.active-프로토스타 .seg-name,
-        .startrail-page .segment-card.active-프로토스타 .seg-count { color: #FFD45D !important; border-color: #FFD45D !important; }
+        .startrail-page .segment-card.active-프로토스타 .seg-count {
+            color: #FFD45D !important;
+            border-color: #FFD45D !important;
+        }
 
         .startrail-page .segment-card.active-위성,
         .startrail-page .segment-card.active-위성 i,
         .startrail-page .segment-card.active-위성 .seg-name,
-        .startrail-page .segment-card.active-위성 .seg-count { color: #75CCFF !important; border-color: #75CCFF !important; }
+        .startrail-page .segment-card.active-위성 .seg-count {
+            color: #75CCFF !important;
+            border-color: #75CCFF !important;
+        }
 
         .startrail-page .segment-card.active-슈퍼노바,
         .startrail-page .segment-card.active-슈퍼노바 i,
         .startrail-page .segment-card.active-슈퍼노바 .seg-name,
-        .startrail-page .segment-card.active-슈퍼노바 .seg-count { color: #98FFAB !important; border-color: #98FFAB !important; }
+        .startrail-page .segment-card.active-슈퍼노바 .seg-count {
+            color: #98FFAB !important;
+            border-color: #98FFAB !important;
+        }
 
         .startrail-page .segment-card.active-코멧,
         .startrail-page .segment-card.active-코멧 i,
         .startrail-page .segment-card.active-코멧 .seg-name,
-        .startrail-page .segment-card.active-코멧 .seg-count { color: #FF9DF5 !important; border-color: #FF9DF5 !important; }
+        .startrail-page .segment-card.active-코멧 .seg-count {
+            color: #FF9DF5 !important;
+            border-color: #FF9DF5 !important;
+        }
 
         .startrail-page .rank-card {
             background: #15102F !important;
@@ -1338,10 +1353,26 @@ def inject_startrail_css():
             font-size: 18px;
         }
 
-        .startrail-page .rank-normal { background: rgba(255,255,255,0.09); color: #FFF9FF; border: 1px solid rgba(255,255,255,0.14); }
-        .startrail-page .rank-gold { background: linear-gradient(135deg, #FFD45D, #C99700); color: #1a112f; }
-        .startrail-page .rank-silver { background: linear-gradient(135deg, #F4E9FF, #B7A2DC); color: #1a112f; }
-        .startrail-page .rank-bronze { background: linear-gradient(135deg, #D99666, #8B4A30); color: #ffffff; }
+        .startrail-page .rank-normal {
+            background: rgba(255,255,255,0.09);
+            color: #FFF9FF;
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+
+        .startrail-page .rank-gold {
+            background: linear-gradient(135deg, #FFD45D, #C99700);
+            color: #1a112f;
+        }
+
+        .startrail-page .rank-silver {
+            background: linear-gradient(135deg, #F4E9FF, #B7A2DC);
+            color: #1a112f;
+        }
+
+        .startrail-page .rank-bronze {
+            background: linear-gradient(135deg, #D99666, #8B4A30);
+            color: #ffffff;
+        }
 
         .startrail-page .avatar-circle {
             width: 100px;
@@ -1369,11 +1400,35 @@ def inject_startrail_css():
             margin-top: 8px;
         }
 
-        .startrail-page .tag-성단 { background: rgba(255,75,75,0.18); color:#FF8A8A; border:1px solid rgba(255,75,75,0.65); }
-        .startrail-page .tag-프로토스타 { background: rgba(255,212,93,0.15); color:#FFD45D; border:1px solid rgba(255,212,93,0.60); }
-        .startrail-page .tag-위성 { background: rgba(149,175,255,0.15); color:#95AFFF; border:1px solid rgba(149,175,255,0.60); }
-        .startrail-page .tag-슈퍼노바 { background: rgba(152,255,171,0.13); color:#98FFAB; border:1px solid rgba(152,255,171,0.56); }
-        .startrail-page .tag-코멧 { background: rgba(255,157,245,0.16); color:#FF9DF5; border:1px solid rgba(255,157,245,0.62); }
+        .startrail-page .tag-성단 {
+            background: rgba(255,75,75,0.18);
+            color:#FF8A8A;
+            border:1px solid rgba(255,75,75,0.65);
+        }
+
+        .startrail-page .tag-프로토스타 {
+            background: rgba(255,212,93,0.15);
+            color:#FFD45D;
+            border:1px solid rgba(255,212,93,0.60);
+        }
+
+        .startrail-page .tag-위성 {
+            background: rgba(149,175,255,0.15);
+            color:#95AFFF;
+            border:1px solid rgba(149,175,255,0.60);
+        }
+
+        .startrail-page .tag-슈퍼노바 {
+            background: rgba(152,255,171,0.13);
+            color:#98FFAB;
+            border:1px solid rgba(152,255,171,0.56);
+        }
+
+        .startrail-page .tag-코멧 {
+            background: rgba(255,157,245,0.16);
+            color:#FF9DF5;
+            border:1px solid rgba(255,157,245,0.62);
+        }
 
         .startrail-page .custom-table {
             width: 100%;
@@ -1412,32 +1467,66 @@ def inject_startrail_css():
             letter-spacing: -0.5px;
         }
 
-        .startrail-page .tooltip-wrap { position: relative; display: inline-flex; margin-left: 6px; }
+        .startrail-page .tooltip-wrap {
+            position: relative;
+            display: inline-flex;
+            margin-left: 6px;
+        }
+
         .startrail-page .tooltip-icon {
-            width: 17px; height: 17px; border-radius: 50%;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
             border: 1px solid rgba(217,200,255,0.75);
-            color: #D9C8FF; font-size: 11px; font-weight: 900;
-            line-height: 17px; text-align: center; cursor: help;
+            color: #D9C8FF;
+            font-size: 11px;
+            font-weight: 900;
+            line-height: 17px;
+            text-align: center;
+            cursor: help;
         }
+
         .startrail-page .tooltip-text {
-            visibility: hidden; opacity: 0; width: 230px;
-            background: rgba(21,16,47,0.98); color: #D9CFE8;
-            text-align: left; border: 1px solid rgba(196,143,255,0.34);
-            border-radius: 12px; padding: 10px 12px;
-            position: absolute; z-index: 9999; bottom: 135%; left: 50%;
-            transform: translateX(-50%); font-size: 12px; line-height: 1.45;
+            visibility: hidden;
+            opacity: 0;
+            width: 230px;
+            background: rgba(21,16,47,0.98);
+            color: #D9CFE8;
+            text-align: left;
+            border: 1px solid rgba(196,143,255,0.34);
+            border-radius: 12px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 9999;
+            bottom: 135%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            line-height: 1.45;
         }
-        .startrail-page .tooltip-wrap:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+        .startrail-page .tooltip-wrap:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
 
         @media (max-width: 1200px) {
-            .startrail-page .hero-top-row { flex-direction: column; }
-            .startrail-page .hero-right-area { width: 100%; align-items: stretch; }
-            .startrail-page .hero-main-title { font-size: 50px; letter-spacing: 6px; }
-        }
+            .startrail-page .hero-top-row {
+                flex-direction: column;
+            }
 
+            .startrail-page .hero-right-area {
+                width: 100%;
+                align-items: stretch;
+            }
+
+            .startrail-page .hero-main-title {
+                font-size: 50px;
+                letter-spacing: 6px;
+            }
+        }
         </style>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
