@@ -2434,9 +2434,18 @@ def reason_short(row):
 st.markdown(
     """
     <style>
+    /* STAR TRAIL 상단 여백과 맞추기 위한 STAR SEED 전용 위치 보정 */
     .block-container:has(.starseed-board) {
+        padding-top: 0.8rem !important;
+        margin-top: 0 !important;
+        max-width: 1560px !important;
+        padding-left: 2.8rem !important;
+        padding-right: 2.8rem !important;
+    }
+
+    .starseed-board {
+        margin-top: 0 !important;
         padding-top: 0 !important;
-        margin-top: -0.35rem !important;
     }
 
     .starseed-board .starseed-hero-modern {
@@ -2445,7 +2454,7 @@ st.markdown(
         column-gap: 44px !important;
         align-items: center !important;
         margin: 0 0 18px 0 !important;
-        padding: 36px 0 8px 0 !important;
+        padding: 0 0 8px 0 !important;
     }
 
     .starseed-board .starseed-title-block {
