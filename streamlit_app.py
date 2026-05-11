@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 import base64
 
 # =========================================================
@@ -2023,6 +2024,115 @@ def inject_startrail_css():
                 font-size: 34px;
             }
         }
+        
+        /* ============================================================
+           STARTRAIL TOP5 카드 보정
+           - Streamlit 요소 사이에서 .startrail-page 래퍼가 끊겨도 적용되도록
+             rank-card 계열은 unscoped fallback으로 한 번 더 정의
+           - 이미지 영역을 정사각 고정으로 맞춰 하단 라인/텍스트 시작점 정렬
+        ============================================================ */
+
+        .rank-card {
+            background: rgba(21, 16, 47, 0.90) !important;
+            border-radius: 24px !important;
+            padding: 22px 18px !important;
+            text-align: left !important;
+            border: 1px solid rgba(255,255,255,0.10) !important;
+            position: relative !important;
+            transition: 0.25s ease !important;
+            min-height: 390px !important;
+            box-shadow:
+                0 0 24px rgba(112, 53, 255, 0.14),
+                inset 0 0 24px rgba(255,255,255,0.018) !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        .rank-card:hover {
+            border-color: rgba(240,140,255,0.72) !important;
+            box-shadow: 0 0 26px rgba(125, 66, 255, 0.28) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .rank-card .avatar-circle {
+            width: 100% !important;
+            height: 220px !important;
+            max-width: 220px !important;
+            border-radius: 14px !important;
+            margin: 0 auto 16px auto !important;
+            border: 1px solid rgba(255, 212, 93, 0.24) !important;
+            background: #09051C !important;
+            overflow: hidden !important;
+            box-shadow: 0 0 18px rgba(240,140,255,0.16) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+        }
+
+        .rank-card .avatar-circle img {
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
+            object-fit: cover !important;
+            object-position: center center !important;
+        }
+
+        .rank-card .rank-badge {
+            position: absolute !important;
+            top: 14px !important;
+            left: 14px !important;
+            width: 30px !important;
+            height: 30px !important;
+            padding: 0 !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: 950 !important;
+            font-size: 15px !important;
+            z-index: 5 !important;
+        }
+
+        .rank-normal {
+            background: rgba(255,255,255,0.09) !important;
+            color: #FFF9FF !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+        }
+
+        .rank-gold {
+            background: linear-gradient(135deg, #FFD45D, #C99700) !important;
+            color: #1a112f !important;
+            box-shadow: 0 0 16px rgba(255, 212, 93, 0.55) !important;
+        }
+
+        .rank-silver {
+            background: linear-gradient(135deg, #F4E9FF, #B7A2DC) !important;
+            color: #1a112f !important;
+            box-shadow: 0 0 16px rgba(229, 213, 255, 0.45) !important;
+        }
+
+        .rank-bronze {
+            background: linear-gradient(135deg, #D99666, #8B4A30) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 16px rgba(205, 127, 50, 0.45) !important;
+        }
+
+        .tag-segment {
+            display: inline-block !important;
+            padding: 4px 11px !important;
+            border-radius: 999px !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            margin-top: 8px !important;
+        }
+
+        .tag-성단 { background: rgba(255,75,75,0.18) !important; color:#FF8A8A !important; border:1px solid rgba(255,75,75,0.65) !important; }
+        .tag-프로토스타 { background: rgba(255,212,93,0.15) !important; color:#FFD45D !important; border:1px solid rgba(255,212,93,0.60) !important; }
+        .tag-위성 { background: rgba(149,175,255,0.15) !important; color:#95AFFF !important; border:1px solid rgba(149,175,255,0.60) !important; }
+        .tag-슈퍼노바 { background: rgba(152,255,171,0.13) !important; color:#98FFAB !important; border:1px solid rgba(152,255,171,0.56) !important; }
+        .tag-코멧 { background: rgba(255,157,245,0.16) !important; color:#FF9DF5 !important; border:1px solid rgba(255,157,245,0.62) !important; }
+
         </style>
         """),
         unsafe_allow_html=True,
