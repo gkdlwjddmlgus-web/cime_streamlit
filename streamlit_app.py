@@ -285,67 +285,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-# =========================================================
-# STAR SEED 선택 버튼 색상 변경
-# - 영입 우선순위 TOP / 최근 순위 상승 후보
-# - 후보군 비교 그래프 3개 버튼
-# - 선택된 primary 버튼을 빨간색에서 스타시드 그린 계열로 변경
-# =========================================================
-if st.session_state.get("page") == "스타시드":
-    st.markdown(
-        clean_html(
-            """
-            <style>
-            /* STAR SEED 페이지의 선택된 버튼 */
-            div[data-testid="column"] .stButton > button[kind="primary"],
-            button[kind="primary"][data-testid="baseButton-primary"] {
-                background: linear-gradient(
-                    135deg,
-                    rgba(38, 190, 103, 0.96),
-                    rgba(16, 126, 83, 0.96)
-                ) !important;
-                color: #F5FFF7 !important;
-                border: 1px solid rgba(131, 246, 160, 0.50) !important;
-                box-shadow:
-                    0 0 12px rgba(131, 246, 160, 0.14),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-            }
-
-            div[data-testid="column"] .stButton > button[kind="primary"]:hover,
-            button[kind="primary"][data-testid="baseButton-primary"]:hover {
-                background: linear-gradient(
-                    135deg,
-                    rgba(48, 210, 120, 0.98),
-                    rgba(20, 140, 92, 0.98)
-                ) !important;
-                border-color: rgba(152, 255, 171, 0.70) !important;
-                box-shadow:
-                    0 0 16px rgba(131, 246, 160, 0.20),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
-            }
-
-            /* 선택되지 않은 버튼 */
-            div[data-testid="column"] .stButton > button[kind="secondary"],
-            button[kind="secondary"][data-testid="baseButton-secondary"] {
-                background: rgba(7, 18, 34, 0.84) !important;
-                color: #EAF7EF !important;
-                border: 1px solid rgba(131, 246, 160, 0.22) !important;
-                box-shadow: none !important;
-            }
-
-            div[data-testid="column"] .stButton > button[kind="secondary"]:hover,
-            button[kind="secondary"][data-testid="baseButton-secondary"]:hover {
-                background: rgba(13, 34, 42, 0.92) !important;
-                color: #FFFFFF !important;
-                border-color: rgba(131, 246, 160, 0.42) !important;
-                box-shadow: 0 0 10px rgba(131, 246, 160, 0.10) !important;
-            }
-            </style>
-            """
-        ),
-        unsafe_allow_html=True,
-    )
 st.markdown(f'<div class="star-layer">{st.session_state.bg_html}</div><div class="orbit-bg"></div>', unsafe_allow_html=True)
 
 # =========================================================
@@ -1442,5 +1381,64 @@ with st.expander("KPI 해석 방법", expanded=False):
 with st.expander("영입 점수 설명", expanded=False):
     st.markdown(
         '<div class="explain-box"><b>기본 산식</b><br><code>영입점수 = 0.22×채널력 + 0.28×성장성 + 0.22×팬밀도 + 0.15×라이브친화 + 0.13×실전성 - 리스크 감점</code><br><br>성장성에 가장 높은 가중치를 둔 이유는 신생 플랫폼 입장에서 이미 너무 큰 채널보다, 최근 반응과 성장 흐름이 확인되는 후보가 영입 현실성이 높다고 보았기 때문입니다. 채널력과 팬밀도는 최소 체급과 팬덤 결집력을 균형 있게 반영하고, 라이브친화와 실전성은 실제 방송 전환 가능성과 운영 리스크를 보정합니다.</div>',
+        unsafe_allow_html=True,
+    )
+
+# =========================================================
+# STAR SEED 선택 버튼 색상 변경
+# - 영입 우선순위 TOP / 최근 순위 상승 후보
+# - 후보군 비교 그래프 3개 버튼
+# - 선택된 primary 버튼을 빨간색에서 스타시드 그린 계열로 변경
+# =========================================================
+if st.session_state.get("page") == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            div[data-testid="column"] .stButton > button[kind="primary"],
+            button[kind="primary"][data-testid="baseButton-primary"] {
+                background: linear-gradient(
+                    135deg,
+                    rgba(38, 190, 103, 0.96),
+                    rgba(16, 126, 83, 0.96)
+                ) !important;
+                color: #F5FFF7 !important;
+                border: 1px solid rgba(131, 246, 160, 0.50) !important;
+                box-shadow:
+                    0 0 12px rgba(131, 246, 160, 0.14),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+            }
+
+            div[data-testid="column"] .stButton > button[kind="primary"]:hover,
+            button[kind="primary"][data-testid="baseButton-primary"]:hover {
+                background: linear-gradient(
+                    135deg,
+                    rgba(48, 210, 120, 0.98),
+                    rgba(20, 140, 92, 0.98)
+                ) !important;
+                border-color: rgba(152, 255, 171, 0.70) !important;
+                box-shadow:
+                    0 0 16px rgba(131, 246, 160, 0.20),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+            }
+
+            div[data-testid="column"] .stButton > button[kind="secondary"],
+            button[kind="secondary"][data-testid="baseButton-secondary"] {
+                background: rgba(7, 18, 34, 0.84) !important;
+                color: #EAF7EF !important;
+                border: 1px solid rgba(131, 246, 160, 0.22) !important;
+                box-shadow: none !important;
+            }
+
+            div[data-testid="column"] .stButton > button[kind="secondary"]:hover,
+            button[kind="secondary"][data-testid="baseButton-secondary"]:hover {
+                background: rgba(13, 34, 42, 0.92) !important;
+                color: #FFFFFF !important;
+                border-color: rgba(131, 246, 160, 0.42) !important;
+                box-shadow: 0 0 10px rgba(131, 246, 160, 0.10) !important;
+            }
+            </style>
+            """
+        ),
         unsafe_allow_html=True,
     )
