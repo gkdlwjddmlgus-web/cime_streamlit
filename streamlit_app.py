@@ -1798,7 +1798,7 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
     align-items: center !important;
     justify-content: center !important;
     color: #E8DFFF !important;
-    font-size: 12.2px !important;
+    font-size: 13.4px !important;
     font-weight: 950 !important;
     letter-spacing: -0.035em !important;
     white-space: nowrap !important;
@@ -1816,14 +1816,14 @@ div[data-testid="column"]:has(.trail-detail-button-title) .stButton {
     margin: 0 !important;
 }
 div[data-testid="column"]:has(.trail-detail-button-title) .stButton > button {
-    height: 34px !important;
-    min-height: 34px !important;
+    height: 36px !important;
+    min-height: 36px !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     border-radius: 999px !important;
-    padding: 0 10px !important;
-    font-size: 15px !important;
-    font-weight: 900 !important;
+    padding: 0 12px !important;
+    font-size: 16.4px !important;
+    font-weight: 950 !important;
     background: rgba(7,18,34,.86) !important;
     border: 1px solid rgba(117,204,255,.36) !important;
     color: #EAF7FF !important;
