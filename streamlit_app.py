@@ -1660,6 +1660,173 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
     .trail-main-grid { grid-template-columns: 1fr !important; }
     .trail-rank-card { height: auto !important; min-height: 292px !important; }
 }
+
+/* =========================================================
+   STARTRAIL PATCH: priority table no-wrap correction
+   - 하단 영입 우선순위 리스트의 헤더/값 줄바꿈 방지
+   - 순위/플랫폼/스코어 컬럼은 좁게, 이름/도네이션 컬럼은 넓게 배치
+========================================================= */
+.trail-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+.trail-table th,
+.trail-table td {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle !important;
+    line-height: 1.18 !important;
+    box-sizing: border-box !important;
+}
+.trail-table th {
+    font-size: 10.4px !important;
+    padding: 9px 4px !important;
+    height: 46px !important;
+    letter-spacing: -0.04em !important;
+}
+.trail-table td {
+    font-size: 10.8px !important;
+    padding: 9px 4px !important;
+    height: 68px !important;
+    letter-spacing: -0.035em !important;
+}
+.trail-table td:nth-child(1),
+.trail-table th:nth-child(1),
+.trail-table td:nth-child(3),
+.trail-table th:nth-child(3),
+.trail-table td:nth-child(4),
+.trail-table th:nth-child(4),
+.trail-table td:nth-child(5),
+.trail-table th:nth-child(5) {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+}
+.trail-table td b {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    max-width: 100% !important;
+}
+.trail-table .platform-logo,
+.trail-table img {
+    max-width: 26px !important;
+    height: 22px !important;
+    object-fit: contain !important;
+}
+
+/* =========================================================
+   STARTRAIL PATCH: team-style priority table + side detail buttons
+   - 표 컬럼을 팀원 공유 화면처럼 순위/스트리머명/플랫폼/스코어/상위%로 축약
+   - 상세보기는 표 오른쪽 버튼 열로 분리
+========================================================= */
+.trail-table-team-style {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+}
+.trail-table-team-style .col-rank { width: 12% !important; }
+.trail-table-team-style .col-name { width: 28% !important; }
+.trail-table-team-style .col-platform { width: 14% !important; }
+.trail-table-team-style .col-score { width: 17% !important; }
+.trail-table-team-style .col-percent { width: 29% !important; }
+.trail-table-team-style th {
+    height: 58px !important;
+    padding: 10px 8px !important;
+    font-size: 12.2px !important;
+    letter-spacing: -0.035em !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    text-align: center !important;
+}
+.trail-table-team-style td {
+    height: 82px !important;
+    padding: 10px 8px !important;
+    font-size: 12.4px !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+.trail-table-team-style .name-cell b {
+    display: block !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-weight: 950 !important;
+}
+.trail-table-team-style .score-cell {
+    color: #00F2FF !important;
+    font-weight: 950 !important;
+}
+.trail-table-team-style .percent-cell {
+    color: #FFD45D !important;
+    font-weight: 950 !important;
+}
+.trail-table-team-style .platform-cell img,
+.trail-table-team-style .platform-logo {
+    width: 26px !important;
+    max-width: 26px !important;
+    height: 24px !important;
+    object-fit: contain !important;
+    border-radius: 6px !important;
+}
+.trail-platform-text {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 42px !important;
+    height: 22px !important;
+    padding: 0 7px !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(255,212,93,.38) !important;
+    color: #FFD45D !important;
+    background: rgba(255,212,93,.10) !important;
+    font-size: 9.8px !important;
+    font-weight: 950 !important;
+}
+.trail-detail-button-title {
+    height: 58px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #E8DFFF !important;
+    font-size: 12.2px !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.035em !important;
+    white-space: nowrap !important;
+}
+/* 표 오른쪽 '1위~10위' 버튼 높이를 테이블 행과 맞춤 */
+.trail-detail-button-title + div,
+.trail-detail-button-title ~ div {
+    margin-top: 0 !important;
+}
+div[data-testid="column"]:has(.trail-detail-button-title) .stButton {
+    height: 82px !important;
+    min-height: 82px !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+div[data-testid="column"]:has(.trail-detail-button-title) .stButton > button {
+    height: 38px !important;
+    min-height: 38px !important;
+    border-radius: 999px !important;
+    padding: 0 10px !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+    background: rgba(7,18,34,.86) !important;
+    border: 1px solid rgba(117,204,255,.36) !important;
+    color: #EAF7FF !important;
+    box-shadow: 0 0 12px rgba(117,204,255,.08) !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -2066,19 +2233,71 @@ def render_startrail_dashboard():
         table_col, graph_col = st.columns([1.02, 1.05], gap="large")
         with table_col:
             st.markdown(f"<div class='trail-bottom-title'>📋 {html_lib.escape(current_seg)} 영입 우선순위 리스트</div>", unsafe_allow_html=True)
-            table_html = "<table class='trail-table'><thead><tr>"
-            if current_seg == "성단":
-                table_html += "<th>순위</th><th>소속</th><th>스코어</th><th>상위 %</th><th>멤버 수</th><th>뷰어십 합계</th><th>도네이션 합계</th>"
-            else:
-                table_html += "<th>순위</th><th>스트리머명</th><th>플랫폼</th><th>스코어</th><th>상위 %</th><th>팔로워수</th><th>평균시청자</th><th>평균 도네이션</th>"
-            table_html += "</tr></thead><tbody>"
-            for _, row in filtered_df.head(5).iterrows():
-                if current_seg == "성단":
-                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('소속'))}</b></td><td style='color:#75CCFF; font-weight:950;'>{_num(row.get('스코어')):.0f}</td><td style='color:#FFD45D; font-weight:950;'>상위<br>{_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('멤버수')):,.0f}</td><td>{_num(row.get('합계_뷰어십')):,.0f}</td><td>₩ {_num(row.get('합계_도네이션')):,.0f}</td></tr>"
-                else:
-                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('스트리머'))}</b></td><td>{_platform_badge(row.get('플랫폼', ''))}</td><td style='color:#00f2ff; font-weight:950;'>{_num(row.get('스코어')):.2f}</td><td style='color:#FFD45D; font-weight:950;'>상위<br>{_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('팔로워수')):,.0f}</td><td>{_num(row.get('평균시청자')):,.0f}</td><td>₩ {_num(row.get('평균도네이션')):,.0f}</td></tr>"
-            table_html += "</tbody></table>"
-            st.markdown(table_html, unsafe_allow_html=True)
+
+            # 팀원 대시보드 형식: 표는 핵심 5개 컬럼만 두고, 상세보기는 표 오른쪽에 별도 버튼 열로 배치
+            list_rows = filtered_df.head(10).copy()
+            table_area, detail_btn_area = st.columns([0.84, 0.16], gap="small")
+
+            with table_area:
+                table_html = """
+                <table class='trail-table trail-table-team-style'>
+                    <colgroup>
+                        <col class='col-rank'>
+                        <col class='col-name'>
+                        <col class='col-platform'>
+                        <col class='col-score'>
+                        <col class='col-percent'>
+                    </colgroup>
+                    <thead><tr>
+                        <th>순위</th><th>스트리머명</th><th>플랫폼</th><th>스코어</th><th>상위 %</th>
+                    </tr></thead><tbody>
+                """
+
+                for _, row in list_rows.iterrows():
+                    rank_value = int(_num(row.get("순위"), 0))
+                    if current_seg == "성단":
+                        display_name = _safe_text(row.get("소속", row.get("표시이름", "-")))
+                        platform_cell = "<span class='trail-platform-text'>GROUP</span>"
+                        score_cell = f"{_num(row.get('스코어')):.0f}"
+                    else:
+                        display_name = _display_name_from_row(row, current_seg)
+                        platform_cell = _platform_badge(row.get("플랫폼", ""))
+                        score_cell = f"{_num(row.get('스코어')):.2f}"
+
+                    percent_cell = f"{_num(row.get('상위퍼센트')):.1f}%"
+                    table_html += (
+                        f"<tr>"
+                        f"<td class='rank-cell'>{rank_value}</td>"
+                        f"<td class='name-cell'><b>{html_lib.escape(display_name)}</b></td>"
+                        f"<td class='platform-cell'>{platform_cell}</td>"
+                        f"<td class='score-cell'>{score_cell}</td>"
+                        f"<td class='percent-cell'>{percent_cell}</td>"
+                        f"</tr>"
+                    )
+
+                table_html += "</tbody></table>"
+                st.markdown(table_html, unsafe_allow_html=True)
+
+            with detail_btn_area:
+                st.markdown("<div class='trail-detail-button-title'>상세 보기</div>", unsafe_allow_html=True)
+                for btn_idx, (_, row) in enumerate(list_rows.iterrows(), start=1):
+                    if current_seg == "성단":
+                        display_name = _safe_text(row.get("소속", row.get("표시이름", "-")))
+                        display_segment = "성단"
+                    else:
+                        display_name = _display_name_from_row(row, current_seg)
+                        display_segment = _safe_text(row.get("세그먼트", current_seg))
+
+                    if st.button(
+                        f"{btn_idx}위",
+                        key=f"startrail_table_detail_btn_{current_seg}_{btn_idx}_{display_name}",
+                        use_container_width=True,
+                    ):
+                        selected_data = row.to_dict()
+                        selected_data["세그먼트"] = display_segment
+                        selected_data["표시이름"] = display_name
+                        st.session_state.startrail_selected_streamer = selected_data
+                        st.rerun()
 
         with graph_col:
             graph_title = "🌌 성단 TOP15 히트맵" if current_seg == "성단" else "🌌 코멧 타겟팅 맵" if current_seg == "코멧" else f"🌌 {html_lib.escape(current_seg)} 세그먼트 분석 분포"
