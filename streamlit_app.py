@@ -148,6 +148,115 @@ def inject_button_theme_by_page():
 
 inject_button_theme_by_page()
 
+# =========================================================
+# Streamlit 우측 상단 액션 UI 숨김
+# - Share / Star / Edit / GitHub 등 우측 toolbar만 숨김
+# - 좌측 sidebar open/close 토글은 유지
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* header 자체는 sidebar toggle 때문에 유지 */
+    header,
+    header[data-testid="stHeader"],
+    [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        background: transparent !important;
+        overflow: visible !important;
+    }
+
+    /* 우측 toolbar/action 영역 숨김 */
+    [data-testid="stToolbar"],
+    [data-testid="stHeaderActionElements"],
+    [data-testid="stActionButton"],
+    [data-testid="stAppViewBlockContainer"] [data-testid="stToolbar"],
+    header [data-testid="stToolbar"],
+    header [data-testid="stHeaderActionElements"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Streamlit Cloud 우측 액션 버튼 개별 대응 */
+    header button[title="Share"],
+    header button[aria-label="Share"],
+    header a[title="Share"],
+    header a[aria-label="Share"],
+    header button[title*="Share"],
+    header button[aria-label*="Share"],
+    header a[title*="Share"],
+    header a[aria-label*="Share"],
+    header button[title*="GitHub"],
+    header button[aria-label*="GitHub"],
+    header a[title*="GitHub"],
+    header a[aria-label*="GitHub"],
+    header button[title*="Fork"],
+    header button[aria-label*="Fork"],
+    header a[title*="Fork"],
+    header a[aria-label*="Fork"],
+    header button[title*="Star"],
+    header button[aria-label*="Star"],
+    header a[title*="Star"],
+    header a[aria-label*="Star"],
+    header button[title*="Edit"],
+    header button[aria-label*="Edit"],
+    header a[title*="Edit"],
+    header a[aria-label*="Edit"],
+    header button[title*="Deploy"],
+    header button[aria-label*="Deploy"],
+    header a[title*="Deploy"],
+    header a[aria-label*="Deploy"],
+    [data-testid="stDeployButton"],
+    [data-testid="stAppDeployButton"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDecoration"],
+    .stDeployButton,
+    .stAppDeployButton {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* sidebar 토글은 최종적으로 반드시 살림 */
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] *,
+    button[aria-label="Open sidebar"],
+    button[aria-label="Close sidebar"],
+    button[aria-label="사이드바 열기"],
+    button[aria-label="사이드바 닫기"],
+    button[title="Open sidebar"],
+    button[title="Close sidebar"],
+    button[title="사이드바 열기"],
+    button[title="사이드바 닫기"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        overflow: visible !important;
+        z-index: 1000000 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 if "bg_html" not in st.session_state:
     random.seed(42)
     stars = []
