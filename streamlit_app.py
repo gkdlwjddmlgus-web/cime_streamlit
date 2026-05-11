@@ -1126,22 +1126,22 @@ def inject_startrail_css():
 
         /* ============================================================
            STARTRAIL 상단 헤더
-           - 스타시드 대시보드와 유사한 좌측 타이틀 + 우측 설명 카드 구조
-           - 색감은 보라/골드 기반
+           - 스타시드 대시보드와 유사한 좌측 타이틀 + 우측 카드 구조
+           - 보라/골드 색감
         ============================================================ */
 
-        .startrail-page .dashboard-hero {
+        .startrail-page .trail-dashboard-hero {
             position: relative;
             z-index: 3;
-            margin-top: 2px;
+            margin-top: 18px;
             margin-bottom: 30px;
         }
 
-        .startrail-page .hero-top-row {
-            display: flex;
-            justify-content: space-between;
+        .startrail-page .trail-hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 0.58fr;
+            gap: 36px;
             align-items: center;
-            gap: 34px;
         }
 
         .startrail-page .trail-title-wrap {
@@ -1151,154 +1151,149 @@ def inject_startrail_css():
             min-width: 0;
         }
 
-        .startrail-page .trail-logo-box {
-            width: 82px;
-            height: 82px;
-            min-width: 82px;
+        .startrail-page .trail-title-icon {
+            width: 88px;
+            height: 88px;
+            min-width: 88px;
             border-radius: 18px;
-            border: 2px solid rgba(255, 212, 93, 0.72);
+            border: 2px solid rgba(255, 212, 93, 0.66);
             background:
-                radial-gradient(circle at 35% 28%, rgba(255,255,255,0.24), transparent 20%),
-                linear-gradient(145deg, rgba(43, 34, 18, 0.96), rgba(18, 13, 35, 0.98));
+                radial-gradient(circle at 35% 30%, rgba(255,255,255,0.24), transparent 20%),
+                linear-gradient(145deg, rgba(42, 26, 74, 0.96), rgba(14, 12, 33, 0.96));
             box-shadow:
-                0 0 22px rgba(255, 212, 93, 0.20),
-                0 0 28px rgba(125, 66, 255, 0.18),
-                inset 0 0 20px rgba(255,255,255,0.035);
+                0 0 24px rgba(255, 212, 93, 0.20),
+                0 0 34px rgba(139, 92, 255, 0.22),
+                inset 0 0 20px rgba(255,255,255,0.04);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #FFD45D;
-            font-size: 36px;
+            font-size: 40px;
         }
 
-        .startrail-page .hero-main-title {
+        .startrail-page .trail-title-main {
             display: flex;
             align-items: baseline;
             gap: 14px;
-            margin: 0 0 8px 0;
-            line-height: 1.02;
-            word-break: keep-all;
+            flex-wrap: wrap;
+            line-height: 1;
+            margin-bottom: 10px;
         }
 
-        .startrail-page .hero-main-title-ko {
-            font-size: 52px;
+        .startrail-page .trail-title-ko {
+            font-size: 58px;
             font-weight: 950;
-            letter-spacing: -2.6px;
+            letter-spacing: -2.8px;
             color: #FFF8FF;
             text-shadow:
-                0 0 7px rgba(255,255,255,0.36),
-                0 0 18px rgba(198,168,255,0.32),
-                0 0 30px rgba(125,66,255,0.30);
+                0 0 8px rgba(255,255,255,0.38),
+                0 0 22px rgba(198,168,255,0.30),
+                0 0 32px rgba(125,66,255,0.28);
         }
 
-        .startrail-page .hero-main-title-en {
-            font-size: 27px;
+        .startrail-page .trail-title-en {
+            font-size: 32px;
             font-weight: 950;
-            letter-spacing: -1.3px;
             color: #FFD45D;
+            letter-spacing: -1.2px;
             text-shadow:
-                0 0 10px rgba(255, 212, 93, 0.42),
-                0 0 18px rgba(125, 66, 255, 0.18);
+                0 0 12px rgba(255, 212, 93, 0.45),
+                0 0 22px rgba(255, 212, 93, 0.20);
         }
 
-        .startrail-page .hero-title-underbar {
-            width: 330px;
+        .startrail-page .trail-title-underline {
+            width: 300px;
             height: 3px;
             border-radius: 999px;
-            margin: 2px 0 12px 0;
-            background: linear-gradient(90deg, #FFD45D, rgba(155, 107, 255, 0.85), transparent);
-            box-shadow:
-                0 0 14px rgba(255, 212, 93, 0.35),
-                0 0 18px rgba(155, 107, 255, 0.28);
+            margin-bottom: 14px;
+            background: linear-gradient(90deg, #FFD45D, rgba(155, 107, 255, 0.75), transparent);
+            box-shadow: 0 0 16px rgba(255, 212, 93, 0.42);
         }
 
-        .startrail-page .hero-main-subtitle {
-            font-size: 17px;
-            font-weight: 780;
-            color: #E8DFFF;
-            margin-top: 7px;
+        .startrail-page .trail-title-desc {
+            font-size: 18px;
+            font-weight: 850;
+            line-height: 1.48;
+            color: rgba(255,255,255,0.86);
+            letter-spacing: -0.5px;
             word-break: keep-all;
         }
 
-        .startrail-page .hero-date-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-            padding: 8px 15px;
-            border-radius: 999px;
-            background: rgba(8, 18, 35, 0.78) !important;
-            border: 1px solid rgba(255, 212, 93, 0.32);
-            color: #F8E7A0;
-            font-size: 13px;
-            font-weight: 850;
-            box-shadow:
-                0 0 14px rgba(255, 212, 93, 0.14),
-                inset 0 0 12px rgba(255,255,255,0.02);
-        }
-
-        .startrail-page .hero-right-area {
-            width: 560px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .startrail-page .hero-info-card {
+        .startrail-page .trail-period-card {
             width: 100%;
-            min-height: 104px;
+            min-height: 112px;
             border-radius: 22px;
-            background:
-                linear-gradient(135deg, rgba(42, 31, 16, 0.86), rgba(18, 16, 47, 0.92)) !important;
-            border: 1px solid rgba(255, 212, 93, 0.30);
-            box-shadow:
-                0 0 24px rgba(255, 212, 93, 0.12),
-                0 0 26px rgba(125, 66, 255, 0.14),
-                inset 0 0 22px rgba(255,255,255,0.024);
-            padding: 20px 24px;
+            padding: 22px 26px;
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 20px;
+            background:
+                linear-gradient(135deg, rgba(255, 212, 93, 0.13), rgba(21, 16, 47, 0.82) 42%, rgba(14, 12, 33, 0.94));
+            border: 1px solid rgba(255, 212, 93, 0.32);
+            box-shadow:
+                0 0 28px rgba(255, 212, 93, 0.10),
+                0 0 34px rgba(139, 92, 255, 0.14),
+                inset 0 0 22px rgba(255,255,255,0.025);
         }
 
-        .startrail-page .hero-info-icon {
-            min-width: 58px;
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            background:
-                radial-gradient(circle at 35% 28%, rgba(255,255,255,0.95), transparent 16%),
-                linear-gradient(135deg, #FFE278, #C99700 48%, #7B42FF);
-            box-shadow:
-                0 0 18px rgba(255, 212, 93, 0.42),
-                0 0 26px rgba(125, 66, 255, 0.24),
-                inset 0 0 13px rgba(255,255,255,0.18);
+        .startrail-page .trail-period-icon {
+            min-width: 64px;
+            width: 64px;
+            height: 64px;
+            border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 23px;
+            background:
+                radial-gradient(circle at 34% 28%, rgba(255,255,255,0.85), transparent 16%),
+                linear-gradient(135deg, #FFD45D, #9B6BFF);
+            box-shadow:
+                0 0 20px rgba(255, 212, 93, 0.34),
+                inset 0 0 16px rgba(255,255,255,0.14);
             color: #160F2D;
-            font-weight: 950;
+            font-size: 28px;
         }
 
-        .startrail-page .hero-info-title {
+        .startrail-page .trail-period-title {
             font-size: 17px;
             font-weight: 950;
-            color: #FFF9FF;
-            margin-bottom: 6px;
+            color: #FFF8FF;
+            margin-bottom: 8px;
         }
 
-        .startrail-page .hero-info-desc {
-            font-size: 13px;
-            line-height: 1.62;
-            color: rgba(255,255,255,0.72);
-            font-weight: 650;
+        .startrail-page .trail-period-desc {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.55;
+            color: rgba(255,255,255,0.74);
             word-break: keep-all;
         }
 
-        .startrail-page .hero-info-desc .trail-point {
+        .startrail-page .trail-period-date {
             color: #FFD45D;
-            font-weight: 900;
+            font-weight: 950;
+            text-shadow: 0 0 10px rgba(255, 212, 93, 0.28);
+        }
+
+        @media (max-width: 1200px) {
+            .startrail-page .trail-hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .startrail-page .trail-title-ko {
+                font-size: 46px;
+            }
+
+            .startrail-page .trail-title-en {
+                font-size: 25px;
+            }
+
+            .startrail-page .trail-title-icon {
+                width: 74px;
+                height: 74px;
+                min-width: 74px;
+                font-size: 32px;
+            }
         }
 
         /* ============================================================
@@ -2024,7 +2019,7 @@ def render_startrail_dashboard():
     st.markdown('<div class="startrail-page">', unsafe_allow_html=True)
 
     st.html(
-        f"""
+        """
         <div class="trail-dashboard-hero">
             <div class="trail-hero-grid">
 
