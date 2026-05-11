@@ -1660,62 +1660,6 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
     .trail-main-grid { grid-template-columns: 1fr !important; }
     .trail-rank-card { height: auto !important; min-height: 292px !important; }
 }
-
-/* =========================================================
-   STARTRAIL PATCH: priority table no-wrap correction
-   - 하단 영입 우선순위 리스트의 헤더/값 줄바꿈 방지
-   - 순위/플랫폼/스코어 컬럼은 좁게, 이름/도네이션 컬럼은 넓게 배치
-========================================================= */
-.trail-table {
-    table-layout: fixed !important;
-    width: 100% !important;
-}
-.trail-table th,
-.trail-table td {
-    white-space: nowrap !important;
-    word-break: keep-all !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    vertical-align: middle !important;
-    line-height: 1.18 !important;
-    box-sizing: border-box !important;
-}
-.trail-table th {
-    font-size: 10.4px !important;
-    padding: 9px 4px !important;
-    height: 46px !important;
-    letter-spacing: -0.04em !important;
-}
-.trail-table td {
-    font-size: 10.8px !important;
-    padding: 9px 4px !important;
-    height: 68px !important;
-    letter-spacing: -0.035em !important;
-}
-.trail-table td:nth-child(1),
-.trail-table th:nth-child(1),
-.trail-table td:nth-child(3),
-.trail-table th:nth-child(3),
-.trail-table td:nth-child(4),
-.trail-table th:nth-child(4),
-.trail-table td:nth-child(5),
-.trail-table th:nth-child(5) {
-    padding-left: 2px !important;
-    padding-right: 2px !important;
-}
-.trail-table td b {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: block !important;
-    max-width: 100% !important;
-}
-.trail-table .platform-logo,
-.trail-table img {
-    max-width: 26px !important;
-    height: 22px !important;
-    object-fit: contain !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -2122,44 +2066,17 @@ def render_startrail_dashboard():
         table_col, graph_col = st.columns([1.02, 1.05], gap="large")
         with table_col:
             st.markdown(f"<div class='trail-bottom-title'>📋 {html_lib.escape(current_seg)} 영입 우선순위 리스트</div>", unsafe_allow_html=True)
+            table_html = "<table class='trail-table'><thead><tr>"
             if current_seg == "성단":
-                table_html = """
-                <table class='trail-table trail-table-cluster'>
-                    <colgroup>
-                        <col style='width:7%;'>
-                        <col style='width:17%;'>
-                        <col style='width:10%;'>
-                        <col style='width:10%;'>
-                        <col style='width:12%;'>
-                        <col style='width:21%;'>
-                        <col style='width:23%;'>
-                    </colgroup>
-                    <thead><tr>
-                        <th>순위</th><th>소속</th><th>스코어</th><th>상위%</th><th>멤버수</th><th>뷰어십합계</th><th>도네이션합계</th>
-                    </tr></thead><tbody>
-                """
+                table_html += "<th>순위</th><th>소속</th><th>스코어</th><th>상위 %</th><th>멤버 수</th><th>뷰어십 합계</th><th>도네이션 합계</th>"
             else:
-                table_html = """
-                <table class='trail-table trail-table-streamer'>
-                    <colgroup>
-                        <col style='width:7%;'>
-                        <col style='width:16%;'>
-                        <col style='width:8%;'>
-                        <col style='width:10%;'>
-                        <col style='width:9%;'>
-                        <col style='width:13%;'>
-                        <col style='width:14%;'>
-                        <col style='width:23%;'>
-                    </colgroup>
-                    <thead><tr>
-                        <th>순위</th><th>스트리머명</th><th>플랫폼</th><th>스코어</th><th>상위%</th><th>팔로워수</th><th>평균시청자</th><th>평균도네이션</th>
-                    </tr></thead><tbody>
-                """
+                table_html += "<th>순위</th><th>스트리머명</th><th>플랫폼</th><th>스코어</th><th>상위 %</th><th>팔로워수</th><th>평균시청자</th><th>평균 도네이션</th>"
+            table_html += "</tr></thead><tbody>"
             for _, row in filtered_df.head(5).iterrows():
                 if current_seg == "성단":
-                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('소속'))}</b></td><td style='color:#75CCFF; font-weight:950;'>{_num(row.get('스코어')):.0f}</td><td style='color:#FFD45D; font-weight:950;'>상위 {_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('멤버수')):,.0f}</td><td>{_num(row.get('합계_뷰어십')):,.0f}</td><td>₩{_num(row.get('합계_도네이션')):,.0f}</td></tr>"
+                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('소속'))}</b></td><td style='color:#75CCFF; font-weight:950;'>{_num(row.get('스코어')):.0f}</td><td style='color:#FFD45D; font-weight:950;'>상위<br>{_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('멤버수')):,.0f}</td><td>{_num(row.get('합계_뷰어십')):,.0f}</td><td>₩ {_num(row.get('합계_도네이션')):,.0f}</td></tr>"
                 else:
-                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('스트리머'))}</b></td><td>{_platform_badge(row.get('플랫폼', ''))}</td><td style='color:#00f2ff; font-weight:950;'>{_num(row.get('스코어')):.2f}</td><td style='color:#FFD45D; font-weight:950;'>상위 {_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('팔로워수')):,.0f}</td><td>{_num(row.get('평균시청자')):,.0f}</td><td>₩{_num(row.get('평균도네이션')):,.0f}</td></tr>"
+                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('스트리머'))}</b></td><td>{_platform_badge(row.get('플랫폼', ''))}</td><td style='color:#00f2ff; font-weight:950;'>{_num(row.get('스코어')):.2f}</td><td style='color:#FFD45D; font-weight:950;'>상위<br>{_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('팔로워수')):,.0f}</td><td>{_num(row.get('평균시청자')):,.0f}</td><td>₩ {_num(row.get('평균도네이션')):,.0f}</td></tr>"
             table_html += "</tbody></table>"
             st.markdown(table_html, unsafe_allow_html=True)
 
