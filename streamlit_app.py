@@ -1113,7 +1113,7 @@ def build_startrail_candidate_data(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def inject_startrail_css():
-    st.html(
+    st.markdown(
         """
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -1275,6 +1275,51 @@ def inject_startrail_css():
             text-shadow: 0 0 10px rgba(255, 212, 93, 0.28);
         }
 
+        .startrail-page .trail-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin: 18px 0 26px 0;
+        }
+
+        .startrail-page .trail-kpi-card {
+            min-height: 92px;
+            border-radius: 16px;
+            padding: 18px 22px;
+            background:
+                radial-gradient(circle at 12% 28%, rgba(255, 212, 93, 0.06), transparent 34%),
+                linear-gradient(180deg, rgba(14,18,43,0.88), rgba(6,11,27,0.96));
+            border: 1px solid rgba(255, 212, 93, 0.18);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.045),
+                0 12px 26px rgba(0,0,0,0.24);
+        }
+
+        .startrail-page .trail-kpi-label {
+            color: rgba(255,255,255,0.76);
+            font-size: 13px;
+            font-weight: 850;
+            margin-bottom: 8px;
+        }
+
+        .startrail-page .trail-kpi-value {
+            color: #FFF9FF;
+            font-size: 34px;
+            font-weight: 950;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+            text-shadow:
+                0 0 10px rgba(255,255,255,0.18),
+                0 0 18px rgba(125,66,255,0.16);
+        }
+
+        .startrail-page .trail-section-divider {
+            height: 1px;
+            width: 100%;
+            background: rgba(196,143,255,0.22);
+            margin: 8px 0 28px 0;
+        }
+
         @media (max-width: 1200px) {
             .startrail-page .trail-hero-grid {
                 grid-template-columns: 1fr;
@@ -1293,6 +1338,10 @@ def inject_startrail_css():
                 height: 74px;
                 min-width: 74px;
                 font-size: 32px;
+            }
+
+            .startrail-page .trail-kpi-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1975,20 +2024,19 @@ def inject_startrail_css():
             }
         }
         </style>
-        """
+        """,
+        unsafe_allow_html=True,
     )
 
 
 def render_startrail_dashboard():
     inject_startrail_css()
-    st.markdown('<div class="startrail-page">', unsafe_allow_html=True)
     summary = load_startrail_summary_data()
     kpi = load_startrail_kpi_data()
     raw = load_startrail_raw_candidate_data()
     df = build_startrail_candidate_data(raw)
     constellation_df = load_startrail_constellation_data()
-    st.markdown('</div>', unsafe_allow_html=True)
-    
+
     if not summary or not kpi:
         st.error("스타트레일 요약/KPI CSV를 찾지 못했습니다. `10_dashboard/data/startrail_대시보드요약.csv`, `startrail_핵심KPI.csv` 경로를 확인해주세요.")
         return
@@ -2016,61 +2064,69 @@ def render_startrail_dashboard():
     if "startrail_selected_streamer" not in st.session_state:
         st.session_state.startrail_selected_streamer = None
 
-    st.markdown('<div class="startrail-page">', unsafe_allow_html=True)
+    total_streamer = _num(kpi.get("총 분석 스트리머 수"))
+    avg_viewership = _num(kpi.get("평균 뷰어십"))
+    avg_donation = _num(kpi.get("평균 도네이션"))
 
-    st.html(
-        """
-        <div class="trail-dashboard-hero">
-            <div class="trail-hero-grid">
-
-                <div class="trail-title-wrap">
-                    <div class="trail-title-icon">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-
-                    <div>
-                        <div class="trail-title-main">
-                            <span class="trail-title-ko">스타트레일</span>
-                            <span class="trail-title-en">Star Trail</span>
+    st.markdown(
+        f"""
+        <div class="startrail-page">
+            <div class="trail-dashboard-hero">
+                <div class="trail-hero-grid">
+                    <div class="trail-title-wrap">
+                        <div class="trail-title-icon">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </div>
 
-                        <div class="trail-title-underline"></div>
+                        <div>
+                            <div class="trail-title-main">
+                                <span class="trail-title-ko">스타트레일</span>
+                                <span class="trail-title-en">Star Trail</span>
+                            </div>
+                            <div class="trail-title-underline"></div>
+                            <div class="trail-title-desc">
+                                기존 플랫폼의 성과와 팬덤 궤적을 따라<br>
+                                CIME 영입 우선 후보군을 찾습니다
+                            </div>
+                        </div>
+                    </div>
 
-                        <div class="trail-title-desc">
-                            기존 플랫폼의 성과와 팬덤 궤적을 따라<br>
-                            CIME 영입 우선 후보군을 찾습니다
+                    <div class="trail-period-card">
+                        <div class="trail-period-icon">
+                            <i class="fa-regular fa-calendar-days"></i>
+                        </div>
+
+                        <div>
+                            <div class="trail-period-title">분석 기간</div>
+                            <div class="trail-period-desc">
+                                기존 플랫폼의 활동 데이터를 기준으로<br>
+                                <span class="trail-period-date">2025.01.01 ~ 2026.03.31</span> 기간의 후보군을 분석합니다.
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="trail-period-card">
-                    <div class="trail-period-icon">
-                        <i class="fa-regular fa-calendar-days"></i>
-                    </div>
-
-                    <div>
-                        <div class="trail-period-title">분석 기간</div>
-                        <div class="trail-period-desc">
-                            기존 플랫폼의 활동 데이터를 기준으로<br>
-                            <span class="trail-period-date">2025.01.01 ~ 2026.03.31</span> 기간의 후보군을 분석합니다.
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+            <div class="trail-kpi-grid">
+                <div class="trail-kpi-card">
+                    <div class="trail-kpi-label">총 분석 스트리머 수</div>
+                    <div class="trail-kpi-value">{total_streamer:,.0f}명</div>
+                </div>
+                <div class="trail-kpi-card">
+                    <div class="trail-kpi-label">평균 뷰어십</div>
+                    <div class="trail-kpi-value">{avg_viewership:,.0f}</div>
+                </div>
+                <div class="trail-kpi-card">
+                    <div class="trail-kpi-label">평균 도네이션</div>
+                    <div class="trail-kpi-value">₩ {avg_donation:,.0f}</div>
+                </div>
+            </div>
+
+            <div class="trail-section-divider"></div>
         </div>
-        """
+        """,
+        unsafe_allow_html=True,
     )
-
-    k1, k2, k3 = st.columns(3)
-    with k1:
-        st.metric("총 분석 스트리머 수", f"{_num(kpi.get('총 분석 스트리머 수')):,.0f} 명")
-    with k2:
-        st.metric("평균 뷰어십", f"{_num(kpi.get('평균 뷰어십')):,.0f}")
-    with k3:
-        st.metric("평균 도네이션", f"₩ {_num(kpi.get('평균 도네이션')):,.0f}")
-
-    st.write("---")
 
     st.write("### 🛸 세그먼트 전략")
 
@@ -2521,7 +2577,6 @@ def render_startrail_dashboard():
                 fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                 st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================================================
 # 페이지 라우팅
