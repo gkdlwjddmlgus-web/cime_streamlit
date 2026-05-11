@@ -2425,18 +2425,129 @@ def reason_short(row):
 # 15. 스타시드 본문
 # =========================================================
 
+
+# =========================================================
+# STAR SEED 상단 히어로 오버라이드
+# - STAR TRAIL처럼 영문 글로우 타이틀 적용
+# - 기존 부가 설명과 기준 카드 문구는 유지
+# =========================================================
+st.markdown(
+    """
+    <style>
+    .block-container:has(.starseed-board) {
+        padding-top: 0 !important;
+        margin-top: -0.35rem !important;
+    }
+
+    .starseed-board .starseed-hero-modern {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 560px !important;
+        column-gap: 44px !important;
+        align-items: center !important;
+        margin: 0 0 18px 0 !important;
+        padding: 36px 0 8px 0 !important;
+    }
+
+    .starseed-board .starseed-title-block {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 0 !important;
+        min-height: 150px !important;
+        align-items: center !important;
+    }
+
+    .starseed-board .board-title-icon {
+        display: none !important;
+    }
+
+    .starseed-board .starseed-glow-title {
+        display: block !important;
+        margin: 0 0 16px 0 !important;
+        padding: 0 !important;
+        color: #FFF8FF !important;
+        font-size: clamp(58px, 5.6vw, 92px) !important;
+        line-height: 0.96 !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.22em !important;
+        white-space: nowrap !important;
+        text-transform: uppercase !important;
+        text-shadow:
+            0 0 8px rgba(255,255,255,0.70),
+            0 0 24px rgba(180,255,197,0.42),
+            0 0 46px rgba(131,246,160,0.28),
+            0 0 70px rgba(125,66,255,0.30) !important;
+    }
+
+    .starseed-board .starseed-glow-subtitle {
+        margin: 0 !important;
+        color: #E8DFFF !important;
+        font-size: 18px !important;
+        line-height: 1.55 !important;
+        font-weight: 850 !important;
+        letter-spacing: -0.035em !important;
+        text-align: left !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        text-shadow: 0 0 12px rgba(131,246,160,0.12) !important;
+    }
+
+    .starseed-board .starseed-criteria-card {
+        min-height: 112px !important;
+        border-radius: 22px !important;
+        padding: 22px 28px !important;
+        grid-template-columns: 62px minmax(0,1fr) !important;
+        border: 1px solid rgba(131,246,160,0.30) !important;
+        background:
+            radial-gradient(circle at 10% 45%, rgba(131,246,160,0.13), transparent 32%),
+            linear-gradient(135deg, rgba(11,35,28,0.76), rgba(18,16,45,0.86)) !important;
+        box-shadow:
+            0 0 22px rgba(131,246,160,0.08),
+            inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    }
+
+    .starseed-board .starseed-criteria-card .board-info-icon {
+        width: 54px !important;
+        height: 54px !important;
+        font-size: 24px !important;
+        box-shadow: 0 0 18px rgba(88,233,132,0.22) !important;
+    }
+
+    .starseed-board .starseed-criteria-card .board-info-title {
+        font-size: 15px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .starseed-board .starseed-criteria-card .board-info-text {
+        font-size: 12.5px !important;
+        line-height: 1.55 !important;
+    }
+
+    @media (max-width: 1200px) {
+        .starseed-board .starseed-hero-modern {
+            grid-template-columns: 1fr !important;
+            row-gap: 18px !important;
+        }
+
+        .starseed-board .starseed-glow-title {
+            font-size: clamp(44px, 9vw, 72px) !important;
+            letter-spacing: 0.14em !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 html(f"""
 <div class="starseed-board">
-    <div class="board-hero board-hero-compact">
-        <div class="board-head-left">
-            <div class="board-title-icon">{SEED_ICON_HTML}</div>
+    <div class="board-hero board-hero-compact starseed-hero-modern">
+        <div class="board-head-left starseed-title-block">
             <div>
-                <div class="board-title board-title-ko">스타시드 <span>Star Seed</span></div>
-                <div class="board-title-accent-line"></div>
-                <div class="board-subtitle">유튜브 기반 성장 잠재력과 라이브 전환 가능성을 분석해, 차세대 후보군을 발굴합니다</div>
+                <div class="board-title board-title-ko starseed-glow-title">STAR SEED</div>
+                <div class="board-subtitle starseed-glow-subtitle">유튜브 기반 성장 잠재력과 라이브 전환 가능성을 분석해, 차세대 후보군을 발굴합니다</div>
             </div>
         </div>
-        <div class="board-info-card">
+        <div class="board-info-card starseed-criteria-card">
             <div class="board-info-icon">✦</div>
             <div>
                 <div class="board-info-title">후보를 선별하는 기준</div>
