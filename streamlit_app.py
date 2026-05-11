@@ -1809,15 +1809,15 @@ div[data-testid="column"]:last-child .trail-tooltip-text {
     margin-top: 0 !important;
 }
 div[data-testid="column"]:has(.trail-detail-button-title) .stButton {
-    height: 52px !important;
-    min-height: 52px !important;
+    height: 49px !important;
+    min-height: 49px !important;
     display: flex !important;
     align-items: center !important;
     margin: 0 !important;
 }
 div[data-testid="column"]:has(.trail-detail-button-title) .stButton > button {
-    height: 36px !important;
-    min-height: 36px !important;
+    height: 34px !important;
+    min-height: 34px !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     border-radius: 999px !important;
@@ -1844,10 +1844,18 @@ div[data-testid="column"]:has(.trail-detail-button-title) .element-container {
     padding: 0 !important;
 }
 .trail-table-team-style tbody tr {
-    height: 52px !important;
+    height: 49px !important;
 }
 .trail-table-team-style thead tr {
-    height: 50px !important;
+    height: 48px !important;
+}
+.trail-table-team-style th {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+.trail-table-team-style td {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
 }
 
 </style>
