@@ -1668,3 +1668,107 @@ with st.expander("영입 점수 설명", expanded=False):
         '<div class="explain-box"><b>기본 산식</b><br><code>영입점수 = 0.22×채널력 + 0.28×성장성 + 0.22×팬밀도 + 0.15×라이브친화 + 0.13×실전성 - 리스크 감점</code><br><br>성장성에 가장 높은 가중치를 둔 이유는 신생 플랫폼 입장에서 이미 너무 큰 채널보다, 최근 반응과 성장 흐름이 확인되는 후보가 영입 현실성이 높다고 보았기 때문입니다. 채널력과 팬밀도는 최소 체급과 팬덤 결집력을 균형 있게 반영하고, 라이브친화와 실전성은 실제 방송 전환 가능성과 운영 리스크를 보정합니다.</div>',
         unsafe_allow_html=True,
     )
+
+# =========================================================
+# 접힌 사이드바 열기 토글 가시성 개선
+# - sidebar가 접힌 상태의 open 토글만 ☰ 형태로 변경
+# - sidebar가 열린 상태의 close 토글은 기존 모양 유지
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* 접힌 상태에서 보이는 사이드바 열기 토글 컨테이너 */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important;
+        top: 22px !important;
+        left: 18px !important;
+        width: 42px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 1000000 !important;
+    }
+
+    /* 접힌 상태 열기 버튼 자체 */
+    [data-testid="collapsedControl"] button,
+    [data-testid="stSidebarCollapsedControl"] button {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        border-radius: 999px !important;
+        border: 1px solid rgba(152, 255, 171, 0.48) !important;
+        background:
+            radial-gradient(circle at 35% 25%, rgba(152,255,171,0.18), transparent 42%),
+            rgba(7, 18, 34, 0.92) !important;
+        box-shadow:
+            0 0 16px rgba(95, 255, 160, 0.18),
+            inset 0 1px 0 rgba(255,255,255,0.10) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        color: transparent !important;
+    }
+
+    /* 기존 >> / svg 아이콘은 접힌 상태에서만 숨김 */
+    [data-testid="collapsedControl"] button svg,
+    [data-testid="collapsedControl"] button img,
+    [data-testid="collapsedControl"] button span,
+    [data-testid="stSidebarCollapsedControl"] button svg,
+    [data-testid="stSidebarCollapsedControl"] button img,
+    [data-testid="stSidebarCollapsedControl"] button span {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    /* 접힌 상태 열기 토글을 ☰ 모양으로 표시 */
+    [data-testid="collapsedControl"] button::before,
+    [data-testid="stSidebarCollapsedControl"] button::before {
+        content: "☰";
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        color: #DFFFF0 !important;
+        font-size: 23px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        text-shadow: 0 0 10px rgba(152,255,171,0.32) !important;
+        transform: translateY(-1px);
+    }
+
+    [data-testid="collapsedControl"] button:hover,
+    [data-testid="stSidebarCollapsedControl"] button:hover {
+        border-color: rgba(152, 255, 171, 0.72) !important;
+        background:
+            radial-gradient(circle at 35% 25%, rgba(152,255,171,0.25), transparent 42%),
+            rgba(9, 32, 42, 0.96) !important;
+        box-shadow:
+            0 0 20px rgba(95, 255, 160, 0.26),
+            inset 0 1px 0 rgba(255,255,255,0.14) !important;
+    }
+
+    /* 열린 상태의 닫기 토글은 건드리지 않음 */
+    section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
+    section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
+    section[data-testid="stSidebar"] button[title="Close sidebar"],
+    section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
+    section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
