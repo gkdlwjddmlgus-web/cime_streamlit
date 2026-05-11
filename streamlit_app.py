@@ -2750,12 +2750,41 @@ def is_unclassified_value(series: pd.Series) -> pd.Series:
     return series.astype(str).str.strip().isin(["", "미분류", "None", "none", "nan", "NaN", "NULL", "null", "<NA>"])
 
 
+CONTENT_SEGMENT_COL_CANDIDATES = [
+    "주요콘텐츠군",
+    "주요 콘텐츠군",
+    "대표상위세그먼트",
+    "상위 콘텐츠군",
+    "콘텐츠군",
+    "대표세그먼트",
+    "segment",
+    "segment_unified",
+    "대표상위세그먼트명",
+]
+
+
 def apply_unclassified_hold_rule(data: pd.DataFrame, seg_col: str | None, action_col_name: str | None, output_col: str = "검토단계_표시") -> pd.DataFrame:
+    """주요 콘텐츠군이 미분류/공백이면 검토단계를 보류로 강제한다.
+
+    화면용 컬럼(output_col)에만 반영하므로 원본 액션버킷 컬럼은 보존된다.
+    `주요콘텐츠군`처럼 공백 없는 컬럼명과 `주요 콘텐츠군`처럼 공백 있는 컬럼명을 모두 대응한다.
+    """
     out = data.copy()
     out[output_col] = out[action_col_name] if action_col_name and action_col_name in out.columns else pd.NA
-    out[output_col] = out[output_col].replace(["None", "nan", "NaN", "", None], pd.NA).fillna("미분류")
+    out[output_col] = out[output_col].replace(["None", "none", "nan", "NaN", "", None], pd.NA).fillna("미분류")
+
+    check_cols = []
     if seg_col and seg_col in out.columns:
-        out.loc[is_unclassified_value(out[seg_col]), output_col] = "보류"
+        check_cols.append(seg_col)
+    for col in CONTENT_SEGMENT_COL_CANDIDATES:
+        if col in out.columns and col not in check_cols:
+            check_cols.append(col)
+
+    if check_cols:
+        hold_mask = pd.Series(False, index=out.index)
+        for col in check_cols:
+            hold_mask = hold_mask | is_unclassified_value(out[col])
+        out.loc[hold_mask, output_col] = "보류"
     return out
 
 
@@ -2864,7 +2893,7 @@ channel_url_col = first_existing(df, ["channel_url", "채널URL", "youtube_chann
 
 score_col = first_existing(df, ["최종점수", "최종점수_100점", "영입적합도점수", "영입 적합도 점수", "영입종합점수", "영입 종합 점수", "위성점수_log_minmax", "final_score", "score"])
 rank_col = first_existing(df, ["운영우선순위", "최종순위", "현재 필터 기준 순위", "순위", "rank", "final_rank"])
-segment_col = first_existing(df, ["대표상위세그먼트", "주요 콘텐츠군", "상위 콘텐츠군", "대표세그먼트", "segment", "segment_unified", "대표상위세그먼트명"])
+segment_col = first_existing(df, CONTENT_SEGMENT_COL_CANDIDATES)
 lower_segment_col = first_existing(df, ["대표하위세그먼트", "세부 콘텐츠 유형", "하위 콘텐츠군", "sub_segment", "대표하위세그먼트명", "segment_seed", "segment_seed_raw"])
 action_col = first_existing(df, ["액션버킷", "검토 단계", "현재 검토 단계", "현재검토단계", "action_bucket"])
 shortlist_col = first_existing(df, ["shortlist_선정여부", "shortlist 선정 여부", "shortlist", "is_shortlist", "shortlist_selected"])
@@ -2955,7 +2984,7 @@ if not snapshot_prepared_df.empty:
 
 def apply_snapshot_filters_for_kpi(base_df: pd.DataFrame) -> pd.DataFrame:
     out = base_df.copy()
-    local_segment_col = first_existing(out, ["대표상위세그먼트", "대표세그먼트", "segment", "대표상위세그먼트명"])
+    local_segment_col = first_existing(out, CONTENT_SEGMENT_COL_CANDIDATES)
     local_lower_segment_col = first_existing(out, ["대표하위세그먼트", "sub_segment", "대표하위세그먼트명"])
     local_action_col = first_existing(out, ["검토단계_표시", "액션버킷", "action_bucket"])
     local_shortlist_col = first_existing(out, ["shortlist_선정여부", "shortlist", "shortlisted"])
@@ -3025,7 +3054,7 @@ def standardize_for_tracking(source: pd.DataFrame, prefix: str) -> pd.DataFrame:
     rank_col_local = first_existing(src, ["운영우선순위", "최종순위", "rank", "순위"])
     score_col_local = first_existing(src, ["최종점수", "위성점수_log_minmax", "final_score", "score"])
     action_col_local = first_existing(src, ["검토단계_표시", "액션버킷", "action_bucket"])
-    upper_col = first_existing(src, ["대표상위세그먼트", "대표세그먼트", "segment", "대표상위세그먼트명"])
+    upper_col = first_existing(src, CONTENT_SEGMENT_COL_CANDIDATES)
     lower_col = first_existing(src, ["대표하위세그먼트", "sub_segment", "대표하위세그먼트명"])
     if id_col is None:
         return pd.DataFrame()
