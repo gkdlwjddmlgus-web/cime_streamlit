@@ -1528,16 +1528,37 @@ def render_startrail_dashboard():
     else:
         filtered_df = pd.DataFrame(columns=list(filtered_df.columns) + ["순위", "상위퍼센트"] if hasattr(filtered_df, 'columns') else ["순위", "상위퍼센트"])
 
-    # 오른쪽 상세 패널을 TOP5와 같은 높이에서 시작시키기 위해 큰 그리드로 묶음
+    # TOP5 영역과 우측 상세 패널을 큰 그리드로 묶음
+    # 플랫폼 필터는 우측 상세 패널 위가 아니라 TOP5 영역 우상단에 배치한다.
     left_area, right_area = st.columns([2.35, 0.85], gap="large")
 
-    with right_area:
-        if current_seg == "코멧":
-            platform_filter = st.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter_comet")
-            segment_detail_filter = st.selectbox("세그먼트 필터", ["전체", "X 강세형", "유튜브 강세형", "하이브리드"], key="startrail_segment_detail_filter")
-        elif current_seg != "성단":
-            platform_filter = st.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter")
-        st.markdown('<div class="trail-side-filter-spacer"></div>', unsafe_allow_html=True)
+    with left_area:
+        top_title_col, top_filter_col = st.columns([1.72, 0.72], gap="large")
+        with top_title_col:
+            st.markdown(
+                f'<div class="startrail-page"><div class="trail-section-title">🏆 {html_lib.escape(current_seg)} TOP 5</div></div>',
+                unsafe_allow_html=True,
+            )
+        with top_filter_col:
+            if current_seg == "코멧":
+                platform_filter = st.selectbox(
+                    "플랫폼 필터",
+                    ["전체", "SOOP", "CHZZK"],
+                    key="startrail_platform_filter_comet",
+                )
+                segment_detail_filter = st.selectbox(
+                    "세그먼트 필터",
+                    ["전체", "X 강세형", "유튜브 강세형", "하이브리드"],
+                    key="startrail_segment_detail_filter",
+                )
+            elif current_seg != "성단":
+                platform_filter = st.selectbox(
+                    "플랫폼 필터",
+                    ["전체", "SOOP", "CHZZK"],
+                    key="startrail_platform_filter",
+                )
+            else:
+                st.markdown('<div style="height:64px;"></div>', unsafe_allow_html=True)
 
     if current_seg != "성단" and not filtered_df.empty:
         if platform_filter != "전체" and "플랫폼" in filtered_df.columns:
@@ -1573,7 +1594,6 @@ def render_startrail_dashboard():
         st.session_state.startrail_selected_streamer = selected
 
     with left_area:
-        st.markdown(f'<div class="startrail-page"><div class="trail-section-title">🏆 {html_lib.escape(current_seg)} TOP 5</div></div>', unsafe_allow_html=True)
         if top_5.empty:
             st.warning("선택한 조건에 해당하는 후보가 없습니다.")
         else:
