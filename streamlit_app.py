@@ -43,6 +43,13 @@ MIN_TRACKING_DATE_LABEL = MIN_TRACKING_DATE.strftime("%Y-%m-%d")
 COSMIC_COLORS = ["#8b5cf6", "#5b7cfa", "#c94ea2", "#33c7b1", "#f09a4a", "#8fb4ff", "#b48cff"]
 
 # =========================================================
+# 성능 메모
+# - 이미지 base64 변환은 파일 mtime 기준으로 캐싱한다.
+# - 배경 별 DOM 노드는 64개로 제한해 화면 전환 초기 렌더링 부담을 줄인다.
+# - 기존 페이지 구조와 디자인 클래스명은 유지한다.
+# =========================================================
+
+# =========================================================
 # 1. 세션 상태 / 홈 카드 데이터
 # =========================================================
 
@@ -353,7 +360,7 @@ st.markdown(
 if "bg_html" not in st.session_state:
     random.seed(42)
     stars = []
-    for _ in range(90):
+    for _ in range(64):
         size = random.uniform(1.2, 3.6)
         x = random.uniform(0, 100)
         y = random.uniform(0, 100)
@@ -1019,13 +1026,29 @@ def startrail_resolve_path(relative_path) -> Path:
     return here.parent / rel
 
 
+@st.cache_data(show_spinner=False, max_entries=512)
+def _startrail_file_to_base64_cached(abs_path: str, mtime_ns: int) -> str:
+    """로컬 assets 이미지를 base64로 변환한다.
+
+    Streamlit rerun 때 같은 이미지를 반복 인코딩하지 않도록 캐시한다.
+    mtime_ns를 인자로 받아 assets 파일이 바뀌면 캐시가 자동 갱신된다.
+    """
+    try:
+        return base64.b64encode(Path(abs_path).read_bytes()).decode()
+    except Exception:
+        return ""
+
+
 def startrail_img_to_base64(relative_path: str) -> str:
     path = startrail_resolve_path(relative_path)
+    fallback = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
     try:
-        with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
+        if not path.exists() or not path.is_file():
+            return fallback
+        encoded = _startrail_file_to_base64_cached(str(path), path.stat().st_mtime_ns)
+        return encoded or fallback
     except Exception:
-        return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+        return fallback
 
 
 def startrail_local_image_src(relative_path: str) -> str:
@@ -1048,7 +1071,9 @@ def startrail_local_image_src(relative_path: str) -> str:
         ext = "png"
 
     try:
-        encoded = base64.b64encode(path.read_bytes()).decode()
+        encoded = _startrail_file_to_base64_cached(str(path), path.stat().st_mtime_ns)
+        if not encoded:
+            return text
         return f"data:image/{ext};base64,{encoded}"
     except Exception:
         return text
