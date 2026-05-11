@@ -8458,3 +8458,54 @@ if st.session_state.get("page") == "대시보드 홈":
         ),
         unsafe_allow_html=True,
     )
+
+# =========================================================
+# 101. 최종 보정: STAR SEED 대시보드 최상단 여백 홈 화면 기준으로 재조정
+# - 기존 1-10 블록에서 margin-top:-58px로 과하게 당기던 값을 완화
+# - 홈 화면과 비슷하게 브라우저/헤더 아래에 자연스러운 여백 확보
+# - KPI/추천후보/테이블 내부 레이아웃은 건드리지 않음
+# =========================================================
+if st.session_state.get("page") == "스타시드":
+    st.markdown(
+        clean_html(
+            """
+            <style>
+            /* Streamlit 기본 헤더/사이드바 토글은 유지 */
+            [data-testid="stHeader"] {
+                height: 1.55rem !important;
+                min-height: 1.55rem !important;
+                max-height: 1.55rem !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            /* 홈 화면 정도의 상단 여백 확보: 기존 -2.8rem을 완화 */
+            .block-container:has(.starseed-board) {
+                padding-top: 0 !important;
+                margin-top: -0.6rem !important;
+                padding-bottom: 2.5rem !important;
+            }
+
+            /* 기존 -58px로 과하게 올라가던 STAR SEED 본문을 아래로 복원 */
+            .starseed-board {
+                margin-top: 10px !important;
+                padding-top: 0 !important;
+            }
+
+            /* 상단 히어로 영역 자체의 시작점만 정돈 */
+            .board-hero,
+            .board-hero-compact,
+            .starseed-dashboard-hero {
+                margin-top: 0 !important;
+            }
+
+            /* 상단 제목/부제는 내부 간격 유지 */
+            .board-head-left,
+            .starseed-head-left {
+                padding-top: 0 !important;
+            }
+            </style>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
