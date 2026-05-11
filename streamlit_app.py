@@ -50,6 +50,104 @@ if "page" not in st.session_state:
 if "card" not in st.session_state:
     st.session_state.card = None
 
+# =========================================================
+# 페이지별 버튼 primary 색상 사전 주입
+# - 버튼이 렌더링되기 전에 먼저 CSS를 넣어 빨강 → 초록 플래시 방지
+# - 홈: 보라
+# - 스타시드: 초록
+# - 스타트레일: 보라/골드
+# =========================================================
+
+def inject_button_theme_by_page():
+    current_page = st.session_state.get("page", "대시보드 홈")
+
+    if current_page == "스타시드":
+        primary_bg = "linear-gradient(135deg, rgba(32, 165, 92, 0.98), rgba(12, 104, 72, 0.98))"
+        primary_bg_hover = "linear-gradient(135deg, rgba(44, 190, 112, 1), rgba(16, 124, 84, 1))"
+        primary_border = "rgba(131, 246, 160, 0.56)"
+        primary_border_hover = "rgba(152, 255, 171, 0.74)"
+        primary_shadow = "0 0 14px rgba(131, 246, 160, 0.18), inset 0 1px 0 rgba(255,255,255,0.14)"
+        secondary_border = "rgba(131, 246, 160, 0.22)"
+        secondary_hover_border = "rgba(131, 246, 160, 0.42)"
+
+    elif current_page == "스타트레일":
+        primary_bg = "linear-gradient(135deg, rgba(125, 66, 255, 0.98), rgba(75, 42, 168, 0.98) 58%, rgba(184, 138, 46, 0.94))"
+        primary_bg_hover = "linear-gradient(135deg, rgba(145, 86, 255, 1), rgba(95, 55, 190, 1) 58%, rgba(210, 160, 60, 0.98))"
+        primary_border = "rgba(255, 212, 93, 0.58)"
+        primary_border_hover = "rgba(255, 226, 135, 0.76)"
+        primary_shadow = "0 0 16px rgba(255, 212, 93, 0.16), inset 0 1px 0 rgba(255,255,255,0.12)"
+        secondary_border = "rgba(196, 143, 255, 0.28)"
+        secondary_hover_border = "rgba(228, 205, 255, 0.58)"
+
+    else:
+        primary_bg = "linear-gradient(135deg, #8B4DFF 0%, #6D38E8 52%, #7D42FF 100%)"
+        primary_bg_hover = "linear-gradient(135deg, #9B65FF 0%, #7D42FF 56%, #8B4DFF 100%)"
+        primary_border = "rgba(229, 155, 255, 0.68)"
+        primary_border_hover = "rgba(240, 190, 255, 0.82)"
+        primary_shadow = "0 0 20px rgba(125, 66, 255, 0.34), inset 0 1px 0 rgba(255,255,255,0.13)"
+        secondary_border = "rgba(196, 143, 255, 0.28)"
+        secondary_hover_border = "rgba(228, 205, 255, 0.58)"
+
+    st.markdown(
+        f"""
+        <style>
+        /* 모든 primary 버튼: 현재 페이지 기준 active 색상 */
+        html body .stApp button[data-testid="stBaseButton-primary"],
+        html body .stApp button[data-testid="baseButton-primary"],
+        html body .stApp button[kind="primary"] {{
+            background: {primary_bg} !important;
+            background-color: transparent !important;
+            color: #F8FFF9 !important;
+            border: 1px solid {primary_border} !important;
+            box-shadow: {primary_shadow} !important;
+        }}
+
+        html body .stApp button[data-testid="stBaseButton-primary"] *,
+        html body .stApp button[data-testid="baseButton-primary"] *,
+        html body .stApp button[kind="primary"] * {{
+            color: #F8FFF9 !important;
+            font-weight: 900 !important;
+        }}
+
+        html body .stApp button[data-testid="stBaseButton-primary"]:hover,
+        html body .stApp button[data-testid="baseButton-primary"]:hover,
+        html body .stApp button[kind="primary"]:hover {{
+            background: {primary_bg_hover} !important;
+            border-color: {primary_border_hover} !important;
+        }}
+
+        /* 모든 secondary 버튼 */
+        html body .stApp button[data-testid="stBaseButton-secondary"],
+        html body .stApp button[data-testid="baseButton-secondary"],
+        html body .stApp button[kind="secondary"] {{
+            background: rgba(7, 18, 34, 0.86) !important;
+            background-color: rgba(7, 18, 34, 0.86) !important;
+            color: #EDE5FF !important;
+            border: 1px solid {secondary_border} !important;
+            box-shadow: none !important;
+        }}
+
+        html body .stApp button[data-testid="stBaseButton-secondary"] *,
+        html body .stApp button[data-testid="baseButton-secondary"] *,
+        html body .stApp button[kind="secondary"] * {{
+            color: #EDE5FF !important;
+            font-weight: 850 !important;
+        }}
+
+        html body .stApp button[data-testid="stBaseButton-secondary"]:hover,
+        html body .stApp button[data-testid="baseButton-secondary"]:hover,
+        html body .stApp button[kind="secondary"]:hover {{
+            background: rgba(13, 34, 42, 0.92) !important;
+            border-color: {secondary_hover_border} !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+inject_button_theme_by_page()
+
 if "bg_html" not in st.session_state:
     random.seed(42)
     stars = []
@@ -1473,91 +1571,5 @@ with st.expander("KPI 해석 방법", expanded=False):
 with st.expander("영입 점수 설명", expanded=False):
     st.markdown(
         '<div class="explain-box"><b>기본 산식</b><br><code>영입점수 = 0.22×채널력 + 0.28×성장성 + 0.22×팬밀도 + 0.15×라이브친화 + 0.13×실전성 - 리스크 감점</code><br><br>성장성에 가장 높은 가중치를 둔 이유는 신생 플랫폼 입장에서 이미 너무 큰 채널보다, 최근 반응과 성장 흐름이 확인되는 후보가 영입 현실성이 높다고 보았기 때문입니다. 채널력과 팬밀도는 최소 체급과 팬덤 결집력을 균형 있게 반영하고, 라이브친화와 실전성은 실제 방송 전환 가능성과 운영 리스크를 보정합니다.</div>',
-        unsafe_allow_html=True,
-    )
-
-# =========================================================
-# STAR SEED 선택 버튼 색상 최종 강제 오버라이드
-# - Streamlit 버전별 button selector 대응
-# - 빨간 primary 버튼을 스타시드 그린 계열로 변경
-# =========================================================
-if st.session_state.get("page") == "스타시드":
-    st.markdown(
-        """
-        <style>
-        /* 선택된 버튼: Streamlit primary */
-        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-primary"],
-        html body .stApp div[data-testid="column"] button[data-testid="baseButton-primary"],
-        html body .stApp div[data-testid="column"] button[kind="primary"],
-        html body .stApp .stButton > button[data-testid="stBaseButton-primary"],
-        html body .stApp .stButton > button[data-testid="baseButton-primary"],
-        html body .stApp .stButton > button[kind="primary"] {
-            background: linear-gradient(
-                135deg,
-                rgba(32, 165, 92, 0.98),
-                rgba(12, 104, 72, 0.98)
-            ) !important;
-            background-color: rgb(32, 165, 92) !important;
-            color: #F5FFF7 !important;
-            border: 1px solid rgba(131, 246, 160, 0.56) !important;
-            box-shadow:
-                0 0 14px rgba(131, 246, 160, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
-        }
-
-        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-primary"] *,
-        html body .stApp div[data-testid="column"] button[data-testid="baseButton-primary"] *,
-        html body .stApp div[data-testid="column"] button[kind="primary"] *,
-        html body .stApp .stButton > button[data-testid="stBaseButton-primary"] *,
-        html body .stApp .stButton > button[data-testid="baseButton-primary"] *,
-        html body .stApp .stButton > button[kind="primary"] * {
-            color: #F5FFF7 !important;
-            font-weight: 900 !important;
-        }
-
-        /* 선택된 버튼 hover */
-        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-primary"]:hover,
-        html body .stApp div[data-testid="column"] button[data-testid="baseButton-primary"]:hover,
-        html body .stApp div[data-testid="column"] button[kind="primary"]:hover,
-        html body .stApp .stButton > button[data-testid="stBaseButton-primary"]:hover,
-        html body .stApp .stButton > button[data-testid="baseButton-primary"]:hover,
-        html body .stApp .stButton > button[kind="primary"]:hover {
-            background: linear-gradient(
-                135deg,
-                rgba(44, 190, 112, 1),
-                rgba(16, 124, 84, 1)
-            ) !important;
-            background-color: rgb(44, 190, 112) !important;
-            border-color: rgba(152, 255, 171, 0.74) !important;
-            box-shadow:
-                0 0 18px rgba(131, 246, 160, 0.24),
-                inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-        }
-
-        /* 선택되지 않은 버튼 */
-        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-secondary"],
-        html body .stApp div[data-testid="column"] button[data-testid="baseButton-secondary"],
-        html body .stApp div[data-testid="column"] button[kind="secondary"],
-        html body .stApp .stButton > button[data-testid="stBaseButton-secondary"],
-        html body .stApp .stButton > button[data-testid="baseButton-secondary"],
-        html body .stApp .stButton > button[kind="secondary"] {
-            background: rgba(7, 18, 34, 0.86) !important;
-            background-color: rgba(7, 18, 34, 0.86) !important;
-            color: #EAF7EF !important;
-            border: 1px solid rgba(131, 246, 160, 0.22) !important;
-            box-shadow: none !important;
-        }
-
-        html body .stApp div[data-testid="column"] button[data-testid="stBaseButton-secondary"] *,
-        html body .stApp div[data-testid="column"] button[data-testid="baseButton-secondary"] *,
-        html body .stApp div[data-testid="column"] button[kind="secondary"] *,
-        html body .stApp .stButton > button[data-testid="stBaseButton-secondary"] *,
-        html body .stApp .stButton > button[data-testid="baseButton-secondary"] *,
-        html body .stApp .stButton > button[kind="secondary"] * {
-            color: #EAF7EF !important;
-            font-weight: 850 !important;
-        }
-        </style>
-        """,
         unsafe_allow_html=True,
     )
