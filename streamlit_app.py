@@ -1603,7 +1603,11 @@ def render_startrail_dashboard():
                     font_color="white",
                     height=350
                 )
-                st.markdown('<div class="trail-radar-spacer"></div>', unsafe_allow_html=True)
+                # 상세 지표 박스와 오각형 그래프 사이 간격
+                st.markdown(
+                    "<div style='height:18px;'></div>",
+                    unsafe_allow_html=True
+                )
                 st.plotly_chart(fig_radar, use_container_width=True)
 
     with left_area:
