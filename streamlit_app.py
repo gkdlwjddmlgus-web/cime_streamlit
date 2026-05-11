@@ -1280,6 +1280,17 @@ section.main .stButton > button { margin-top: 0 !important; }
 .trail-tooltip-icon { width:17px !important; height:17px !important; min-width:17px !important; border-radius:50% !important; border:1px solid rgba(217,200,255,.78) !important; color:#D9C8FF !important; font-size:10px !important; font-weight:950 !important; line-height:15px !important; text-align:center !important; cursor:help !important; background:rgba(12,10,31,.92) !important; }
 .trail-tooltip-text { visibility:hidden !important; opacity:0 !important; width:220px !important; background:rgba(21,16,47,.98) !important; color:#D9CFE8 !important; text-align:left !important; border:1px solid rgba(196,143,255,.34) !important; border-radius:12px !important; padding:10px 12px !important; position:absolute !important; z-index:99999 !important; bottom:140% !important; left:50% !important; transform:translateX(-50%) !important; font-size:12px !important; line-height:1.45 !important; box-shadow:0 10px 28px rgba(0,0,0,.45) !important; white-space:normal !important; }
 .trail-tooltip-wrap:hover .trail-tooltip-text { visibility:visible !important; opacity:1 !important; }
+.trail-seg-card { min-height:245px !important; padding:26px 18px 22px !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:flex-start !important; }
+.trail-seg-icon-badge { width:74px !important; height:74px !important; margin:32px auto 18px !important; border-radius:999px !important; display:flex !important; align-items:center !important; justify-content:center !important; background:radial-gradient(circle at 36% 28%, rgba(255,255,255,.24), rgba(196,143,255,.12) 48%, rgba(21,16,47,.18) 100%) !important; border:1px solid rgba(196,143,255,.28) !important; box-shadow:0 0 22px rgba(196,143,255,.18), inset 0 0 20px rgba(255,255,255,.025) !important; }
+.trail-seg-emoji { display:block !important; font-size:34px !important; line-height:1 !important; filter:drop-shadow(0 0 12px rgba(221,187,255,.34)); transform:translateY(1px); }
+.trail-seg-card.active-성단 .trail-seg-emoji { filter:drop-shadow(0 0 14px rgba(255,107,138,.55)); }
+.trail-seg-card.active-프로토스타 .trail-seg-emoji { filter:drop-shadow(0 0 14px rgba(255,212,93,.58)); }
+.trail-seg-card.active-위성 .trail-seg-emoji { filter:drop-shadow(0 0 14px rgba(149,175,255,.55)); }
+.trail-seg-card.active-슈퍼노바 .trail-seg-emoji { filter:drop-shadow(0 0 14px rgba(255,157,245,.55)); }
+.trail-seg-card.active-코멧 .trail-seg-emoji { filter:drop-shadow(0 0 14px rgba(255,158,94,.55)); }
+.trail-seg-name { display:flex !important; align-items:center !important; justify-content:center !important; gap:6px !important; min-height:30px !important; }
+.trail-seg-count { margin-top:2px !important; }
+.trail-seg-desc { max-width:190px !important; margin:0 auto !important; }
 .trail-bottom-grid { gap:24px !important; margin-top:26px !important; align-items:start !important; }
 .trail-table th { padding:10px 7px !important; font-size:11px !important; }
 .trail-table td { padding:10px 7px !important; font-size:11px !important; height:56px !important; }
@@ -1396,11 +1407,11 @@ def render_startrail_dashboard():
     ''', unsafe_allow_html=True)
 
     seg_data = {
-        "성단": {"icon_class": "fa-solid fa-user-group", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "그룹/소속 기반 팬덤 이동 가능성이 있는 후보군"},
-        "프로토스타": {"icon_class": "fa-solid fa-seedling", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준: 현재 규모는 작지만 방송 반응과 성장 가능성이 높은 후보군입니다.", "desc": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군"},
-        "위성": {"icon_class": "fa-solid fa-satellite", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군"},
-        "슈퍼노바": {"icon_class": "fa-solid fa-star", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준: 대중성과 팬덤 규모가 커서 간판 후보로 검토할 수 있는 후보군입니다.", "desc": "대중성과 팬덤 규모가 큰 간판형 후보군"},
-        "코멧": {"icon_class": "fa-solid fa-meteor", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군"},
+        "성단": {"icon": "👥", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "그룹/소속 기반 팬덤 이동 가능성이 있는 후보군"},
+        "프로토스타": {"icon": "🌱", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준: 현재 규모는 작지만 방송 반응과 성장 가능성이 높은 후보군입니다.", "desc": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군"},
+        "위성": {"icon": "🛰️", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군"},
+        "슈퍼노바": {"icon": "⭐", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준: 대중성과 팬덤 규모가 커서 간판 후보로 검토할 수 있는 후보군입니다.", "desc": "대중성과 팬덤 규모가 큰 간판형 후보군"},
+        "코멧": {"icon": "☄️", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군"},
     }
 
     st.markdown('<div class="startrail-page"><div class="trail-section-title">🛸 세그먼트 전략</div></div>', unsafe_allow_html=True)
@@ -1412,10 +1423,10 @@ def render_startrail_dashboard():
             tooltip_html = ""
             if "tooltip" in info:
                 tooltip_html = f'<span class="trail-tooltip-wrap"><span class="trail-tooltip-icon">?</span><span class="trail-tooltip-text">{html_lib.escape(info["tooltip"])}</span></span>'
-            icon_class = html_lib.escape(info.get("icon_class", "fa-solid fa-star"))
+            icon_html = html_lib.escape(info.get("icon", "✦"))
             st.markdown(f'''
             <div class="trail-seg-card {active_class}">
-                <div class="trail-seg-icon-badge"><i class="{icon_class}"></i></div>
+                <div class="trail-seg-icon-badge"><span class="trail-seg-emoji">{icon_html}</span></div>
                 <div class="trail-seg-name"><span>{html_lib.escape(seg)}</span>{tooltip_html}</div>
                 <div class="trail-seg-count">{info["count"]}</div>
                 <div class="trail-seg-desc">{html_lib.escape(info["desc"])}</div>
