@@ -1450,13 +1450,14 @@ def inject_startrail_css():
 
 def render_startrail_dashboard():
     inject_startrail_css()
-
+    st.markdown('<div class="startrail-page">', unsafe_allow_html=True)
     summary = load_startrail_summary_data()
     kpi = load_startrail_kpi_data()
     raw = load_startrail_raw_candidate_data()
     df = build_startrail_candidate_data(raw)
     constellation_df = load_startrail_constellation_data()
-
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     if not summary or not kpi:
         st.error("스타트레일 요약/KPI CSV를 찾지 못했습니다. `10_dashboard/data/startrail_대시보드요약.csv`, `startrail_핵심KPI.csv` 경로를 확인해주세요.")
         return
@@ -1986,9 +1987,9 @@ elif st.session_state.page == "스타트레일":
     render_startrail_dashboard()
     st.stop()
 
-elif st.session_state.page == "스타시드":
-    render_starseed_dashboard()
-    st.stop()
+# elif st.session_state.page == "스타시드":
+#     render_starseed_dashboard()
+#     st.stop()
 
 # =========================================================
 # 5. 스타시드 로딩 패널
