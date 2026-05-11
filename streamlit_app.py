@@ -1114,1025 +1114,163 @@ def build_startrail_candidate_data(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def inject_startrail_css():
+    """스타트레일 전용 화면 스타일."""
     st.markdown(
         clean_html("""
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
         <style>
-        .startrail-page {
+        .startrail-page, .trail-hero-dashboard, .trail-section-title, .trail-section-divider {
             position: relative;
-            z-index: 2;
+            z-index: 3;
             color: #F8F2FF;
         }
 
-        /* ============================================================
-           STARTRAIL 상단 헤더
-           - 스타시드 대시보드와 유사한 좌측 타이틀 + 우측 카드 구조
-           - 보라/골드 색감
-        ============================================================ */
-
-        .startrail-page .trail-dashboard-hero {
-            position: relative;
-            z-index: 3;
-            margin-top: 18px;
-            margin-bottom: 30px;
+        .block-container:has(.startrail-page) {
+            max-width: 1540px !important;
+            padding-top: 1.1rem !important;
+            padding-left: 3.2rem !important;
+            padding-right: 3.2rem !important;
+            padding-bottom: 4rem !important;
         }
 
-        .startrail-page .trail-hero-grid {
+        .trail-hero-dashboard { margin-top: 8px; margin-bottom: 34px; }
+        .trail-hero-top {
             display: grid;
-            grid-template-columns: 1fr 0.58fr;
-            gap: 36px;
-            align-items: center;
-        }
-
-        .startrail-page .trail-title-wrap {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            min-width: 0;
-        }
-
-        .startrail-page .trail-title-icon {
-            width: 88px;
-            height: 88px;
-            min-width: 88px;
-            border-radius: 18px;
-            border: 2px solid rgba(255, 212, 93, 0.66);
-            background:
-                radial-gradient(circle at 35% 30%, rgba(255,255,255,0.24), transparent 20%),
-                linear-gradient(145deg, rgba(42, 26, 74, 0.96), rgba(14, 12, 33, 0.96));
-            box-shadow:
-                0 0 24px rgba(255, 212, 93, 0.20),
-                0 0 34px rgba(139, 92, 255, 0.22),
-                inset 0 0 20px rgba(255,255,255,0.04);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #FFD45D;
-            font-size: 40px;
-        }
-
-        .startrail-page .trail-title-main {
-            display: flex;
-            align-items: baseline;
-            gap: 14px;
-            flex-wrap: wrap;
-            line-height: 1;
-            margin-bottom: 10px;
-        }
-
-        .startrail-page .trail-title-ko {
-            font-size: 58px;
-            font-weight: 950;
-            letter-spacing: -2.8px;
-            color: #FFF8FF;
-            text-shadow:
-                0 0 8px rgba(255,255,255,0.38),
-                0 0 22px rgba(198,168,255,0.30),
-                0 0 32px rgba(125,66,255,0.28);
-        }
-
-        .startrail-page .trail-title-en {
-            font-size: 32px;
-            font-weight: 950;
-            color: #FFD45D;
-            letter-spacing: -1.2px;
-            text-shadow:
-                0 0 12px rgba(255, 212, 93, 0.45),
-                0 0 22px rgba(255, 212, 93, 0.20);
-        }
-
-        .startrail-page .trail-title-underline {
-            width: 300px;
-            height: 3px;
-            border-radius: 999px;
-            margin-bottom: 14px;
-            background: linear-gradient(90deg, #FFD45D, rgba(155, 107, 255, 0.75), transparent);
-            box-shadow: 0 0 16px rgba(255, 212, 93, 0.42);
-        }
-
-        .startrail-page .trail-title-desc {
-            font-size: 18px;
-            font-weight: 850;
-            line-height: 1.48;
-            color: rgba(255,255,255,0.86);
-            letter-spacing: -0.5px;
-            word-break: keep-all;
-        }
-
-        .startrail-page .trail-period-card {
-            width: 100%;
-            min-height: 112px;
-            border-radius: 22px;
-            padding: 22px 26px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background:
-                linear-gradient(135deg, rgba(255, 212, 93, 0.13), rgba(21, 16, 47, 0.82) 42%, rgba(14, 12, 33, 0.94));
-            border: 1px solid rgba(255, 212, 93, 0.32);
-            box-shadow:
-                0 0 28px rgba(255, 212, 93, 0.10),
-                0 0 34px rgba(139, 92, 255, 0.14),
-                inset 0 0 22px rgba(255,255,255,0.025);
-        }
-
-        .startrail-page .trail-period-icon {
-            min-width: 64px;
-            width: 64px;
-            height: 64px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background:
-                radial-gradient(circle at 34% 28%, rgba(255,255,255,0.85), transparent 16%),
-                linear-gradient(135deg, #FFD45D, #9B6BFF);
-            box-shadow:
-                0 0 20px rgba(255, 212, 93, 0.34),
-                inset 0 0 16px rgba(255,255,255,0.14);
-            color: #160F2D;
-            font-size: 28px;
-        }
-
-        .startrail-page .trail-period-title {
-            font-size: 17px;
-            font-weight: 950;
-            color: #FFF8FF;
-            margin-bottom: 8px;
-        }
-
-        .startrail-page .trail-period-desc {
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 1.55;
-            color: rgba(255,255,255,0.74);
-            word-break: keep-all;
-        }
-
-        .startrail-page .trail-period-date {
-            color: #FFD45D;
-            font-weight: 950;
-            text-shadow: 0 0 10px rgba(255, 212, 93, 0.28);
-        }
-
-        .startrail-page .trail-kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
-            margin: 18px 0 26px 0;
-        }
-
-        .startrail-page .trail-kpi-card {
-            min-height: 92px;
-            border-radius: 16px;
-            padding: 18px 22px;
-            background:
-                radial-gradient(circle at 12% 28%, rgba(255, 212, 93, 0.06), transparent 34%),
-                linear-gradient(180deg, rgba(14,18,43,0.88), rgba(6,11,27,0.96));
-            border: 1px solid rgba(255, 212, 93, 0.18);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.045),
-                0 12px 26px rgba(0,0,0,0.24);
-        }
-
-        .startrail-page .trail-kpi-label {
-            color: rgba(255,255,255,0.76);
-            font-size: 13px;
-            font-weight: 850;
-            margin-bottom: 8px;
-        }
-
-        .startrail-page .trail-kpi-value {
-            color: #FFF9FF;
-            font-size: 34px;
-            font-weight: 950;
-            line-height: 1.1;
-            letter-spacing: -0.04em;
-            text-shadow:
-                0 0 10px rgba(255,255,255,0.18),
-                0 0 18px rgba(125,66,255,0.16);
-        }
-
-        .startrail-page .trail-section-divider {
-            height: 1px;
-            width: 100%;
-            background: rgba(196,143,255,0.22);
-            margin: 8px 0 28px 0;
-        }
-
-        @media (max-width: 1200px) {
-            .startrail-page .trail-hero-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .startrail-page .trail-title-ko {
-                font-size: 46px;
-            }
-
-            .startrail-page .trail-title-en {
-                font-size: 25px;
-            }
-
-            .startrail-page .trail-title-icon {
-                width: 74px;
-                height: 74px;
-                min-width: 74px;
-                font-size: 32px;
-            }
-
-            .startrail-page .trail-kpi-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ============================================================
-           세그먼트 카드
-        ============================================================ */
-
-        .startrail-page .segment-card {
-            background: #15102F !important;
-            border: 1px solid rgba(255,255,255,0.10);
-            border-radius: 22px;
-            padding: 22px 16px;
-            transition: 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            min-height: 205px;
-            box-shadow: 0 0 24px rgba(112, 53, 255, 0.14);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .startrail-page .segment-card::before {
-            content: "";
-            position: absolute;
-            left: 22px;
-            right: 22px;
-            top: 16px;
-            height: 3px;
-            border-radius: 3px;
-            background: rgba(240, 140, 255, 0.36);
-        }
-
-        .startrail-page .segment-card i {
-            margin-top: 16px;
-            margin-bottom: 13px;
-            color: #DDBBFF;
-            text-shadow: 0 0 14px rgba(221,187,255,0.30);
-        }
-
-        .startrail-page .seg-name {
-            font-size: 19px;
-            font-weight: 950;
-            margin-bottom: 7px;
-            color: #FFF9FF;
-        }
-
-        .startrail-page .seg-count {
-            font-size: 25px;
-            font-weight: 950;
-            color: #F08CFF;
-            margin-bottom: 9px;
-        }
-
-        .startrail-page .seg-desc {
-            font-size: 12px;
-            color: rgba(255,255,255,0.70);
-            line-height: 1.55;
-            white-space: pre-wrap;
-            word-break: keep-all;
-        }
-
-        .startrail-page .segment-card.active-성단,
-        .startrail-page .segment-card.active-성단 i,
-        .startrail-page .segment-card.active-성단 .seg-name,
-        .startrail-page .segment-card.active-성단 .seg-count {
-            color: #FF6B8A !important;
-            border-color: #FF6B8A !important;
-        }
-
-        .startrail-page .segment-card.active-프로토스타,
-        .startrail-page .segment-card.active-프로토스타 i,
-        .startrail-page .segment-card.active-프로토스타 .seg-name,
-        .startrail-page .segment-card.active-프로토스타 .seg-count {
-            color: #FFD45D !important;
-            border-color: #FFD45D !important;
-        }
-
-        .startrail-page .segment-card.active-위성,
-        .startrail-page .segment-card.active-위성 i,
-        .startrail-page .segment-card.active-위성 .seg-name,
-        .startrail-page .segment-card.active-위성 .seg-count {
-            color: #75CCFF !important;
-            border-color: #75CCFF !important;
-        }
-
-        .startrail-page .segment-card.active-슈퍼노바,
-        .startrail-page .segment-card.active-슈퍼노바 i,
-        .startrail-page .segment-card.active-슈퍼노바 .seg-name,
-        .startrail-page .segment-card.active-슈퍼노바 .seg-count {
-            color: #98FFAB !important;
-            border-color: #98FFAB !important;
-        }
-
-        .startrail-page .segment-card.active-코멧,
-        .startrail-page .segment-card.active-코멧 i,
-        .startrail-page .segment-card.active-코멧 .seg-name,
-        .startrail-page .segment-card.active-코멧 .seg-count {
-            color: #FF9DF5 !important;
-            border-color: #FF9DF5 !important;
-        }
-
-        /* ============================================================
-           TOP 카드
-        ============================================================ */
-
-        .startrail-page .rank-card {
-            background: #15102F !important;
-            border-radius: 24px;
-            padding: 22px 18px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.10);
-            position: relative;
-            transition: 0.25s ease;
-            min-height: 260px;
-            box-shadow: 0 0 24px rgba(112, 53, 255, 0.14);
-        }
-
-        .startrail-page .rank-card:hover {
-            border-color: rgba(240,140,255,0.72);
-            transform: translateY(-2px);
-        }
-
-        .startrail-page .rank-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 34px;
-            height: 34px;
-            padding: 0;
-            border-radius: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 950;
-            font-size: 18px;
-        }
-
-        .startrail-page .rank-normal {
-            background: rgba(255,255,255,0.09);
-            color: #FFF9FF;
-            border: 1px solid rgba(255,255,255,0.14);
-        }
-
-        .startrail-page .rank-gold {
-            background: linear-gradient(135deg, #FFD45D, #C99700);
-            color: #1a112f;
-        }
-
-        .startrail-page .rank-silver {
-            background: linear-gradient(135deg, #F4E9FF, #B7A2DC);
-            color: #1a112f;
-        }
-
-        .startrail-page .rank-bronze {
-            background: linear-gradient(135deg, #D99666, #8B4A30);
-            color: #ffffff;
-        }
-
-        .startrail-page .avatar-circle {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            border: 3px solid rgba(240, 140, 255, 0.28);
-            background: #09051C;
-            overflow: hidden;
-            box-shadow: 0 0 18px rgba(240,140,255,0.16);
-        }
-
-        .startrail-page .avatar-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .startrail-page .tag-segment {
-            display: inline-block;
-            padding: 4px 11px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 900;
-            margin-top: 8px;
-        }
-
-        .startrail-page .tag-성단 {
-            background: rgba(255,75,75,0.18);
-            color:#FF8A8A;
-            border:1px solid rgba(255,75,75,0.65);
-        }
-
-        .startrail-page .tag-프로토스타 {
-            background: rgba(255,212,93,0.15);
-            color:#FFD45D;
-            border:1px solid rgba(255,212,93,0.60);
-        }
-
-        .startrail-page .tag-위성 {
-            background: rgba(149,175,255,0.15);
-            color:#95AFFF;
-            border:1px solid rgba(149,175,255,0.60);
-        }
-
-        .startrail-page .tag-슈퍼노바 {
-            background: rgba(152,255,171,0.13);
-            color:#98FFAB;
-            border:1px solid rgba(152,255,171,0.56);
-        }
-
-        .startrail-page .tag-코멧 {
-            background: rgba(255,157,245,0.16);
-            color:#FF9DF5;
-            border:1px solid rgba(255,157,245,0.62);
-        }
-
-        /* ============================================================
-           테이블 / 하단 제목
-        ============================================================ */
-
-        .startrail-page .custom-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #15102F !important;
-            border: 1px solid rgba(196, 143, 255, 0.20);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .startrail-page .custom-table th {
-            text-align: center;
-            padding: 13px 12px;
-            border-bottom: 1px solid rgba(196,143,255,0.22);
-            color: #D9C8FF;
-            font-size: 13px;
-            font-weight: 900;
-        }
-
-        .startrail-page .custom-table td {
-            text-align: center;
-            padding: 13px 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            font-size: 14px;
-            color: #FFF9FF;
-        }
-
-        .startrail-page .bottom-title {
-            height: 42px;
-            display: flex;
-            align-items: center;
-            margin: 0 0 14px 0;
-            font-size: 26px;
-            font-weight: 950;
-            color: #FFF9FF;
-            letter-spacing: -0.5px;
-        }
-
-        /* ============================================================
-           Tooltip
-        ============================================================ */
-
-        .startrail-page .tooltip-wrap {
-            position: relative;
-            display: inline-flex;
-            margin-left: 6px;
-        }
-
-        .startrail-page .tooltip-icon {
-            width: 17px;
-            height: 17px;
-            border-radius: 50%;
-            border: 1px solid rgba(217,200,255,0.75);
-            color: #D9C8FF;
-            font-size: 11px;
-            font-weight: 900;
-            line-height: 17px;
-            text-align: center;
-            cursor: help;
-        }
-
-        .startrail-page .tooltip-text {
-            visibility: hidden;
-            opacity: 0;
-            width: 230px;
-            background: rgba(21,16,47,0.98);
-            color: #D9CFE8;
-            text-align: left;
-            border: 1px solid rgba(196,143,255,0.34);
-            border-radius: 12px;
-            padding: 10px 12px;
-            position: absolute;
-            z-index: 9999;
-            bottom: 135%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            line-height: 1.45;
-        }
-
-        .startrail-page .tooltip-wrap:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* ============================================================
-           반응형
-        ============================================================ */
-
-        @media (max-width: 1200px) {
-            .startrail-page .hero-top-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .startrail-page .hero-right-area {
-                width: 100%;
-                align-items: stretch;
-            }
-
-            .startrail-page .trail-title-wrap {
-                align-items: flex-start;
-            }
-
-            .startrail-page .hero-main-title-ko {
-                font-size: 42px;
-                letter-spacing: -2px;
-            }
-
-            .startrail-page .hero-main-title-en {
-                font-size: 22px;
-            }
-
-            .startrail-page .trail-logo-box {
-                width: 72px;
-                height: 72px;
-                min-width: 72px;
-                font-size: 30px;
-            }
-
-            .startrail-hero {
-            position: relative;
-            z-index: 3;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 36px;
-            margin-top: 2.4rem;
+            grid-template-columns: minmax(0, 1fr) 520px;
+            gap: 42px;
+            align-items: start;
             margin-bottom: 28px;
         }
-        
-        .startrail-hero-left {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .startrail-title-row {
-            display: flex;
-            align-items: center;
-            gap: 26px;
-        }
-        
-        .startrail-logo-box {
-            width: 86px;
-            height: 86px;
-            border-radius: 18px;
-            border: 2px solid rgba(255, 212, 93, 0.62);
-            background:
-                radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.16), transparent 28%),
-                linear-gradient(145deg, rgba(42, 26, 74, 0.96), rgba(14, 12, 33, 0.96));
-            box-shadow:
-                0 0 24px rgba(255, 212, 93, 0.20),
-                0 0 34px rgba(139, 92, 255, 0.22),
-                inset 0 0 20px rgba(255, 255, 255, 0.04);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-        }
-        
-        .startrail-logo-box i {
-            font-size: 38px;
-            color: #FFD45D;
-            text-shadow:
-                0 0 10px rgba(255, 212, 93, 0.85),
-                0 0 22px rgba(255, 212, 93, 0.36);
-        }
-        
-        .startrail-main-title {
-            display: flex;
-            align-items: baseline;
-            gap: 14px;
-            line-height: 1;
-            margin-bottom: 10px;
-        }
-        
-        .startrail-main-title-ko {
-            font-size: 58px;
+        .trail-hero-title {
+            font-size: clamp(54px, 5.4vw, 76px);
+            line-height: 0.96;
             font-weight: 950;
-            letter-spacing: -2.8px;
+            letter-spacing: 0.18em;
             color: #FFF8FF;
-            text-shadow:
-                0 0 8px rgba(255,255,255,0.38),
-                0 0 22px rgba(198,168,255,0.30);
+            text-shadow: 0 0 8px rgba(255,255,255,0.62), 0 0 22px rgba(214,187,255,0.55), 0 0 44px rgba(125,66,255,0.42);
+            margin: 0 0 18px 0;
+            white-space: nowrap;
         }
-        
-        .startrail-main-title-en {
-            font-size: 32px;
-            font-weight: 950;
-            color: #FFD45D;
-            letter-spacing: -1.2px;
-            text-shadow:
-                0 0 12px rgba(255, 212, 93, 0.45),
-                0 0 22px rgba(255, 212, 93, 0.20);
-        }
-        
-        .startrail-title-line {
-            width: 285px;
-            height: 3px;
-            border-radius: 999px;
-            margin-bottom: 14px;
-            background: linear-gradient(90deg, #FFD45D, rgba(155, 107, 255, 0.18));
-            box-shadow: 0 0 16px rgba(255, 212, 93, 0.42);
-        }
-        
-        .startrail-main-subtitle {
+        .trail-hero-subtitle {
             font-size: 18px;
             font-weight: 850;
-            line-height: 1.45;
-            color: rgba(255, 255, 255, 0.84);
-            letter-spacing: -0.5px;
-            word-break: keep-all;
-        }
-        
-        .startrail-hero-right {
-            width: 560px;
-            flex: 0 0 560px;
-            display: flex;
-            justify-content: flex-end;
-        }
-        
-        .startrail-period-card {
-            width: 100%;
-            min-height: 106px;
-            border-radius: 22px;
-            padding: 22px 26px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background:
-                linear-gradient(135deg, rgba(255, 212, 93, 0.13), rgba(21, 16, 47, 0.82) 42%, rgba(14, 12, 33, 0.94));
-            border: 1px solid rgba(255, 212, 93, 0.30);
-            box-shadow:
-                0 0 28px rgba(255, 212, 93, 0.10),
-                0 0 34px rgba(139, 92, 255, 0.14),
-                inset 0 0 22px rgba(255, 255, 255, 0.025);
-        }
-        
-        .startrail-period-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background:
-                radial-gradient(circle at 34% 28%, rgba(255,255,255,0.85), transparent 16%),
-                linear-gradient(135deg, #FFD45D, #9B6BFF);
-            box-shadow:
-                0 0 20px rgba(255, 212, 93, 0.34),
-                inset 0 0 16px rgba(255, 255, 255, 0.14);
-            flex: 0 0 auto;
-        }
-        
-        .startrail-period-title {
-            font-size: 17px;
-            font-weight: 950;
-            color: #FFF8FF;
-            margin-bottom: 8px;
-        }
-        
-        .startrail-period-desc {
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 1.55;
-            color: rgba(255, 255, 255, 0.72);
-            word-break: keep-all;
-        }
-        
-        .startrail-period-desc span {
-            color: #FFD45D;
-            font-weight: 950;
-            text-shadow: 0 0 10px rgba(255, 212, 93, 0.28);
-        }
-        
-        @media (max-width: 1200px) {
-            .startrail-hero {
-                flex-direction: column;
-            }
-        
-            .startrail-hero-right {
-                width: 100%;
-                flex-basis: auto;
-            }
-        
-            .startrail-main-title-ko {
-                font-size: 46px;
-            }
-        
-            .startrail-main-title-en {
-                font-size: 25px;
-            }
-        /* =========================================================
-           Star Trail 상단: Star Seed 대시보드와 유사한 배치
-           - 좌측: 아이콘 + 대형 타이틀 + 설명
-           - 우측: 분석 기간 카드
-           - 색감: 보라/골드
-        ========================================================= */
-
-        .startrail-page .trail-dashboard-hero {
-            position: relative;
-            z-index: 3;
-            margin-top: 18px;
-            margin-bottom: 26px;
-        }
-
-        .startrail-page .trail-hero-grid {
-            display: grid;
-            grid-template-columns: 1fr 0.58fr;
-            gap: 36px;
-            align-items: center;
-        }
-
-        .startrail-page .trail-title-wrap {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-        }
-
-        .startrail-page .trail-title-icon {
-            width: 88px;
-            height: 88px;
-            border-radius: 18px;
-            border: 2px solid rgba(255, 212, 93, 0.62);
-            background:
-                radial-gradient(circle at 38% 30%, rgba(255,255,255,0.42), transparent 18%),
-                linear-gradient(135deg, rgba(255, 212, 93, 0.18), rgba(125, 66, 255, 0.18)),
-                rgba(8, 16, 31, 0.86);
-            box-shadow:
-                0 0 22px rgba(255, 212, 93, 0.20),
-                0 0 28px rgba(125, 66, 255, 0.22),
-                inset 0 0 18px rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 42px;
-            color: #FFD45D;
-        }
-
-        .startrail-page .trail-title-main {
-            display: flex;
-            align-items: baseline;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-
-        .startrail-page .trail-title-ko {
-            font-size: 54px;
-            line-height: 1.02;
-            font-weight: 950;
-            letter-spacing: -2px;
-            color: #FFF9FF;
-            text-shadow:
-                0 0 10px rgba(255,255,255,0.28),
-                0 0 22px rgba(125,66,255,0.36);
-        }
-
-        .startrail-page .trail-title-en {
-            font-size: 30px;
-            line-height: 1;
-            font-weight: 950;
-            color: #FFD45D;
-            text-shadow:
-                0 0 12px rgba(255, 212, 93, 0.36),
-                0 0 20px rgba(125, 66, 255, 0.28);
-        }
-
-        .startrail-page .trail-title-underline {
-            width: 360px;
-            height: 4px;
-            border-radius: 999px;
-            margin-top: 10px;
-            background: linear-gradient(90deg, #FFD45D, #7D42FF, transparent);
-            box-shadow:
-                0 0 16px rgba(255, 212, 93, 0.34),
-                0 0 18px rgba(125, 66, 255, 0.26);
-        }
-
-        .startrail-page .trail-title-desc {
-            margin-top: 12px;
-            font-size: 17px;
-            font-weight: 800;
             line-height: 1.55;
             color: #E8DFFF;
+            margin-bottom: 22px;
             word-break: keep-all;
         }
-
-        .startrail-page .trail-period-card {
-            min-height: 116px;
+        .trail-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            height: 40px;
+            padding: 0 18px;
+            border-radius: 999px;
+            background: rgba(8, 26, 43, 0.72);
+            border: 1px solid rgba(255, 212, 93, 0.28);
+            color: #EDE5FF;
+            font-size: 14px;
+            font-weight: 900;
+            box-shadow: 0 0 18px rgba(255, 212, 93, 0.10), inset 0 0 18px rgba(255,255,255,0.025);
+        }
+        .trail-hero-info-card {
+            width: 100%;
+            min-height: 122px;
             border-radius: 22px;
             padding: 22px 26px;
-            display: flex;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 62px minmax(0, 1fr);
             gap: 18px;
-            background:
-                linear-gradient(135deg, rgba(255, 212, 93, 0.12), rgba(125, 66, 255, 0.10)),
-                rgba(8, 16, 31, 0.88);
-            border: 1px solid rgba(255, 212, 93, 0.36);
-            box-shadow:
-                0 0 24px rgba(255, 212, 93, 0.12),
-                0 0 24px rgba(125, 66, 255, 0.18),
-                inset 0 0 18px rgba(255,255,255,0.025);
+            align-items: center;
+            background: radial-gradient(circle at 12% 44%, rgba(255, 212, 93, 0.10), transparent 32%), linear-gradient(135deg, rgba(21, 16, 47, 0.80), rgba(12, 10, 31, 0.94));
+            border: 1px solid rgba(196, 143, 255, 0.34);
+            box-shadow: 0 0 24px rgba(125, 66, 255, 0.18), inset 0 0 22px rgba(255,255,255,0.025);
         }
-
-        .startrail-page .trail-period-icon {
-            min-width: 64px;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background:
-                radial-gradient(circle at 35% 30%, rgba(255,255,255,0.88), transparent 18%),
-                linear-gradient(135deg, #FFD45D, #7D42FF);
-            box-shadow:
-                0 0 18px rgba(255, 212, 93, 0.32),
-                0 0 22px rgba(125, 66, 255, 0.26);
+        .trail-hero-info-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            color: #140B2F;
-            font-weight: 950;
+            color: #FFFFFF;
+            font-size: 23px;
+            background: radial-gradient(circle at 34% 26%, rgba(255,255,255,0.92), transparent 15%), linear-gradient(135deg, #FFD45D, #8B5CF6 58%, #5B2AD8);
+            box-shadow: 0 0 22px rgba(255, 212, 93, 0.24), 0 0 28px rgba(139, 92, 255, 0.24);
         }
-
-        .startrail-page .trail-period-title {
-            font-size: 16px;
-            font-weight: 950;
+        .trail-hero-info-title { color: #FFF9FF; font-size: 17px; font-weight: 950; margin-bottom: 7px; }
+        .trail-hero-info-desc { color: rgba(255,255,255,0.70); font-size: 13px; line-height: 1.62; font-weight: 650; word-break: keep-all; }
+        .trail-kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 22px 0 34px 0; }
+        .trail-kpi-card {
+            min-height: 118px;
+            border-radius: 22px;
+            padding: 26px 28px;
+            background: radial-gradient(circle at 12% 26%, rgba(255, 212, 93, 0.05), transparent 34%), linear-gradient(180deg, rgba(21, 16, 47, 0.88), rgba(9, 8, 28, 0.96));
+            border: 1px solid rgba(196, 143, 255, 0.26);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.24), 0 0 24px rgba(125, 66, 255, 0.12);
+        }
+        .trail-kpi-label { color: rgba(255,255,255,0.76); font-size: 14px; font-weight: 900; margin-bottom: 8px; }
+        .trail-kpi-value { color: #FFF9FF; font-size: 32px; font-weight: 950; line-height: 1.06; letter-spacing: -0.04em; text-shadow: 0 0 16px rgba(255,255,255,0.16); }
+        .trail-section-divider { height: 1px; width: 100%; background: rgba(196,143,255,0.23); margin: 0 0 32px 0; }
+        .trail-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 18px 0;
             color: #FFF9FF;
-            margin-bottom: 7px;
-        }
-
-        .startrail-page .trail-period-desc {
-            font-size: 13px;
-            line-height: 1.55;
-            color: rgba(255,255,255,0.76);
-            font-weight: 700;
-            word-break: keep-all;
-        }
-
-        .startrail-page .trail-period-date {
-            color: #FFD45D;
+            font-size: 30px;
+            line-height: 1.2;
             font-weight: 950;
+            letter-spacing: -0.04em;
+            text-shadow: 0 0 14px rgba(214,187,255,0.12);
         }
-
-        @media (max-width: 1200px) {
-            .startrail-page .trail-hero-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .startrail-page .trail-title-ko {
-                font-size: 42px;
-            }
-
-            .startrail-page .trail-title-en {
-                font-size: 24px;
-            }
-
-            .startrail-page .trail-title-icon {
-                width: 74px;
-                height: 74px;
-                font-size: 34px;
-            }
+        .trail-seg-card {
+            position: relative;
+            min-height: 210px;
+            border-radius: 20px;
+            padding: 26px 18px 20px;
+            text-align: center;
+            background: rgba(21, 16, 47, 0.86);
+            border: 1px solid rgba(196, 143, 255, 0.18);
+            box-shadow: 0 0 24px rgba(112, 53, 255, 0.12), inset 0 0 24px rgba(255,255,255,0.018);
+            overflow: hidden;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
         }
-        
-        /* ============================================================
-           STARTRAIL TOP5 카드 보정
-           - Streamlit 요소 사이에서 .startrail-page 래퍼가 끊겨도 적용되도록
-             rank-card 계열은 unscoped fallback으로 한 번 더 정의
-           - 이미지 영역을 정사각 고정으로 맞춰 하단 라인/텍스트 시작점 정렬
-        ============================================================ */
-
-        .rank-card {
-            background: rgba(21, 16, 47, 0.90) !important;
-            border-radius: 24px !important;
-            padding: 22px 18px !important;
-            text-align: left !important;
-            border: 1px solid rgba(255,255,255,0.10) !important;
-            position: relative !important;
-            transition: 0.25s ease !important;
-            min-height: 390px !important;
-            box-shadow:
-                0 0 24px rgba(112, 53, 255, 0.14),
-                inset 0 0 24px rgba(255,255,255,0.018) !important;
-            overflow: hidden !important;
-            box-sizing: border-box !important;
-        }
-
-        .rank-card:hover {
-            border-color: rgba(240,140,255,0.72) !important;
-            box-shadow: 0 0 26px rgba(125, 66, 255, 0.28) !important;
-            transform: translateY(-2px) !important;
-        }
-
-        .rank-card .avatar-circle {
-            width: 100% !important;
-            height: 220px !important;
-            max-width: 220px !important;
-            border-radius: 14px !important;
-            margin: 0 auto 16px auto !important;
-            border: 1px solid rgba(255, 212, 93, 0.24) !important;
-            background: #09051C !important;
-            overflow: hidden !important;
-            box-shadow: 0 0 18px rgba(240,140,255,0.16) !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            box-sizing: border-box !important;
-        }
-
-        .rank-card .avatar-circle img {
-            width: 100% !important;
-            height: 100% !important;
-            display: block !important;
-            object-fit: cover !important;
-            object-position: center center !important;
-        }
-
-        .rank-card .rank-badge {
-            position: absolute !important;
-            top: 14px !important;
-            left: 14px !important;
-            width: 30px !important;
-            height: 30px !important;
-            padding: 0 !important;
-            border-radius: 10px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            font-weight: 950 !important;
-            font-size: 15px !important;
-            z-index: 5 !important;
-        }
-
-        .rank-normal {
-            background: rgba(255,255,255,0.09) !important;
-            color: #FFF9FF !important;
-            border: 1px solid rgba(255,255,255,0.14) !important;
-        }
-
-        .rank-gold {
-            background: linear-gradient(135deg, #FFD45D, #C99700) !important;
-            color: #1a112f !important;
-            box-shadow: 0 0 16px rgba(255, 212, 93, 0.55) !important;
-        }
-
-        .rank-silver {
-            background: linear-gradient(135deg, #F4E9FF, #B7A2DC) !important;
-            color: #1a112f !important;
-            box-shadow: 0 0 16px rgba(229, 213, 255, 0.45) !important;
-        }
-
-        .rank-bronze {
-            background: linear-gradient(135deg, #D99666, #8B4A30) !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 16px rgba(205, 127, 50, 0.45) !important;
-        }
-
-        .tag-segment {
-            display: inline-block !important;
-            padding: 4px 11px !important;
-            border-radius: 999px !important;
-            font-size: 11px !important;
-            font-weight: 900 !important;
-            margin-top: 8px !important;
-        }
-
-        .tag-성단 { background: rgba(255,75,75,0.18) !important; color:#FF8A8A !important; border:1px solid rgba(255,75,75,0.65) !important; }
-        .tag-프로토스타 { background: rgba(255,212,93,0.15) !important; color:#FFD45D !important; border:1px solid rgba(255,212,93,0.60) !important; }
-        .tag-위성 { background: rgba(149,175,255,0.15) !important; color:#95AFFF !important; border:1px solid rgba(149,175,255,0.60) !important; }
-        .tag-슈퍼노바 { background: rgba(152,255,171,0.13) !important; color:#98FFAB !important; border:1px solid rgba(152,255,171,0.56) !important; }
-        .tag-코멧 { background: rgba(255,157,245,0.16) !important; color:#FF9DF5 !important; border:1px solid rgba(255,157,245,0.62) !important; }
-
+        .trail-seg-card::before { content:""; position:absolute; left:22px; right:22px; top:16px; height:3px; border-radius:999px; background:rgba(240,140,255,0.36); box-shadow:0 0 14px rgba(240,140,255,0.20); }
+        .trail-seg-card.active { transform: translateY(-2px); border-color: rgba(255, 212, 93, 0.55); box-shadow: 0 0 28px rgba(255, 212, 93, 0.18), 0 0 34px rgba(125, 66, 255, 0.20), inset 0 0 26px rgba(255,255,255,0.025); }
+        .trail-seg-card.active::before { background:#FFD45D; box-shadow:0 0 18px rgba(255,212,93,0.62); }
+        .trail-seg-card.active-성단 { border-color:#FF6B8A; } .trail-seg-card.active-성단::before { background:#FF6B8A; box-shadow:0 0 18px rgba(255,107,138,0.62); }
+        .trail-seg-card.active-위성::before { background:#95AFFF; box-shadow:0 0 18px rgba(149,175,255,0.62); }
+        .trail-seg-card.active-슈퍼노바::before { background:#FF9DF5; box-shadow:0 0 18px rgba(255,157,245,0.62); }
+        .trail-seg-card.active-코멧::before { background:#FF9E5E; box-shadow:0 0 18px rgba(255,158,94,0.62); }
+        .trail-seg-icon { margin-top:22px; margin-bottom:16px; font-size:31px; color:#DDBBFF; text-shadow:0 0 18px rgba(221,187,255,0.28); }
+        .trail-seg-name { font-size:20px; font-weight:950; color:#FFF9FF; margin-bottom:10px; }
+        .trail-seg-count { font-size:28px; font-weight:950; color:#F08CFF; margin-bottom:14px; letter-spacing:-0.02em; }
+        .trail-seg-desc { font-size:12px; line-height:1.55; font-weight:700; color:rgba(255,255,255,0.66); word-break:keep-all; }
+        .tooltip-wrap { position:relative; display:inline-flex; align-items:center; justify-content:center; margin-left:6px; }
+        .tooltip-icon { width:17px; height:17px; border-radius:50%; border:1px solid rgba(217,200,255,0.75); color:#D9C8FF; font-size:11px; font-weight:900; line-height:17px; text-align:center; cursor:help; }
+        .tooltip-text { visibility:hidden; opacity:0; width:230px; background:rgba(21,16,47,0.98); color:#D9CFE8; text-align:left; border:1px solid rgba(196,143,255,0.34); border-radius:12px; padding:10px 12px; position:absolute; z-index:9999; bottom:135%; left:50%; transform:translateX(-50%); font-size:12px; line-height:1.45; box-shadow:0 10px 28px rgba(0,0,0,0.45); white-space:normal; }
+        .tooltip-wrap:hover .tooltip-text { visibility:visible; opacity:1; }
+        div[data-testid="column"] .stButton > button { margin-top: 0 !important; }
+        .trail-rank-card { position:relative; min-height:332px; border-radius:20px; padding:20px 16px 16px; background:radial-gradient(circle at 50% 18%, rgba(196,143,255,0.10), transparent 36%), rgba(21,16,47,0.88); border:1px solid rgba(196,143,255,0.22); box-shadow:0 0 24px rgba(112,53,255,0.14), inset 0 0 22px rgba(255,255,255,0.018); overflow:hidden; box-sizing:border-box; }
+        .trail-rank-badge { position:absolute; top:18px; left:18px; z-index:2; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:950; color:#1a112f; background:linear-gradient(135deg,#FFD45D,#C99700); box-shadow:0 0 16px rgba(255,212,93,0.42); }
+        .trail-rank-badge.rank-2 { background:linear-gradient(135deg,#F4E9FF,#B7A2DC); } .trail-rank-badge.rank-3 { background:linear-gradient(135deg,#D99666,#8B4A30); color:#fff; } .trail-rank-badge.rank-normal { background:rgba(255,255,255,0.10); color:#F8F2FF; border:1px solid rgba(255,255,255,0.16); }
+        .trail-avatar-wrap { width:120px; height:120px; border-radius:999px; margin:0 auto 18px; overflow:hidden; background:radial-gradient(circle at 32% 28%, #fff, #9c6aff 42%, #25154d 100%); border:3px solid rgba(255,212,93,0.40); box-shadow:0 0 18px rgba(255,212,93,0.16),0 0 22px rgba(125,66,255,0.18); }
+        .trail-avatar-wrap img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
+        .trail-rank-name { min-height:42px; display:flex; align-items:center; justify-content:center; text-align:center; color:#FFF9FF; font-size:20px; line-height:1.25; font-weight:950; word-break:keep-all; overflow:hidden; }
+        .trail-tag { display:inline-flex; align-items:center; justify-content:center; margin:10px auto 14px; padding:5px 12px; border-radius:999px; font-size:11px; line-height:1; font-weight:950; color:#FFD45D; background:rgba(255,212,93,0.12); border:1px solid rgba(255,212,93,0.42); }
+        .trail-score-label { color:rgba(255,255,255,0.40); font-size:12px; font-weight:850; margin-bottom:5px; } .trail-score-value { color:#FFD45D; font-size:25px; font-weight:950; line-height:1.1; text-shadow:0 0 12px rgba(255,212,93,0.24); }
+        .trail-side-card { border-radius:22px; padding:28px 26px; min-height:620px; background:radial-gradient(circle at 50% 8%, rgba(196,143,255,0.12), transparent 34%), rgba(21,16,47,0.88); border:1px solid rgba(196,143,255,0.28); box-shadow:0 0 28px rgba(112,53,255,0.16), inset 0 0 22px rgba(255,255,255,0.018); }
+        .trail-detail-avatar { width:132px; height:132px; border-radius:999px; overflow:hidden; margin:0 auto 18px; border:4px solid rgba(117,204,255,0.84); box-shadow:0 0 18px rgba(117,204,255,0.24); }
+        .trail-detail-avatar img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
+        .trail-detail-name { color:#FFF9FF; font-size:24px; font-weight:950; text-align:center; margin-bottom:12px; word-break:keep-all; } .trail-detail-tags { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:22px; } .trail-detail-tags img { height:28px; border-radius:8px; object-fit:contain; }
+        .trail-bar-row { margin:13px 0 16px; } .trail-bar-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:10px; } .trail-bar-label { color:#FFF9FF; font-size:13px; font-weight:950; } .trail-bar-value { font-size:13px; font-weight:950; } .trail-bar-track { height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,0.07); } .trail-bar-fill { height:100%; border-radius:999px; }
+        .bottom-title, .trail-bottom-title { height:42px; display:flex; align-items:center; margin:0 0 14px 0; font-size:26px; font-weight:950; color:#FFF9FF; letter-spacing:-0.5px; white-space:nowrap; }
+        .custom-table, .trail-table { width:100%; border-collapse:collapse; background:rgba(21,16,47,0.78) !important; border:1px solid rgba(196,143,255,0.20); border-radius:18px; overflow:hidden; table-layout:fixed; }
+        .custom-table th, .trail-table th { text-align:center; padding:12px 10px; border-bottom:1px solid rgba(196,143,255,0.22); color:#E8DFFF; font-size:13px; font-weight:950; background:rgba(255,255,255,0.045); }
+        .custom-table td, .trail-table td { text-align:center; padding:11px 10px; border-bottom:1px solid rgba(255,255,255,0.07); font-size:13px; color:#FFF9FF; font-weight:760; word-break:keep-all; }
+        div[data-testid="stPlotlyChart"] { background:rgba(21,16,47,0.78) !important; border-radius:22px !important; overflow:hidden !important; padding:0 !important; border:1px solid rgba(196,143,255,0.20) !important; box-shadow:0 0 24px rgba(125,66,255,0.12), inset 0 0 18px rgba(255,255,255,0.018) !important; }
+        @media (max-width: 1280px) { .trail-hero-top { grid-template-columns:1fr; } .trail-kpi-grid { grid-template-columns:1fr; } }
         </style>
         """),
         unsafe_allow_html=True,
@@ -2150,27 +1288,67 @@ def render_startrail_dashboard():
     if not summary or not kpi:
         st.error("스타트레일 요약/KPI CSV를 찾지 못했습니다. `10_dashboard/data/startrail_대시보드요약.csv`, `startrail_핵심KPI.csv` 경로를 확인해주세요.")
         return
-
     if raw.empty:
         st.error("스타트레일 개인 후보 CSV를 찾지 못했습니다. `10_dashboard/data/startrail_개인후보통합테이블.csv` 경로를 확인해주세요.")
         return
 
-    date_icon = startrail_img_to_base64(STARTRAIL_ASSET_FILES["calendar"])
     soop_icon = startrail_img_to_base64(STARTRAIL_ASSET_FILES["soop"])
     chzzk_icon = startrail_img_to_base64(STARTRAIL_ASSET_FILES["chzzk"])
 
     def _num(v, default=0):
         try:
+            if pd.isna(v):
+                return default
             return float(str(v).replace(",", "").replace("₩", "").strip())
         except Exception:
             return default
 
+    def _safe_text(v, default="-"):
+        if v is None:
+            return default
+        try:
+            if pd.isna(v):
+                return default
+        except Exception:
+            pass
+        text = str(v).strip()
+        return text if text and text.lower() != "nan" else default
+
+    def _esc(v):
+        return html_lib.escape(_safe_text(v))
+
+    def _avatar(row, name):
+        image_url = _safe_text(row.get("이미지URL", ""), "")
+        if image_url and image_url.lower() != "nan":
+            return image_url
+        return f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(str(name))}"
+
+    def _platform_badge(platform):
+        platform = _safe_text(platform, "")
+        if platform == "SOOP":
+            return f'<img src="data:image/png;base64,{soop_icon}" alt="SOOP">'
+        if platform == "CHZZK":
+            return f'<img src="data:image/png;base64,{chzzk_icon}" alt="CHZZK">'
+        if platform:
+            return f'<span style="color:#D9C8FF;font-size:13px;font-weight:850;">{html_lib.escape(platform)}</span>'
+        return ""
+
+    def _metric_bar(label, value, max_value, color):
+        value = _num(value)
+        max_value = max(_num(max_value), 1)
+        percent = max(0, min(value / max_value, 1.0)) * 100
+        return f'''
+        <div class="trail-bar-row">
+            <div class="trail-bar-head">
+                <span class="trail-bar-label">{html_lib.escape(label)}</span>
+                <span class="trail-bar-value" style="color:{color};">{value:,.0f}</span>
+            </div>
+            <div class="trail-bar-track"><div class="trail-bar-fill" style="width:{percent:.2f}%; background:{color};"></div></div>
+        </div>
+        '''
+
     if "startrail_current_seg" not in st.session_state:
         st.session_state.startrail_current_seg = "프로토스타"
-
-    if "startrail_show_detail" not in st.session_state:
-        st.session_state.startrail_show_detail = False
-
     if "startrail_selected_streamer" not in st.session_state:
         st.session_state.startrail_selected_streamer = None
 
@@ -2178,116 +1356,70 @@ def render_startrail_dashboard():
     avg_viewership = _num(kpi.get("평균 뷰어십"))
     avg_donation = _num(kpi.get("평균 도네이션"))
 
-    st.markdown(
-        clean_html(f"""
-        <div class="startrail-page">
-            <div class="trail-dashboard-hero">
-                <div class="trail-hero-grid">
-                    <div class="trail-title-wrap">
-                        <div class="trail-title-icon">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </div>
-
-                        <div>
-                            <div class="trail-title-main">
-                                <span class="trail-title-ko">스타트레일</span>
-                                <span class="trail-title-en">Star Trail</span>
-                            </div>
-                            <div class="trail-title-underline"></div>
-                            <div class="trail-title-desc">
-                                기존 플랫폼의 성과와 팬덤 궤적을 따라<br>
-                                CIME 영입 우선 후보군을 찾습니다
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="trail-period-card">
-                        <div class="trail-period-icon">
-                            <i class="fa-regular fa-calendar-days"></i>
-                        </div>
-
-                        <div>
-                            <div class="trail-period-title">분석 기간</div>
-                            <div class="trail-period-desc">
-                                기존 플랫폼의 활동 데이터를 기준으로<br>
-                                <span class="trail-period-date">2025.01.01 ~ 2026.03.31</span> 기간의 후보군을 분석합니다.
-                            </div>
+    st.markdown(clean_html(f"""
+    <div class="startrail-page">
+        <div class="trail-hero-dashboard">
+            <div class="trail-hero-top">
+                <div>
+                    <div class="trail-hero-title">STAR TRAIL</div>
+                    <div class="trail-hero-subtitle">기존 플랫폼의 데이터 궤적을 따라 CIME 영입 후보군을 찾습니다</div>
+                    <div class="trail-date-pill"><i class="fa-regular fa-calendar-days"></i> 2025.01.01 ~ 2026.03.31</div>
+                </div>
+                <div class="trail-hero-info-card">
+                    <div class="trail-hero-info-icon">✦</div>
+                    <div>
+                        <div class="trail-hero-info-title">스타트레일은 무엇을 찾나요?</div>
+                        <div class="trail-hero-info-desc">
+                            기존 플랫폼에서 이미 활동성과 팬덤이 확인된 스트리머를 대상으로<br>
+                            방송화력, 수익성, 외부유입 가능성을 함께 검토해 CIME 영입 후보를 선별합니다.
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="trail-kpi-grid">
-                <div class="trail-kpi-card">
-                    <div class="trail-kpi-label">총 분석 스트리머 수</div>
-                    <div class="trail-kpi-value">{total_streamer:,.0f}명</div>
-                </div>
-                <div class="trail-kpi-card">
-                    <div class="trail-kpi-label">평균 뷰어십</div>
-                    <div class="trail-kpi-value">{avg_viewership:,.0f}</div>
-                </div>
-                <div class="trail-kpi-card">
-                    <div class="trail-kpi-label">평균 도네이션</div>
-                    <div class="trail-kpi-value">₩ {avg_donation:,.0f}</div>
-                </div>
+                <div class="trail-kpi-card"><div class="trail-kpi-label">총 분석 스트리머 수</div><div class="trail-kpi-value">{total_streamer:,.0f} 명</div></div>
+                <div class="trail-kpi-card"><div class="trail-kpi-label">평균 뷰어십</div><div class="trail-kpi-value">{avg_viewership:,.0f}</div></div>
+                <div class="trail-kpi-card"><div class="trail-kpi-label">평균 도네이션</div><div class="trail-kpi-value">₩ {avg_donation:,.0f}</div></div>
             </div>
-
             <div class="trail-section-divider"></div>
         </div>
-        """),
-        unsafe_allow_html=True,
-    )
-
-    st.write("### 🛸 세그먼트 전략")
+    </div>
+    """), unsafe_allow_html=True)
 
     seg_data = {
-        "성단": {"icon": "fa-solid fa-users", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "그룹/소속 기반 팬덤 이동 가능성이 있는 후보군"},
-        "프로토스타": {"icon": "fa-solid fa-leaf", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준", "desc": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군"},
-        "위성": {"icon": "fa-solid fa-satellite", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군"},
-        "슈퍼노바": {"icon": "fa-solid fa-star", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준", "desc": "대중성과 팬덤 규모가 큰 간판형 후보군"},
-        "코멧": {"icon": "fa-solid fa-meteor", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군"},
+        "성단": {"icon": "fa-solid fa-users", "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개", "desc": "성단설명"},
+        "프로토스타": {"icon": "fa-solid fa-leaf", "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명", "tooltip": "S급 기준", "desc": "프로토스타 설명"},
+        "위성": {"icon": "fa-solid fa-satellite", "count": f"{_num(summary.get('위성 후보 수')):,.0f}명", "desc": "위성 설명"},
+        "슈퍼노바": {"icon": "fa-solid fa-star", "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명", "tooltip": "핵심 후보군 기준", "desc": "슈퍼노바 설명"},
+        "코멧": {"icon": "fa-solid fa-meteor", "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명", "desc": "코멧설명"},
     }
 
-    segments = list(seg_data.keys())
+    st.markdown('<div class="startrail-page"><div class="trail-section-title">🛸 세그먼트 전략</div></div>', unsafe_allow_html=True)
     seg_cols = st.columns(5)
-
-    for i, seg in enumerate(segments):
+    for i, seg in enumerate(seg_data.keys()):
         with seg_cols[i]:
             info = seg_data[seg]
             active_class = f"active active-{seg}" if st.session_state.startrail_current_seg == seg else ""
             tooltip_html = ""
-
             if "tooltip" in info:
-                tooltip_html = (
-                    f'<span class="tooltip-wrap">'
-                    f'<span class="tooltip-icon">?</span>'
-                    f'<span class="tooltip-text">{info["tooltip"]}</span>'
-                    f'</span>'
-                )
-
-            st.markdown(
-                f"""
-                <div class="segment-card {active_class}">
-                    <i class="{info["icon"]} fa-2x"></i>
-                    <div class="seg-name">{seg}{tooltip_html}</div>
-                    <div class="seg-count">{info["count"]}</div>
-                    <div class="seg-desc">{info["desc"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
+                tooltip_html = f'<span class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">{html_lib.escape(info["tooltip"])}</span></span>'
+            st.markdown(f'''
+            <div class="trail-seg-card {active_class}">
+                <div class="trail-seg-icon"><i class="{info["icon"]}"></i></div>
+                <div class="trail-seg-name">{html_lib.escape(seg)}{tooltip_html}</div>
+                <div class="trail-seg-count">{info["count"]}</div>
+                <div class="trail-seg-desc">{html_lib.escape(info["desc"])}</div>
+            </div>
+            ''', unsafe_allow_html=True)
             if st.button("선택", key=f"startrail_seg_btn_{seg}", use_container_width=True):
                 st.session_state.startrail_current_seg = seg
-                st.session_state.startrail_show_detail = False
                 st.session_state.startrail_selected_streamer = None
                 st.rerun()
 
-    st.write("---")
+    st.markdown('<div class="startrail-page"><div class="trail-section-divider" style="margin-top:28px;"></div></div>', unsafe_allow_html=True)
 
     platform_filter = "전체"
     segment_detail_filter = "전체"
-
     if st.session_state.startrail_current_seg == "코멧":
         _, f1, f2 = st.columns([2, 1, 1])
         platform_filter = f1.selectbox("플랫폼 필터", ["전체", "SOOP", "CHZZK"], key="startrail_platform_filter_comet")
@@ -2299,11 +1431,9 @@ def render_startrail_dashboard():
     if st.session_state.startrail_current_seg == "성단":
         filtered_df = constellation_df.copy()
     else:
-        filtered_df = df[df["세그먼트"] == st.session_state.startrail_current_seg].copy()
-
+        filtered_df = df[df["세그먼트"] == st.session_state.startrail_current_seg].copy() if "세그먼트" in df.columns else pd.DataFrame()
         if platform_filter != "전체" and "플랫폼" in filtered_df.columns:
             filtered_df = filtered_df[filtered_df["플랫폼"] == platform_filter].copy()
-
         if segment_detail_filter != "전체" and "세그먼트필터" in filtered_df.columns:
             filtered_df = filtered_df[filtered_df["세그먼트필터"] == segment_detail_filter].copy()
 
@@ -2312,380 +1442,174 @@ def render_startrail_dashboard():
         filtered_df["순위"] = filtered_df.index + 1
         filtered_df["상위퍼센트"] = (filtered_df["순위"] / len(filtered_df) * 100).round(2)
     else:
-        filtered_df["순위"] = []
-        filtered_df["상위퍼센트"] = []
+        filtered_df = pd.DataFrame(columns=list(filtered_df.columns) + ["순위", "상위퍼센트"] if hasattr(filtered_df, 'columns') else ["순위", "상위퍼센트"])
 
-    top_5 = filtered_df.head(5)
-
-    st.write(f"### 🏆 **{st.session_state.startrail_current_seg}** TOP 5")
+    top_5 = filtered_df.head(5).copy()
+    current_seg = st.session_state.startrail_current_seg
+    st.markdown(f'<div class="startrail-page"><div class="trail-section-title">🏆 {html_lib.escape(current_seg)} TOP 5</div></div>', unsafe_allow_html=True)
 
     if top_5.empty:
         st.warning("선택한 조건에 해당하는 후보가 없습니다.")
     else:
         card_cols = st.columns(5)
-
         for i, (_, row) in enumerate(top_5.iterrows()):
-            if st.session_state.startrail_current_seg == "성단":
-                display_name = row.get("소속", "-")
+            if current_seg == "성단":
+                display_name = _safe_text(row.get("소속", "-"))
                 display_segment = "성단"
-                score_text = f'{row.get("스코어", 0):.0f}'
-                avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={display_name}"
+                score_text = f'{_num(row.get("스코어")):.0f}'
+                avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(display_name)}"
             else:
-                display_name = row.get("스트리머", "-")
-                display_segment = row.get("세그먼트", "-")
-                score_text = f'{row.get("스코어", 0):.2f}'
-                image_url = str(row.get("이미지URL", "")).strip()
-                avatar_url = image_url if image_url and image_url.lower() != "nan" else f"https://api.dicebear.com/7.x/avataaars/svg?seed={display_name}"
-
-            rank_class = "rank-gold" if i == 0 else "rank-silver" if i == 1 else "rank-bronze" if i == 2 else "rank-normal"
-
+                display_name = _safe_text(row.get("스트리머", "-"))
+                display_segment = _safe_text(row.get("세그먼트", current_seg))
+                score_text = f'{_num(row.get("스코어")):.2f}'
+                avatar_url = _avatar(row, display_name)
+            badge_class = "rank-normal" if i >= 3 else f"rank-{i+1}"
             with card_cols[i]:
-                st.markdown(
-                    f"""
-                    <div class="rank-card">
-                        <div class="rank-badge {rank_class}">{i + 1}</div>
-                        <div class="avatar-circle"><img src="{avatar_url}" alt="avatar"></div>
-                        <div style="font-weight:bold; font-size:18px;">{display_name}</div>
-                        <div class="tag-segment tag-{display_segment}">{display_segment}</div>
-                        <div style="margin-top:15px; font-size:12px; color:#8b949e;">스코어</div>
-                        <div style="font-size:24px; font-weight:800; color:#ffbc00;">{score_text}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
+                st.markdown(f'''
+                <div class="trail-rank-card">
+                    <div class="trail-rank-badge {badge_class}">{i + 1}</div>
+                    <div class="trail-avatar-wrap"><img src="{avatar_url}" alt="avatar"></div>
+                    <div class="trail-rank-name">{html_lib.escape(display_name)}</div>
+                    <div style="text-align:center;"><span class="trail-tag">{html_lib.escape(display_segment)}</span></div>
+                    <div style="text-align:center;"><div class="trail-score-label">스코어</div><div class="trail-score-value">{score_text}</div></div>
+                </div>
+                ''', unsafe_allow_html=True)
                 if st.button("상세 보기", key=f"startrail_streamer_btn_{display_segment}_{display_name}_{i}", use_container_width=True):
                     selected_data = row.to_dict()
-                    if st.session_state.startrail_current_seg == "성단":
-                        selected_data["세그먼트"] = "성단"
-                        selected_data["표시이름"] = row.get("소속", "-")
-                    else:
-                        selected_data["표시이름"] = row.get("스트리머", "-")
-
+                    selected_data["세그먼트"] = display_segment
+                    selected_data["표시이름"] = display_name
                     st.session_state.startrail_selected_streamer = selected_data
-                    st.session_state.startrail_show_detail = True
                     st.rerun()
 
-    if st.session_state.startrail_show_detail and st.session_state.startrail_selected_streamer is not None:
-        s = st.session_state.startrail_selected_streamer
-        detail_name = s.get("표시이름", s.get("스트리머", s.get("소속", "-")))
-
-        image_url = str(s.get("이미지URL", "")).strip()
-        avatar_url = image_url if image_url and image_url.lower() != "nan" else f"https://api.dicebear.com/7.x/avataaars/svg?seed={detail_name}"
-
-        if s.get("세그먼트") == "성단":
-            detail_platform_img = ""
-        elif s.get("플랫폼") == "SOOP":
-            detail_platform_img = f'<img src="data:image/png;base64,{soop_icon}" style="height:28px; border-radius:8px; object-fit:contain;">'
-        elif s.get("플랫폼") == "CHZZK":
-            detail_platform_img = f'<img src="data:image/png;base64,{chzzk_icon}" style="height:28px; border-radius:8px; object-fit:contain;">'
+    selected = st.session_state.startrail_selected_streamer
+    if selected is None and not top_5.empty:
+        selected = top_5.iloc[0].to_dict()
+        if current_seg == "성단":
+            selected["세그먼트"] = "성단"
+            selected["표시이름"] = _safe_text(selected.get("소속", "-"))
         else:
-            detail_platform_img = f'<span style="color:#8b949e; font-size:14px;">{s.get("플랫폼", "")}</span>'
+            selected["표시이름"] = _safe_text(selected.get("스트리머", "-"))
 
-        if s.get("세그먼트") == "성단":
-            metrics = {
-                "멤버 수": (_num(s.get("멤버수")), max(constellation_df["멤버수"].quantile(0.95), 1), "#00ff87"),
-                "뷰어십 합계": (_num(s.get("합계_뷰어십")), max(constellation_df["합계_뷰어십"].quantile(0.95), 1), "#ff4b4b"),
-                "도네이션 합계": (_num(s.get("합계_도네이션")), max(constellation_df["합계_도네이션"].quantile(0.95), 1), "#ffbc00"),
-            }
-            radar_metrics = {
-                "플랫폼체급": (_num(s.get("플랫폼체급_점수")), 100),
-                "ARPU": (_num(s.get("ARPU_점수")), 100),
-                "외부인기": (_num(s.get("외부인기_점수")), 100),
-                "대중성": (_num(s.get("대중성_점수")), 100),
-            }
-        else:
-            metrics = {
-                "뷰어십": (_num(s.get("뷰어십")), 17000000, "#ff4b4b"),
-                "도네이션": (_num(s.get("도네이션")), 7000000, "#ffbc00"),
-                "최고 팔로워": (_num(s.get("팔로워수")), 414000, "#00ff87"),
-                "평균 시청자": (_num(s.get("평균시청자")), 47500, "#00f2ff"),
-                "최고 시청자": (_num(s.get("최고시청자")), 50000, "#bf40bf"),
-            }
-            radar_metrics = {
-                "대중성": (_num(s.get("대중성_표준점수")), 100),
-                "방송화력": (_num(s.get("방송화력_표준점수")), 100),
-                "팬덤결집력": (_num(s.get("팬덤결집력_표준점수")), 100),
-                "수익성": (_num(s.get("수익성_표준점수")), 100),
-                "외부유입가능성": (_num(s.get("외부유입가능성_표준점수")), 100),
-            }
+    lower_left, lower_right = st.columns([1.9, 0.72], gap="large")
 
-        st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
-        detail_box = st.container(border=True)
-
-        with detail_box:
-            st.markdown("<div style='height:30px;'></div>", unsafe_allow_html=True)
-            detail_left, detail_mid, detail_right = st.columns([1.1, 1.8, 1.2])
-
-            with detail_left:
-                st.markdown(
-                    f"""
-                    <div style="width:190px; margin:22px auto 0 auto; text-align:center;">
-                        <div class="avatar-circle" style="width:135px; height:135px; border:4px solid #00f2ff; margin:0 auto 14px auto;">
-                            <img src="{avatar_url}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">
-                        </div>
-                        <div style="width:190px; text-align:center; font-size:26px; font-weight:800; color:white; margin:0 0 6px 0; white-space:nowrap;">
-                            {detail_name}
-                        </div>
-                        <div style="width:190px; display:flex; justify-content:center; gap:8px; align-items:center;">
-                            <span class="tag-segment tag-{s.get("세그먼트", "-")}" style="height:30px; padding:0 12px; display:flex; align-items:center; justify-content:center; margin:0;">
-                                {s.get("세그먼트", "-")}
-                            </span>
-                            {detail_platform_img}
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-            with detail_mid:
-                for m_name, (val, max_val, color) in metrics.items():
-                    percent = min(val / max_val, 1.0) * 100 if max_val else 0
-                    st.markdown(
-                        f"""
-                        <div style="margin-bottom:14px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                                <span style="font-size:14px; font-weight:bold; color:white;">{m_name}</span>
-                                <span style="font-size:15px; font-weight:800; color:{color};">{val:,.0f}</span>
-                            </div>
-                            <div style="background:rgba(255,255,255,0.05); height:8px; border-radius:4px; overflow:hidden;">
-                                <div style="background:{color}; height:100%; border-radius:4px; width:{percent}%;"></div>
-                            </div>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
-
-            with detail_right:
-                radar_labels = list(radar_metrics.keys())
-                radar_values = [min(val / max_val, 1.0) * 100 if max_val else 0 for val, max_val in radar_metrics.values()]
-                radar_labels_closed = radar_labels + [radar_labels[0]]
-                radar_values_closed = radar_values + [radar_values[0]]
-
+    with lower_right:
+        if selected is not None:
+            s = selected
+            detail_name = _safe_text(s.get("표시이름", s.get("스트리머", s.get("소속", "-"))))
+            detail_seg = _safe_text(s.get("세그먼트", current_seg))
+            avatar_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={html_lib.escape(detail_name)}" if detail_seg == "성단" else _avatar(s, detail_name)
+            platform_html = "" if detail_seg == "성단" else _platform_badge(s.get("플랫폼", ""))
+            if detail_seg == "성단":
+                metrics = [
+                    ("멤버 수", s.get("멤버수", 0), 20, "#83F6A0"),
+                    ("뷰어십 합계", s.get("합계_뷰어십", 0), 1000000, "#FF7B86"),
+                    ("도네이션 합계", s.get("합계_도네이션", 0), 10000000, "#FFD45D"),
+                ]
+                radar_metrics = {"플랫폼체급": (_num(s.get("플랫폼체급_점수")), 100), "ARPU": (_num(s.get("ARPU_점수")), 100), "외부인기": (_num(s.get("외부인기_점수")), 100), "대중성": (_num(s.get("대중성_점수")), 100)}
+            else:
+                metrics = [
+                    ("뷰어십", s.get("뷰어십", 0), 17000000, "#FF7B86"),
+                    ("도네이션", s.get("도네이션", 0), 7000000, "#FFD45D"),
+                    ("최고 팔로워", s.get("팔로워수", s.get("최고_팔로워", 0)), 414000, "#83F6A0"),
+                    ("평균 시청자", s.get("평균시청자", s.get("평균_시청자_최댓값", 0)), 47500, "#75CCFF"),
+                    ("최고 시청자", s.get("최고시청자", s.get("최고_시청자", 0)), 50000, "#F08CFF"),
+                ]
+                radar_metrics = {"대중성": (_num(s.get("대중성_표준점수")), 100), "방송화력": (_num(s.get("방송화력_표준점수")), 100), "팬덤결집력": (_num(s.get("팬덤결집력_표준점수")), 100), "수익성": (_num(s.get("수익성_표준점수")), 100), "외부유입가능성": (_num(s.get("외부유입가능성_표준점수")), 100)}
+            bar_html = "".join(_metric_bar(label, val, max_val, color) for label, val, max_val, color in metrics)
+            st.markdown(f'''
+            <div class="trail-side-card">
+                <div class="trail-detail-avatar"><img src="{avatar_url}" alt="avatar"></div>
+                <div class="trail-detail-name">{html_lib.escape(detail_name)}</div>
+                <div class="trail-detail-tags"><span class="trail-tag">{html_lib.escape(detail_seg)}</span>{platform_html}</div>
+                {bar_html}
+            </div>
+            ''', unsafe_allow_html=True)
+            radar_labels = list(radar_metrics.keys())
+            radar_values = [max(0, min(_num(v) / max(_num(m), 1), 1.0)) * 100 for v, m in radar_metrics.values()]
+            if radar_labels:
                 fig_radar = go.Figure()
-                fig_radar.add_trace(go.Scatterpolar(
-                    r=radar_values_closed,
-                    theta=radar_labels_closed,
-                    fill="toself",
-                    name="능력치",
-                    line=dict(width=2),
-                    opacity=0.85,
-                ))
-
-                fig_radar.update_layout(
-                    polar=dict(
-                        bgcolor=STARTRAIL_TRANSPARENT,
-                        radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#8b949e"), gridcolor="rgba(255,255,255,0.15)"),
-                        angularaxis=dict(tickfont=dict(size=14, color="white"), gridcolor="rgba(255,255,255,0.15)"),
-                    ),
-                    showlegend=False,
-                    margin=dict(l=35, r=35, t=25, b=45),
-                    paper_bgcolor=STARTRAIL_TRANSPARENT,
-                    plot_bgcolor=STARTRAIL_TRANSPARENT,
-                    font_color="white",
-                    height=260,
-                )
-
+                fig_radar.add_trace(go.Scatterpolar(r=radar_values + [radar_values[0]], theta=radar_labels + [radar_labels[0]], fill="toself", name="능력치", line=dict(width=2, color="#8FB8FF"), fillcolor="rgba(143,184,255,0.26)", opacity=0.92))
+                fig_radar.update_layout(polar=dict(bgcolor=STARTRAIL_TRANSPARENT, radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=8, color="#8b949e"), gridcolor="rgba(255,255,255,0.13)"), angularaxis=dict(tickfont=dict(size=11, color="white"), gridcolor="rgba(255,255,255,0.13)")), showlegend=False, margin=dict(l=22, r=22, t=10, b=24), paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", height=250)
                 st.plotly_chart(fig_radar, use_container_width=True)
 
-            _, close_col = st.columns([5, 1])
-            with close_col:
-                if st.button("닫기", key="startrail_detail_close", use_container_width=True):
-                    st.session_state.startrail_show_detail = False
-                    st.session_state.startrail_selected_streamer = None
-                    st.rerun()
-
-    st.write("---")
-
-    bot_left, spacer, bot_right = st.columns([1, 0.08, 1])
-
-    with bot_left:
-        st.markdown(f"<div class='bottom-title'>📋 {st.session_state.startrail_current_seg} 영입 우선순위 리스트</div>", unsafe_allow_html=True)
-
-        table_html = "<table class='custom-table'><thead><tr>"
-
-        if st.session_state.startrail_current_seg == "성단":
-            table_html += "<th>순위</th><th>소속</th><th>스코어</th><th>상위 %</th><th>멤버 수</th><th>뷰어십 합계</th><th>도네이션 합계</th>"
-        else:
-            table_html += "<th>순위</th><th>스트리머명</th><th>플랫폼</th><th>스코어</th><th>상위 %</th><th>팔로워수</th><th>평균시청자</th><th>평균 도네이션</th>"
-
-        table_html += "</tr></thead><tbody>"
-
-        for _, row in filtered_df.head(10).iterrows():
-            if st.session_state.startrail_current_seg == "성단":
-                table_html += (
-                    f"<tr><td>{row['순위']}</td><td><b>{row['소속']}</b></td>"
-                    f"<td style='color:#00f2ff; font-weight:bold;'>{row['스코어']:.0f}</td>"
-                    f"<td style='color:#ffbc00; font-weight:bold;'>상위 {row['상위퍼센트']:.1f}%</td>"
-                    f"<td>{row['멤버수']:,.0f}</td><td>{row['합계_뷰어십']:,.0f}</td>"
-                    f"<td>₩ {row['합계_도네이션']:,.0f}</td></tr>"
-                )
+    with lower_left:
+        st.markdown('<div class="trail-section-divider" style="margin-top:12px;"></div>', unsafe_allow_html=True)
+        table_col, graph_col = st.columns([1.02, 1.05], gap="large")
+        with table_col:
+            st.markdown(f"<div class='trail-bottom-title'>📋 {html_lib.escape(current_seg)} 영입 우선순위 리스트</div>", unsafe_allow_html=True)
+            table_html = "<table class='trail-table'><thead><tr>"
+            if current_seg == "성단":
+                table_html += "<th>순위</th><th>소속</th><th>스코어</th><th>상위 %</th><th>멤버 수</th><th>뷰어십 합계</th><th>도네이션 합계</th>"
             else:
-                if row.get("플랫폼") == "SOOP":
-                    platform_img = f'<img src="data:image/png;base64,{soop_icon}" style="height:24px; border-radius:8px; object-fit:contain;">'
-                elif row.get("플랫폼") == "CHZZK":
-                    platform_img = f'<img src="data:image/png;base64,{chzzk_icon}" style="height:24px; border-radius:8px; object-fit:contain;">'
+                table_html += "<th>순위</th><th>스트리머명</th><th>플랫폼</th><th>스코어</th><th>상위 %</th><th>팔로워수</th><th>평균시청자</th><th>평균 도네이션</th>"
+            table_html += "</tr></thead><tbody>"
+            for _, row in filtered_df.head(10).iterrows():
+                if current_seg == "성단":
+                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('소속'))}</b></td><td style='color:#75CCFF; font-weight:950;'>{_num(row.get('스코어')):.0f}</td><td style='color:#FFD45D; font-weight:950;'>상위<br>{_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('멤버수')):,.0f}</td><td>{_num(row.get('합계_뷰어십')):,.0f}</td><td>₩ {_num(row.get('합계_도네이션')):,.0f}</td></tr>"
                 else:
-                    platform_img = row.get("플랫폼", "-")
+                    table_html += f"<tr><td>{int(_num(row.get('순위')))}</td><td><b>{_esc(row.get('스트리머'))}</b></td><td>{_platform_badge(row.get('플랫폼', ''))}</td><td style='color:#00f2ff; font-weight:950;'>{_num(row.get('스코어')):.2f}</td><td style='color:#FFD45D; font-weight:950;'>상위<br>{_num(row.get('상위퍼센트')):.1f}%</td><td>{_num(row.get('팔로워수')):,.0f}</td><td>{_num(row.get('평균시청자')):,.0f}</td><td>₩ {_num(row.get('평균도네이션')):,.0f}</td></tr>"
+            table_html += "</tbody></table>"
+            st.markdown(table_html, unsafe_allow_html=True)
 
-                table_html += (
-                    f"<tr><td>{row['순위']}</td><td><b>{row['스트리머']}</b></td>"
-                    f"<td>{platform_img}</td>"
-                    f"<td style='color:#00f2ff; font-weight:bold;'>{row['스코어']:.2f}</td>"
-                    f"<td style='color:#ffbc00; font-weight:bold;'>상위 {row['상위퍼센트']:.1f}%</td>"
-                    f"<td style='text-align:right;'>{row['팔로워수']:,.0f}</td>"
-                    f"<td style='text-align:right;'>{row['평균시청자']:,.0f}</td>"
-                    f"<td style='text-align:right;'>₩ {row['평균도네이션']:,.0f}</td></tr>"
-                )
-
-        table_html += "</tbody></table>"
-        st.markdown(table_html, unsafe_allow_html=True)
-
-    with bot_right:
-        if st.session_state.startrail_current_seg == "성단":
-            graph_title = "🌌 성단 TOP15 히트맵"
-        elif st.session_state.startrail_current_seg == "코멧":
-            graph_title = "🌌 코멧 타겟팅 맵"
-        else:
-            graph_title = f"🌌 {st.session_state.startrail_current_seg} 세그먼트 분석 분포"
-
-        st.markdown(f"<div class='bottom-title'>{graph_title}</div>", unsafe_allow_html=True)
-
-        if filtered_df.empty:
-            st.warning("그래프를 표시할 데이터가 없습니다.")
-
-        elif st.session_state.startrail_current_seg == "성단":
-            heatmap_cols = ["플랫폼체급_점수", "ARPU_점수", "외부인기_점수", "대중성_점수", "영입우선_점수"]
-            heatmap_labels = ["플랫폼체급", "ARPU", "외부인기", "대중성", "영입우선"]
-
-            missing = [c for c in heatmap_cols if c not in filtered_df.columns]
-            if missing:
-                st.warning(f"히트맵 컬럼이 부족합니다: {missing}")
+        with graph_col:
+            graph_title = "🌌 성단 TOP15 히트맵" if current_seg == "성단" else "🌌 코멧 타겟팅 맵" if current_seg == "코멧" else f"🌌 {html_lib.escape(current_seg)} 세그먼트 분석 분포"
+            st.markdown(f"<div class='trail-bottom-title'>{graph_title}</div>", unsafe_allow_html=True)
+            if filtered_df.empty:
+                st.warning("그래프를 표시할 데이터가 없습니다.")
+            elif current_seg == "성단":
+                heatmap_cols = ["플랫폼체급_점수", "ARPU_점수", "외부인기_점수", "대중성_점수", "영입우선_점수"]
+                missing = [c for c in heatmap_cols if c not in filtered_df.columns]
+                if missing:
+                    st.warning(f"히트맵 컬럼이 부족합니다: {missing}")
+                else:
+                    fig = px.imshow(filtered_df.sort_values("영입우선_점수", ascending=False).head(15).set_index("소속")[heatmap_cols], text_auto=".0f", aspect="auto", color_continuous_scale="YlGnBu", zmin=0, zmax=100, labels=dict(color="점수"))
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=70, t=40, b=70), height=520)
+                    st.plotly_chart(fig, use_container_width=True)
+            elif current_seg == "코멧":
+                comet_all_df = raw.copy()
+                for col in ["유튜브_구독자", "X_팔로워", "최고_팔로워"]:
+                    if col not in comet_all_df.columns:
+                        comet_all_df[col] = 0
+                    comet_all_df[col] = pd.to_numeric(comet_all_df[col], errors="coerce").fillna(0)
+                comet_all_df["통합_외부화력"] = comet_all_df["유튜브_구독자"] + comet_all_df["X_팔로워"]
+                plot_all_df = comet_all_df[(comet_all_df["최고_팔로워"] > 0) & (comet_all_df["통합_외부화력"] > 0)].copy()
+                plot_comet_df = filtered_df.copy()
+                for col in ["유튜브_구독자", "X_팔로워", "최고_팔로워"]:
+                    if col not in plot_comet_df.columns:
+                        plot_comet_df[col] = 0
+                    plot_comet_df[col] = pd.to_numeric(plot_comet_df[col], errors="coerce").fillna(0)
+                plot_comet_df["통합_외부화력"] = plot_comet_df["유튜브_구독자"] + plot_comet_df["X_팔로워"]
+                plot_comet_df = plot_comet_df[(plot_comet_df["최고_팔로워"] > 0) & (plot_comet_df["통합_외부화력"] > 0)].copy()
+                if plot_all_df.empty and plot_comet_df.empty:
+                    st.warning("코멧 타겟팅 맵을 그릴 수 있는 최고 팔로워/외부화력 값이 없습니다.")
+                else:
+                    fig = go.Figure()
+                    if not plot_all_df.empty:
+                        fig.add_trace(go.Scatter(x=plot_all_df["최고_팔로워"], y=plot_all_df["통합_외부화력"], mode="markers", name="일반 스트리머", marker=dict(size=6, color="rgba(217,217,217,0.35)"), text=plot_all_df["스트리머명"] if "스트리머명" in plot_all_df.columns else None, hovertemplate="<b>%{text}</b><br>최고 팔로워: %{x:,.0f}<br>통합 외부화력: %{y:,.0f}<extra></extra>"))
+                    if "코멧유입경로" not in plot_comet_df.columns:
+                        plot_comet_df["코멧유입경로"] = "해당 없음"
+                    for route, color in {"유튜브 강세형":"#FF8A8A", "X 강세형":"#95AFFF", "하이브리드":"#FF9DF5", "해당 없음":"#FFD45D"}.items():
+                        temp = plot_comet_df[plot_comet_df["코멧유입경로"].fillna("해당 없음") == route].copy()
+                        if not temp.empty:
+                            fig.add_trace(go.Scatter(x=temp["최고_팔로워"], y=temp["통합_외부화력"], mode="markers", name=route, marker=dict(size=14, color=color, line=dict(color="white", width=1.4)), text=temp["스트리머"] if "스트리머" in temp.columns else None, hovertemplate=f"<b>%{{text}}</b><br>유입경로: {route}<br>최고 팔로워: %{{x:,.0f}}<br>통합 외부화력: %{{y:,.0f}}<extra></extra>"))
+                    if not plot_comet_df.empty and plot_comet_df["최고_팔로워"].mean() > 0:
+                        fig.add_vline(x=plot_comet_df["최고_팔로워"].mean(), line_dash="dot", line_width=2, line_color="#c9d1d9", opacity=0.75)
+                    fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=100, t=60, b=70), height=520, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_xaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
+                    fig.update_yaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
+                    st.plotly_chart(fig, use_container_width=True)
             else:
-                heatmap_df = filtered_df.sort_values("영입우선_점수", ascending=False).head(15).set_index("소속")[heatmap_cols]
+                required_cols = ["평균시청자", "스코어", "뷰어십", "플랫폼", "스트리머"]
+                missing = [c for c in required_cols if c not in filtered_df.columns]
+                if missing:
+                    st.warning(f"산점도 컬럼이 부족합니다: {missing}")
+                else:
+                    fig = px.scatter(filtered_df, x="평균시청자", y="스코어", size="뷰어십", color="플랫폼", hover_name="스트리머", color_discrete_map={"SOOP":"#75CCFF", "CHZZK":"#bf40bf"}, template="plotly_dark")
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, margin=dict(l=70, r=110, t=55, b=70), height=520, font_color="white", legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_xaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
+                    fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
+                    st.plotly_chart(fig, use_container_width=True)
 
-                fig = px.imshow(
-                    heatmap_df,
-                    text_auto=".0f",
-                    aspect="auto",
-                    color_continuous_scale="YlGnBu",
-                    zmin=0,
-                    zmax=100,
-                    labels=dict(color="점수"),
-                )
-
-                fig.update_xaxes(ticktext=heatmap_labels, tickvals=list(range(len(heatmap_labels))), tickangle=0, automargin=True)
-                fig.update_yaxes(automargin=True)
-                fig.update_layout(
-                    paper_bgcolor=STARTRAIL_TRANSPARENT,
-                    plot_bgcolor=STARTRAIL_TRANSPARENT,
-                    font_color="white",
-                    margin=dict(l=85, r=95, t=55, b=95),
-                    height=620,
-                    coloraxis_colorbar=dict(title="점수", x=1.03, xanchor="left"),
-                )
-                st.plotly_chart(fig, use_container_width=True)
-
-        elif st.session_state.startrail_current_seg == "코멧":
-            comet_all_df = raw.copy()
-            for col in ["유튜브_구독자", "X_팔로워", "최고_팔로워"]:
-                if col not in comet_all_df.columns:
-                    comet_all_df[col] = 0
-                comet_all_df[col] = pd.to_numeric(comet_all_df[col], errors="coerce").fillna(0)
-
-            comet_all_df["통합_외부화력"] = comet_all_df["유튜브_구독자"] + comet_all_df["X_팔로워"]
-
-            plot_all_df = comet_all_df[(comet_all_df["최고_팔로워"] > 0) & (comet_all_df["통합_외부화력"] > 0)].copy()
-            plot_comet_df = filtered_df.copy()
-
-            for col in ["유튜브_구독자", "X_팔로워", "최고_팔로워"]:
-                if col not in plot_comet_df.columns:
-                    plot_comet_df[col] = 0
-                plot_comet_df[col] = pd.to_numeric(plot_comet_df[col], errors="coerce").fillna(0)
-
-            plot_comet_df["통합_외부화력"] = plot_comet_df["유튜브_구독자"] + plot_comet_df["X_팔로워"]
-            plot_comet_df = plot_comet_df[(plot_comet_df["최고_팔로워"] > 0) & (plot_comet_df["통합_외부화력"] > 0)].copy()
-
-            fig = go.Figure()
-
-            fig.add_trace(go.Scatter(
-                x=plot_all_df["최고_팔로워"],
-                y=plot_all_df["통합_외부화력"],
-                mode="markers",
-                name="일반 스트리머",
-                marker=dict(size=6, color="rgba(217,217,217,0.35)"),
-                text=plot_all_df["스트리머명"] if "스트리머명" in plot_all_df.columns else None,
-                hovertemplate="<b>%{text}</b><br>최고 팔로워: %{x:,.0f}<br>통합 외부화력: %{y:,.0f}<extra></extra>",
-            ))
-
-            color_map = {"유튜브 강세형": "#FF8A8A", "X 강세형": "#95AFFF", "하이브리드": "#FF9DF5"}
-
-            for route, color in color_map.items():
-                if "코멧유입경로" not in plot_comet_df.columns:
-                    continue
-                temp = plot_comet_df[plot_comet_df["코멧유입경로"] == route].copy()
-                if temp.empty:
-                    continue
-
-                fig.add_trace(go.Scatter(
-                    x=temp["최고_팔로워"],
-                    y=temp["통합_외부화력"],
-                    mode="markers",
-                    name=route,
-                    marker=dict(size=14, color=color, line=dict(color="white", width=1.5)),
-                    text=temp["스트리머"] if "스트리머" in temp.columns else None,
-                    hovertemplate=f"<b>%{{text}}</b><br>유입경로: {route}<br>최고 팔로워: %{{x:,.0f}}<br>통합 외부화력: %{{y:,.0f}}<extra></extra>",
-                ))
-
-            if not plot_comet_df.empty:
-                avg_broadcast = plot_comet_df["최고_팔로워"].mean()
-                fig.add_vline(x=avg_broadcast, line_dash="dot", line_width=2, line_color="#c9d1d9", opacity=0.75)
-
-            fig.update_layout(
-                title=dict(text="외부 팬덤 vs 방송 체급", x=0.08, xanchor="left"),
-                xaxis_title="방송 체급",
-                yaxis_title="통합 외부 화력",
-                xaxis_type="log",
-                yaxis_type="log",
-                paper_bgcolor=STARTRAIL_TRANSPARENT,
-                plot_bgcolor=STARTRAIL_TRANSPARENT,
-                font_color="white",
-                margin=dict(l=80, r=140, t=75, b=95),
-                height=620,
-                legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.03, y=0.98, xanchor="left", yanchor="top"),
-            )
-            fig.update_xaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
-            fig.update_yaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
-            st.plotly_chart(fig, use_container_width=True)
-
-        else:
-            required_cols = ["평균시청자", "스코어", "뷰어십", "플랫폼", "스트리머"]
-            missing = [c for c in required_cols if c not in filtered_df.columns]
-            if missing:
-                st.warning(f"산점도 컬럼이 부족합니다: {missing}")
-            else:
-                fig = px.scatter(
-                    filtered_df,
-                    x="평균시청자",
-                    y="스코어",
-                    size="뷰어십",
-                    color="플랫폼",
-                    hover_name="스트리머",
-                    color_discrete_map={"SOOP": "#00f2ff", "CHZZK": "#bf40bf"},
-                    template="plotly_dark",
-                )
-
-                fig.update_layout(
-                    paper_bgcolor=STARTRAIL_TRANSPARENT,
-                    plot_bgcolor=STARTRAIL_TRANSPARENT,
-                    margin=dict(l=85, r=170, t=65, b=95),
-                    height=620,
-                    font_color="white",
-                    legend=dict(bgcolor=STARTRAIL_TRANSPARENT, x=1.03, y=0.98, xanchor="left", yanchor="top"),
-                )
-                fig.update_xaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
-                fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
-                st.plotly_chart(fig, use_container_width=True)
 
 
 # =========================================================
