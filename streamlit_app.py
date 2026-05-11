@@ -1126,6 +1126,7 @@ def inject_startrail_css():
         """
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <style>
+
         .startrail-page {
             position: relative;
             z-index: 2;
@@ -1145,7 +1146,7 @@ def inject_startrail_css():
             align-items: flex-start;
             gap: 32px;
         }
-
+        
         .startrail-page .hero-main-title {
             font-size: 72px;
             font-weight: 950;
@@ -1442,6 +1443,7 @@ def inject_startrail_css():
             .startrail-page .hero-right-area { width: 100%; align-items: stretch; }
             .startrail-page .hero-main-title { font-size: 50px; letter-spacing: 6px; }
         }
+
         </style>
         """,
         unsafe_allow_html=True,
