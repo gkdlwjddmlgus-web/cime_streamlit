@@ -8488,7 +8488,7 @@ if st.session_state.get("page") == "스타시드":
 
             /* 기존 -58px로 과하게 올라가던 STAR SEED 본문을 아래로 복원 */
             .starseed-board {
-                margin-top: -34px !important;
+                margin-top: -58px !important;
                 padding-top: 0 !important;
             }
 
