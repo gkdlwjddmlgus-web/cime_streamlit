@@ -3557,28 +3557,37 @@ with graph_right:
         if segment_col and segment_col in classified_filtered.columns and not classified_filtered.empty:
             treemap_df = classified_filtered[segment_col].fillna("미분류").astype(str).value_counts().reset_index()
             treemap_df.columns = ["구분", "후보수"]
-            treemap_df["전체"] = "전체 후보군"
-            fig = px.treemap(
-                treemap_df,
-                path=["전체", "구분"],
-                values="후보수",
-                color="구분",
-                color_discrete_sequence=COSMIC_COLORS,
-                template="plotly_dark",
-                height=360,
-            )
-            fig.update_traces(
-                texttemplate="%{label}<br>%{value:,}명<br>%{percentParent:.1%}",
-                textfont=dict(size=15, color="#F8F2FF"),
-                marker=dict(line=dict(color="rgba(7,10,24,.85)", width=2)),
-                hovertemplate="콘텐츠군=%{label}<br>후보수=%{value:,}명<br>비중=%{percentParent:.1%}<extra></extra>",
-                root_color="rgba(0,0,0,0)",
+            treemap_df = treemap_df.sort_values("후보수", ascending=False).reset_index(drop=True)
+            total_candidates = max(float(treemap_df["후보수"].sum()), 1.0)
+            treemap_df["비중"] = treemap_df["후보수"] / total_candidates * 100
+
+            # 상위 부모 노드인 '전체 후보군'을 만들지 않고, 콘텐츠군만 최상위 박스로 표시한다.
+            # 이렇게 해야 보라색 parent/root 바가 화면에 노출되지 않는다.
+            treemap_colors = [COSMIC_COLORS[i % len(COSMIC_COLORS)] for i in range(len(treemap_df))]
+            fig = go.Figure(
+                go.Treemap(
+                    labels=treemap_df["구분"],
+                    parents=[""] * len(treemap_df),
+                    values=treemap_df["후보수"],
+                    customdata=np.round(treemap_df["비중"], 1),
+                    marker=dict(
+                        colors=treemap_colors,
+                        line=dict(color="rgba(7,10,24,.85)", width=2),
+                    ),
+                    texttemplate="%{label}<br>%{value:,}명<br>%{customdata:.1f}%",
+                    textfont=dict(size=15, color="#F8F2FF"),
+                    hovertemplate="콘텐츠군=%{label}<br>후보수=%{value:,}명<br>비중=%{customdata:.1f}%<extra></extra>",
+                    tiling=dict(pad=2),
+                )
             )
             fig.update_layout(
+                template="plotly_dark",
+                height=360,
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
                 margin=dict(l=8, r=8, t=8, b=8),
                 font=dict(color="#eee8ff"),
+                uniformtext=dict(minsize=11, mode="hide"),
             )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False, "responsive": True})
         else:
