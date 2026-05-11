@@ -1171,7 +1171,7 @@ html(f"""
     <div class="board-kpi-grid">
         <div class="board-kpi-card"><div class="board-kpi-icon">👥</div><div><div class="board-kpi-label">전체 분석 후보</div><div class="board-kpi-value">{fmt_num(target_all_kpi['total'], 0, '명')}</div>{delta_badge(delta_total, 0, '명')}<span class="board-kpi-note">{compare_note}</span></div></div>
         <div class="board-kpi-card"><div class="board-kpi-icon">▾</div><div><div class="board-kpi-label">1차 선별 후보</div><div class="board-kpi-value">{fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{delta_badge(delta_shortlist, 0, '명')}<span class="board-kpi-note">{compare_note}</span></div></div>
-        <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div><div class="board-kpi-label">평균 추천 점수</div><div class="board-kpi-value">{fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">{compare_note}</span></div></div>
+        <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div><div class="board-kpi-label">평균 영입 점수</div><div class="board-kpi-value">{fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">{compare_note}</span></div></div>
         <div class="board-kpi-card"><div class="board-kpi-icon">◎</div><div><div class="board-kpi-label">즉시 검토 후보</div><div class="board-kpi-value">{fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{delta_badge(delta_high_priority, 0, '명')}<span class="board-kpi-note">{compare_note}</span></div></div>
     </div>
 </div>
