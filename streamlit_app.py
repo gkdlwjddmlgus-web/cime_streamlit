@@ -583,7 +583,7 @@ st.markdown(
         .tag-pill { display:inline-flex; align-items:center; justify-content:center; border-radius:999px; min-width:54px; max-width:118px; padding:3px 8px; font-size:10px; font-weight:950; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.18); } .seg-music { background:linear-gradient(135deg,#7b5cff,#5840c6); } .seg-visual { background:linear-gradient(135deg,#d64b92,#963069); } .seg-virtual { background:linear-gradient(135deg,#d69428,#9d5f12); } .seg-game { background:linear-gradient(135deg,#2a9dd6,#1768a5); } .seg-subculture { background:linear-gradient(135deg,#ff9c55,#c96a28); } .seg-etc { background:linear-gradient(135deg,#7d8798,#4c5568); } .action-immediate { background:linear-gradient(135deg, rgba(26,158,91,.86), rgba(9,88,62,.88)) !important; color:#dffff8; border:1px solid rgba(131,246,160,.28) !important; } .action-watch { background:linear-gradient(135deg,#6f83ee,#4350a5); } .action-verify { background:linear-gradient(135deg,#d75d86,#8e2d56); } .action-hold { background:linear-gradient(135deg,#7b8798,#4b5363); }
         .stSelectbox > div > div { background:rgba(6,18,26,.92) !important; border:1px solid rgba(131,246,160,.20) !important; border-radius:13px !important; box-shadow:none !important; } .candidate-select-top-spacer { height:1px !important; min-height:1px !important; margin:0 !important; padding:0 !important; }
         .detail-panel-v2 { min-height:286px !important; border:1px solid rgba(131,246,160,.22) !important; background:radial-gradient(circle at 9% 45%, rgba(131,246,160,.055), transparent 30%), linear-gradient(180deg, rgba(8,25,27,.82), rgba(8,13,31,.96)) !important; } .detail-card-inner-v2 { display:grid !important; grid-template-columns:124px minmax(0,1fr) !important; grid-template-areas:"avatar content" "reason reason" !important; gap:14px 16px !important; align-items:center !important; } .detail-avatar-area { grid-area:avatar; } .detail-content-area { grid-area:content; min-width:0; } .detail-reason-bottom { grid-area:reason; } .detail-avatar-big { width:108px; height:108px; border-radius:999px; overflow:hidden; border:3px solid rgba(131,246,160,.38) !important; box-shadow:0 0 12px rgba(131,246,160,.12) !important; margin:0 auto; background:radial-gradient(circle at 32% 28%, #fff, #9c6aff 43%, #25154d 100%); } .detail-avatar-big img { width:100%; height:100%; object-fit:cover; display:block; } .detail-name-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:nowrap !important; min-width:0 !important; } .detail-name-main { flex:1 1 auto !important; min-width:0 !important; max-width:100% !important; color:#fff; font-size:20px; font-weight:950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .detail-name-main a { color:inherit; text-decoration:none; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .detail-metric-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; } .detail-metric-box { border:1px solid rgba(131,246,160,.18) !important; background:rgba(131,246,160,.025) !important; border-radius:8px; padding:7px 9px; min-height:48px; } .detail-metric-label { color:#C5DCCB !important; font-size:10px; font-weight:850; } .detail-metric-value { color:#fff; font-size:18px; font-weight:950; line-height:1.2; margin-top:2px; } .reason-panel { border:1px solid rgba(131,246,160,.18) !important; background:rgba(131,246,160,.025) !important; border-radius:12px; padding:10px 13px !important; min-height:auto !important; } .reason-title { color:#F3FFF5 !important; font-size:12px; font-weight:950; margin-bottom:8px; } .reason-bullet { display:inline-block; margin-right:14px; white-space:nowrap; color:#DDEBDD !important; font-size:11px; line-height:1.55; } .reason-bullet::before { content:'●'; color:var(--seed-green) !important; margin-right:7px; }
-        .graph-explain { min-height:300px !important; height:300px !important; box-sizing:border-box !important; border-radius:13px !important; border:1px solid rgba(131,246,160,.16) !important; background:radial-gradient(circle at 18% 20%, rgba(131,246,160,.070), transparent 36%), linear-gradient(180deg, rgba(14,18,43,.78), rgba(6,12,25,.88)) !important; padding:30px 28px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 12px 26px rgba(0,0,0,.18) !important; display:flex !important; flex-direction:column !important; justify-content:center !important; } .graph-explain-title { color:#fff8ff !important; font-size:24px !important; font-weight:950 !important; line-height:1.25 !important; margin:0 0 22px !important; letter-spacing:-.045em !important; text-shadow:0 0 8px rgba(131,246,160,.14) !important; word-break:keep-all !important; } .graph-explain-text { color:#c9c0dc !important; font-size:14.5px !important; line-height:1.9 !important; font-weight:700 !important; word-break:keep-all !important; max-width:none !important; } .stPlotlyChart { min-height:300px !important; border-radius:13px !important; border:1px solid rgba(131,246,160,.16) !important; background:rgba(6,12,25,.66) !important; padding:8px 10px !important; box-shadow:none !important; } div[data-testid="stExpander"] { border-color:rgba(131,246,160,.16) !important; background:rgba(8,18,34,.78) !important; border-radius:14px !important; } .explain-box,.guide-box,.reason-box { border:1px solid rgba(131,246,160,.16) !important; background:rgba(7,20,28,.70) !important; border-radius:14px; padding:14px 16px; color:#d8deed; font-size:14px; line-height:1.65; }
+        .graph-explain { min-height:360px !important; height:360px !important; box-sizing:border-box !important; border-radius:13px !important; border:1px solid rgba(131,246,160,.16) !important; background:radial-gradient(circle at 18% 20%, rgba(131,246,160,.070), transparent 36%), linear-gradient(180deg, rgba(14,18,43,.78), rgba(6,12,25,.88)) !important; padding:30px 28px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 12px 26px rgba(0,0,0,.18) !important; display:flex !important; flex-direction:column !important; justify-content:center !important; } .graph-explain-title { color:#fff8ff !important; font-size:24px !important; font-weight:950 !important; line-height:1.25 !important; margin:0 0 22px !important; letter-spacing:-.045em !important; text-shadow:0 0 8px rgba(131,246,160,.14) !important; word-break:keep-all !important; } .graph-explain-text { color:#c9c0dc !important; font-size:14.5px !important; line-height:1.9 !important; font-weight:700 !important; word-break:keep-all !important; max-width:none !important; } .stPlotlyChart { min-height:300px !important; border-radius:13px !important; border:1px solid rgba(131,246,160,.16) !important; background:rgba(6,12,25,.66) !important; padding:8px 10px !important; box-shadow:none !important; } div[data-testid="stExpander"] { border-color:rgba(131,246,160,.16) !important; background:rgba(8,18,34,.78) !important; border-radius:14px !important; } .explain-box,.guide-box,.reason-box { border:1px solid rgba(131,246,160,.16) !important; background:rgba(7,20,28,.70) !important; border-radius:14px; padding:14px 16px; color:#d8deed; font-size:14px; line-height:1.65; }
         @media (max-width:1200px) { .board-hero,.board-hero-compact,.mid-grid,.graph-grid { grid-template-columns:1fr !important; } .board-kpi-grid,.top5-grid,.segment-grid,.seed-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .board-subtitle,.board-info-text { white-space:normal !important; } }
         @media (max-width:780px) { .board-kpi-grid,.top5-grid,.segment-grid,.seed-grid { grid-template-columns:1fr; } .board-title,.board-title-ko { font-size:30px !important; } .board-title span { font-size:24px !important; } .hero-title { font-size:42px; letter-spacing:5px; } }
         </style>
@@ -2897,10 +2897,11 @@ df = df.reset_index(drop=True)
 snapshot_prepared_df = prepare_snapshot_df(snapshot_df)
 
 # =========================================================
-# 10. 사이드바 필터
+# 10. 스타시드 기본 필터 상태
+# - 사이드바의 "스타시드 필터" UI는 제거
+# - 기존 기본값과 동일하게 보류/제외 숨김만 내부 적용
 # =========================================================
 
-st.sidebar.markdown("---")
 filtered = df.copy()
 
 selected_segments = []
@@ -2914,82 +2915,20 @@ min_views = 0
 search_text = ""
 top_n = 10
 
-with st.sidebar.expander("스타시드 필터", expanded=False) as filter_panel:
-    filter_panel.caption("상위 콘텐츠군, 검토 단계, 점수·규모 조건으로 후보군을 좁혀봅니다.")
-
-    if segment_col:
-        seg_values = sorted([x for x in filtered[segment_col].dropna().astype(str).unique()])
-        selected_segments = filter_panel.multiselect("상위 콘텐츠군", options=seg_values, default=seg_values)
-        if selected_segments:
-            filtered = filtered[filtered[segment_col].astype(str).isin(selected_segments)]
-
-    if lower_segment_col:
-        lower_values = sorted([x for x in filtered[lower_segment_col].dropna().astype(str).unique()])
-        selected_lower = filter_panel.multiselect("세부 콘텐츠 유형", options=lower_values, default=[])
-        if selected_lower:
-            filtered = filtered[filtered[lower_segment_col].astype(str).isin(selected_lower)]
-
-    if action_col:
-        action_values = sorted([x for x in filtered[action_col].dropna().astype(str).unique()])
-        selected_actions = filter_panel.multiselect("검토 단계", options=action_values, default=action_values)
-        if selected_actions:
-            filtered = filtered[filtered[action_col].astype(str).isin(selected_actions)]
-
-    if shortlist_col:
-        only_shortlist = filter_panel.checkbox("shortlist 선정 후보만 보기", value=False)
-        if only_shortlist:
-            shortlist_bool = filtered[shortlist_col].astype(str).str.lower().isin(["true", "1", "yes", "y"])
-            filtered = filtered[shortlist_bool]
-
-    hide_hold = filter_panel.checkbox("보류/제외 숨기기", value=True)
-    if hide_hold and action_col:
-        filtered = filtered[~filtered[action_col].astype(str).str.contains("보류|제외", na=False)]
-
-    if score_col:
-        score_series_100 = pd.to_numeric(df[score_display_col], errors="coerce")
-        if score_series_100.dropna().empty:
-            score_filter_100 = 0.0
-        else:
-            min_score_100 = float(score_series_100.min(skipna=True))
-            max_score_100 = float(score_series_100.max(skipna=True))
-            score_filter_100 = filter_panel.slider(
-                "최소 영입 적합도 점수(100점 기준)",
-                min_value=float(np.floor(min_score_100)),
-                max_value=float(np.ceil(max_score_100)),
-                value=float(np.floor(min_score_100)),
-                step=1.0,
-            )
-            filtered = filtered[pd.to_numeric(filtered[score_display_col], errors="coerce") >= score_filter_100]
-
-    if subs_col:
-        min_subs = int(filter_panel.number_input("최소 구독자 수", min_value=0, value=0, step=1000))
-        if min_subs > 0:
-            filtered = filtered[pd.to_numeric(filtered[subs_col], errors="coerce").fillna(0) >= min_subs]
-
-    if view_col:
-        min_views = int(filter_panel.number_input("최소 최근영상조회수평균", min_value=0, value=0, step=1000))
-        if min_views > 0:
-            filtered = filtered[pd.to_numeric(filtered[view_col], errors="coerce").fillna(0) >= min_views]
-
-    search_text = filter_panel.text_input("채널명 검색", placeholder="채널명을 입력하세요")
-    if search_text and channel_name_col:
-        filtered = filtered[filtered[channel_name_col].astype(str).str.contains(search_text, case=False, na=False)]
-
-    top_n = filter_panel.slider("TOP N", min_value=5, max_value=50, value=10, step=5)
+if hide_hold and action_col:
+    filtered = filtered[~filtered[action_col].astype(str).str.contains("보류|제외", na=False)]
 
 filtered = filtered.copy()
 filtered["표시순위"] = np.arange(1, len(filtered) + 1)
 
 # =========================================================
 # 11. 변화 추적 기준
+# - 사이드바의 "변화 추적 기준" UI는 제거
+# - 현재 데이터와 2026-05-01 이후 첫 snapshot을 자동 비교
 # =========================================================
 
-st.sidebar.markdown("---")
-change_panel = st.sidebar.expander("변화 추적 기준", expanded=False)
-change_panel.caption("snapshot 기준 시점과 현재/비교 시점을 선택해 후보 변화량을 계산합니다.")
-
 tracking_base_df = pd.DataFrame()
-tracking_target_df = pd.DataFrame()
+tracking_target_df = df.copy()
 tracking_base_label = "-"
 tracking_target_label = "현재"
 
@@ -3001,44 +2940,14 @@ if not snapshot_prepared_df.empty:
         .sort_values("__snapshot_date_dt__")["__snapshot_date__"]
         .tolist()
     )
-    snapshot_dates = [d for d in snapshot_dates_all if pd.to_datetime(d, errors="coerce") >= MIN_TRACKING_DATE]
+    snapshot_dates = [
+        d for d in snapshot_dates_all
+        if pd.to_datetime(d, errors="coerce") >= MIN_TRACKING_DATE
+    ]
 
-    if not snapshot_dates:
-        change_panel.warning(f"{MIN_TRACKING_DATE_LABEL} 이후 snapshot 날짜가 없습니다. STEP11 snapshot append를 다시 누적하세요.")
-        tracking_target_df = df.copy()
-    else:
-        target_options = snapshot_dates + ["현재"]
-        tracking_target_label = change_panel.selectbox(
-            "비교 대상 시점",
-            options=target_options,
-            index=len(target_options) - 1,
-            help=f"{MIN_TRACKING_DATE_LABEL} 이후 snapshot 또는 현재 데이터를 비교 대상 시점으로 선택합니다.",
-        )
-        if tracking_target_label == "현재":
-            tracking_target_df = df.copy()
-            available_base_dates = snapshot_dates
-        else:
-            tracking_target_df = get_snapshot_by_date(snapshot_prepared_df, tracking_target_label)
-            available_base_dates = [d for d in snapshot_dates if d <= tracking_target_label]
-
-        if available_base_dates:
-            if tracking_target_label == "현재":
-                default_base_label = MIN_TRACKING_DATE_LABEL if MIN_TRACKING_DATE_LABEL in available_base_dates else available_base_dates[0]
-            else:
-                default_base_label = tracking_target_label
-            if default_base_label not in available_base_dates:
-                default_base_label = available_base_dates[-1]
-            tracking_base_label = change_panel.selectbox(
-                "기준 시점",
-                options=available_base_dates,
-                index=available_base_dates.index(default_base_label),
-                help=f"{MIN_TRACKING_DATE_LABEL} 이후 날짜만 기준 시점으로 선택할 수 있습니다.",
-            )
-            tracking_base_df = get_snapshot_by_date(snapshot_prepared_df, tracking_base_label)
-        else:
-            change_panel.warning("비교 가능한 기준 snapshot 날짜가 없습니다.")
-else:
-    change_panel.warning("snapshot 파일이 없거나 날짜 컬럼을 찾지 못했습니다.")
+    if snapshot_dates:
+        tracking_base_label = MIN_TRACKING_DATE_LABEL if MIN_TRACKING_DATE_LABEL in snapshot_dates else snapshot_dates[0]
+        tracking_base_df = get_snapshot_by_date(snapshot_prepared_df, tracking_base_label)
 
 # =========================================================
 # 12. KPI 계산
@@ -3626,7 +3535,7 @@ with graph_right:
             seg_score["__score__"] = pd.to_numeric(seg_score[score_display_col], errors="coerce")
             seg_score["__segment__"] = seg_score[segment_col].fillna("미분류").astype(str)
             seg_summary = seg_score.groupby("__segment__", dropna=False).agg(추천점수=("__score__", "mean"), 후보수=("__score__", "size")).reset_index().sort_values("추천점수", ascending=False).head(8)
-            fig = px.bar(seg_summary, x="__segment__", y="추천점수", text="추천점수", custom_data=["후보수"], color="__segment__", color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=282)
+            fig = px.bar(seg_summary, x="__segment__", y="추천점수", text="추천점수", custom_data=["후보수"], color="__segment__", color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=360)
             fig.update_traces(texttemplate="%{y:.1f}", textposition="outside", cliponaxis=False, hovertemplate="콘텐츠군=%{x}<br>추천점수=%{y:.1f}<br>후보수=%{customdata[0]}명<extra></extra>")
             fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=12, r=12, t=16, b=54), xaxis_title="", yaxis_title="영입 점수", xaxis=dict(tickangle=0, tickfont=dict(size=10, color="#d7cdeb")), yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")), font=dict(color="#eee8ff"))
             st.plotly_chart(fig, use_container_width=True)
@@ -3638,7 +3547,7 @@ with graph_right:
             bucket_df = filtered[action_col].fillna("미분류").astype(str).value_counts().rename_axis("검토단계").reset_index(name="후보수")
             bucket_df["정렬"] = bucket_df["검토단계"].apply(lambda x: bucket_order.index(x) if x in bucket_order else 999)
             bucket_df = bucket_df.sort_values(["정렬", "후보수"], ascending=[True, False])
-            fig = px.bar(bucket_df, x="후보수", y="검토단계", orientation="h", text="후보수", color="검토단계", color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=282)
+            fig = px.bar(bucket_df, x="후보수", y="검토단계", orientation="h", text="후보수", color="검토단계", color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=360)
             fig.update_traces(textposition="outside", cliponaxis=False, hovertemplate="검토단계=%{y}<br>후보수=%{x}명<extra></extra>")
             fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8, r=32, t=12, b=30), xaxis_title="", yaxis_title="", xaxis=dict(gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#d7cdeb")), yaxis=dict(tickfont=dict(color="#d7cdeb")), font=dict(color="#eee8ff"))
             st.plotly_chart(fig, use_container_width=True)
@@ -3646,12 +3555,32 @@ with graph_right:
             st.info("검토 단계 컬럼이 없어 그래프를 만들 수 없습니다.")
     else:
         if segment_col and segment_col in classified_filtered.columns and not classified_filtered.empty:
-            pie_df = classified_filtered[segment_col].fillna("미분류").astype(str).value_counts().reset_index()
-            pie_df.columns = ["구분", "후보수"]
-            fig = px.pie(pie_df, names="구분", values="후보수", hole=.58, color_discrete_sequence=COSMIC_COLORS, template="plotly_dark", height=282)
-            fig.update_traces(textposition="inside", textinfo="percent", marker=dict(line=dict(color="rgba(7,10,24,.85)", width=2)), hovertemplate="콘텐츠군=%{label}<br>후보수=%{value}명<br>비중=%{percent}<extra></extra>")
-            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=6, r=6, t=6, b=6), legend=dict(font=dict(size=12, color="#eee8ff"), title_font=dict(size=12, color="#eee8ff"), x=1.02, y=.5, yanchor="middle"), font=dict(color="#eee8ff"))
-            st.plotly_chart(fig, use_container_width=True)
+            treemap_df = classified_filtered[segment_col].fillna("미분류").astype(str).value_counts().reset_index()
+            treemap_df.columns = ["구분", "후보수"]
+            treemap_df["전체"] = "전체 후보군"
+            fig = px.treemap(
+                treemap_df,
+                path=["전체", "구분"],
+                values="후보수",
+                color="구분",
+                color_discrete_sequence=COSMIC_COLORS,
+                template="plotly_dark",
+                height=360,
+            )
+            fig.update_traces(
+                texttemplate="%{label}<br>%{value:,}명<br>%{percentParent:.1%}",
+                textfont=dict(size=15, color="#F8F2FF"),
+                marker=dict(line=dict(color="rgba(7,10,24,.85)", width=2)),
+                hovertemplate="콘텐츠군=%{label}<br>후보수=%{value:,}명<br>비중=%{percentParent:.1%}<extra></extra>",
+                root_color="rgba(0,0,0,0)",
+            )
+            fig.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=8, r=8, t=8, b=8),
+                font=dict(color="#eee8ff"),
+            )
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False, "responsive": True})
         else:
             st.info("콘텐츠군 구성 비율을 만들 수 없습니다.")
 
