@@ -979,7 +979,7 @@ STARTRAIL_ASSET_FILES = {
 }
 
 STARTRAIL_GRAPH_BG = "#15102F"
-STARTRAIL_TRANSPARENT = "rgba(0,0,0,0)"
+STARTRAIL_TRANSPARENT = "rgba(13,10,31,0.98)"
 
 
 def startrail_resolve_path(relative_path) -> Path:
@@ -2561,6 +2561,122 @@ def render_startrail_dashboard():
             html body .stApp .startrail-page .trail-brand-title span { font-size: 32px !important; }
             html body .stApp .startrail-page .trail-title-icon { width: 78px !important; height: 78px !important; }
             html body .stApp .startrail-page .trail-title-block { grid-template-columns: 92px minmax(0,1fr) !important; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+    # FINAL PATCH 2026-05-12: STARTRAIL white text + opaque panel stabilization
+    st.markdown(
+        """
+        <style>
+        html body .stApp .startrail-page {
+            --trail-opaque-panel: rgba(9, 8, 25, 0.995);
+            --trail-opaque-panel-2: rgba(13, 10, 31, 0.995);
+            --trail-white: #FFF9FF;
+        }
+
+        /* 섹션/테이블/그래프 타이틀은 골드가 아닌 흰색으로 고정 */
+        html body .stApp .startrail-page .trail-section-title,
+        html body .stApp .startrail-page .trail-section-title *,
+        html body .stApp .startrail-page .trail-bottom-title,
+        html body .stApp .startrail-page .trail-bottom-title *,
+        html body .stApp .startrail-page .trail-side-title,
+        html body .stApp .startrail-page .trail-side-title *,
+        html body .stApp .startrail-page .trail-chart-title,
+        html body .stApp .startrail-page .trail-chart-title *,
+        html body .stApp .startrail-page .trail-table-title,
+        html body .stApp .startrail-page .trail-table-title *,
+        html body .stApp .startrail-page .priority-header-title,
+        html body .stApp .startrail-page .priority-header-title *,
+        html body .stApp .startrail-page .graph-header-title,
+        html body .stApp .startrail-page .graph-header-title * {
+            color: var(--trail-white) !important;
+            text-shadow: 0 0 14px rgba(255,255,255,0.18) !important;
+        }
+
+        /* KPI 글자/수치도 흰색 계열로 고정 */
+        html body .stApp .startrail-page .trail-kpi-label,
+        html body .stApp .startrail-page .trail-kpi-value,
+        html body .stApp .startrail-page .trail-kpi-card,
+        html body .stApp .startrail-page .trail-kpi-card * {
+            color: var(--trail-white) !important;
+        }
+        html body .stApp .startrail-page .trail-kpi-value {
+            text-shadow: 0 0 16px rgba(255,255,255,.16) !important;
+        }
+
+        /* TOP 카드, 테이블, 그래프, 후보 상세, 레이더 영역 불투명 패널 통일 */
+        html body .stApp .startrail-page .trail-kpi-card,
+        html body .stApp .startrail-page .trail-info-card,
+        html body .stApp .startrail-page .trail-seg-card,
+        html body .stApp .startrail-page .trail-rank-card,
+        html body .stApp .startrail-page .trail-side-card,
+        html body .stApp .startrail-page .trail-chart-card,
+        html body .stApp .startrail-page .trail-table,
+        html body .stApp .startrail-page .trail-table-team-style,
+        html body .stApp .startrail-page .trail-radar-card,
+        html body .stApp .startrail-page .trail-detail-panel,
+        html body .stApp .startrail-page .trail-detail-card,
+        html body .stApp .startrail-page .board-panel,
+        html body .stApp .startrail-page .priority-table-panel,
+        html body .stApp .startrail-page div[data-testid="stPlotlyChart"],
+        html body .stApp .startrail-page [data-testid="stDataFrame"],
+        html body .stApp .startrail-page [data-testid="stTable"] {
+            background:
+                radial-gradient(circle at 50% 8%, rgba(196,143,255,.065), transparent 35%),
+                linear-gradient(180deg, var(--trail-opaque-panel-2), var(--trail-opaque-panel)) !important;
+            background-color: var(--trail-opaque-panel) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-color: rgba(255,255,255,.34) !important;
+            box-shadow: 0 0 22px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.055) !important;
+        }
+
+        /* Plotly 내부 svg/container가 투명하게 보이는 현상 최소화 */
+        html body .stApp .startrail-page div[data-testid="stPlotlyChart"] > div,
+        html body .stApp .startrail-page div[data-testid="stPlotlyChart"] .js-plotly-plot,
+        html body .stApp .startrail-page div[data-testid="stPlotlyChart"] .plot-container,
+        html body .stApp .startrail-page div[data-testid="stPlotlyChart"] .svg-container {
+            background: var(--trail-opaque-panel) !important;
+            background-color: var(--trail-opaque-panel) !important;
+            border-radius: 18px !important;
+        }
+
+        html body .stApp .startrail-page .trail-table th,
+        html body .stApp .startrail-page .trail-table-team-style th {
+            background: rgba(31,30,51,.995) !important;
+            color: var(--trail-white) !important;
+        }
+        html body .stApp .startrail-page .trail-table td,
+        html body .stApp .startrail-page .trail-table-team-style td {
+            background: rgba(8,8,26,.985) !important;
+            color: var(--trail-white) !important;
+        }
+
+        /* 세그먼트 카드 상단 선 제거 유지 */
+        html body .stApp .startrail-page .trail-seg-card::before,
+        html body .stApp .trail-seg-card::before,
+        html body .stApp .startrail-page .trail-seg-card.active::before,
+        html body .stApp .trail-seg-card.active::before,
+        html body .stApp .startrail-page .trail-seg-card.active-성단::before,
+        html body .stApp .trail-seg-card.active-성단::before,
+        html body .stApp .startrail-page .trail-seg-card.active-프로토스타::before,
+        html body .stApp .trail-seg-card.active-프로토스타::before,
+        html body .stApp .startrail-page .trail-seg-card.active-위성::before,
+        html body .stApp .trail-seg-card.active-위성::before,
+        html body .stApp .startrail-page .trail-seg-card.active-슈퍼노바::before,
+        html body .stApp .trail-seg-card.active-슈퍼노바::before,
+        html body .stApp .startrail-page .trail-seg-card.active-코멧::before,
+        html body .stApp .trail-seg-card.active-코멧::before {
+            display: none !important;
+            content: none !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
         }
         </style>
         """,
@@ -4488,7 +4604,7 @@ st.markdown(
         white-space: nowrap !important;
     }
     .starseed-board .starseed-hero-modern {
-        padding-top: 32px !important;
+        padding-top: 0 !important;
         grid-template-columns: minmax(0, 1fr) 560px !important;
         column-gap: 44px !important;
         align-items: center !important;
@@ -4531,6 +4647,73 @@ st.markdown(
         .starseed-board .starseed-hero-modern { grid-template-columns: 1fr !important; }
         .starseed-board .starseed-criteria-card { margin-top: 18px !important; }
         .starseed-board .starseed-brand-subtitle { white-space:normal !important; }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+st.markdown(
+    """
+    <style>
+    /* PRE-RENDER STAR SEED hero position stabilization: content가 렌더링되기 전부터 최종 위치 적용 */
+    html body .stApp .block-container:has(.starseed-board) {
+        padding-top: 0 !important;
+        margin-top: -4.6rem !important;
+        max-width: 1560px !important;
+    }
+    html body .stApp .starseed-board {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    html body .stApp .starseed-board .starseed-hero-modern {
+        align-items: center !important;
+        margin-top: 0 !important;
+        margin-bottom: 14px !important;
+        padding-top: 0 !important;
+    }
+    html body .stApp .starseed-board .board-head-left,
+    html body .stApp .starseed-board .starseed-title-block {
+        grid-template-columns: 96px minmax(0, 1fr) !important;
+        gap: 23px !important;
+        min-height: 104px !important;
+        align-items: center !important;
+    }
+    html body .stApp .starseed-board .board-title-icon {
+        width: 82px !important;
+        height: 82px !important;
+        border-radius: 14px !important;
+    }
+    html body .stApp .starseed-board .board-title-icon .seed-search-icon {
+        transform: scale(1.14) !important;
+        transform-origin: center center !important;
+    }
+    html body .stApp .starseed-board .board-title,
+    html body .stApp .starseed-board .board-title-ko,
+    html body .stApp .starseed-board .starseed-brand-title {
+        font-size: 45px !important;
+        line-height: 1.02 !important;
+        margin-bottom: 8px !important;
+    }
+    html body .stApp .starseed-board .board-title span,
+    html body .stApp .starseed-board .starseed-brand-title span {
+        font-size: 36px !important;
+    }
+    html body .stApp .starseed-board .board-title-accent-line {
+        width: 270px !important;
+        height: 2px !important;
+        margin-bottom: 10px !important;
+    }
+    html body .stApp .starseed-board .board-subtitle,
+    html body .stApp .starseed-board .starseed-brand-subtitle {
+        font-size: 15.8px !important;
+        line-height: 1.45 !important;
+        font-weight: 760 !important;
+    }
+    html body .stApp .starseed-board .starseed-date-pill {
+        top: 0 !important;
+        right: 0 !important;
     }
     </style>
     """,
