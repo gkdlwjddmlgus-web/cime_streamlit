@@ -2431,6 +2431,142 @@ def render_startrail_dashboard():
         unsafe_allow_html=True,
     )
 
+
+
+    # STABLE FINAL STARTRAIL PATCH 2026-05-12
+    # - 기존 CSS 중복으로 인한 상단 타이틀/패널 투명도 덮어쓰기 방지
+    # - 스타트레일 중하단 카드/테이블/그래프/상세박스를 불투명 패널로 통일
+    st.markdown(
+        """
+        <style>
+        html body .stApp .block-container:has(.startrail-page) {
+            padding-top: 0 !important;
+            margin-top: -3.15rem !important;
+            max-width: 1560px !important;
+        }
+        html body .stApp .startrail-page .startrail-hero-modern,
+        html body .stApp .startrail-page .trail-hero-top.startrail-hero-modern {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) 560px !important;
+            column-gap: 44px !important;
+            align-items: center !important;
+            margin-top: 0 !important;
+            margin-bottom: 28px !important;
+        }
+        html body .stApp .startrail-page .trail-title-block {
+            display: grid !important;
+            grid-template-columns: 106px minmax(0, 1fr) !important;
+            gap: 24px !important;
+            min-height: 116px !important;
+            align-items: center !important;
+        }
+        html body .stApp .startrail-page .trail-title-icon {
+            width: 90px !important;
+            height: 90px !important;
+            border-radius: 16px !important;
+            background: radial-gradient(circle at 45% 30%, rgba(255,212,93,.18), transparent 56%), rgba(18,16,34,.96) !important;
+            border: 2px solid rgba(255,248,225,.86) !important;
+            box-shadow: 0 0 16px rgba(255,212,93,.16), inset 0 1px 0 rgba(255,255,255,.10) !important;
+        }
+        html body .stApp .startrail-page .trail-title-icon .trail-spark-icon {
+            transform: scale(1.22) !important;
+            transform-origin: center center !important;
+        }
+        html body .stApp .startrail-page .trail-brand-title {
+            font-size: 52px !important;
+            line-height: 1.02 !important;
+            font-weight: 950 !important;
+            letter-spacing: -0.06em !important;
+            margin: 0 0 9px 0 !important;
+            color: #FFF8FF !important;
+            text-shadow: 0 0 16px rgba(255,255,255,.16), 0 0 18px rgba(255,212,93,.14) !important;
+            display: flex !important;
+            align-items: baseline !important;
+            gap: 12px !important;
+            white-space: nowrap !important;
+        }
+        html body .stApp .startrail-page .trail-brand-title span {
+            font-size: 40px !important;
+            color: #FFD45D !important;
+            font-weight: 950 !important;
+            letter-spacing: -0.04em !important;
+        }
+        html body .stApp .startrail-page .trail-title-accent-line {
+            width: 292px !important;
+            height: 2px !important;
+            margin: 0 0 10px 2px !important;
+            background: linear-gradient(90deg, rgba(255,212,93,.88), rgba(255,212,93,.46), rgba(255,212,93,0)) !important;
+        }
+        html body .stApp .startrail-page .trail-title-block .trail-subtitle {
+            font-size: 17px !important;
+            line-height: 1.45 !important;
+            font-weight: 780 !important;
+            color: #E8DFFF !important;
+            white-space: nowrap !important;
+        }
+        html body .stApp .startrail-page .trail-date-pill {
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
+            z-index: 40 !important;
+        }
+        html body .stApp .startrail-page .trail-info-card {
+            margin-top: 58px !important;
+            background: radial-gradient(circle at 12% 44%, rgba(255,212,93,.10), transparent 32%), linear-gradient(135deg, rgba(18,15,38,.98), rgba(9,8,25,.99)) !important;
+            backdrop-filter: none !important;
+        }
+
+        /* 불투명 패널 통합: TOP 카드, 우측 상세, 하단 테이블/그래프 */
+        html body .stApp .startrail-page .trail-rank-card,
+        html body .stApp .startrail-page .trail-side-card,
+        html body .stApp .startrail-page .trail-chart-card,
+        html body .stApp .startrail-page .trail-table,
+        html body .stApp .startrail-page .trail-table-team-style,
+        html body .stApp .startrail-page .trail-radar-card,
+        html body .stApp .startrail-page .trail-kpi-card,
+        html body .stApp .startrail-page div[data-testid="stPlotlyChart"] {
+            background: radial-gradient(circle at 50% 8%, rgba(196,143,255,.08), transparent 34%), linear-gradient(180deg, rgba(13,10,31,.985), rgba(7,6,22,.995)) !important;
+            backdrop-filter: none !important;
+            border-color: rgba(255,255,255,.32) !important;
+            box-shadow: 0 0 22px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.055) !important;
+        }
+        html body .stApp .startrail-page .trail-table th,
+        html body .stApp .startrail-page .trail-table-team-style th {
+            background: rgba(31,30,51,.98) !important;
+        }
+        html body .stApp .startrail-page .trail-table td,
+        html body .stApp .startrail-page .trail-table-team-style td {
+            background: rgba(8,8,26,.96) !important;
+        }
+        html body .stApp .startrail-page .trail-bar-track {
+            background: rgba(255,255,255,.095) !important;
+        }
+
+        /* 세그먼트 카드도 같은 불투명 계열 유지 */
+        html body .stApp .startrail-page .trail-seg-card,
+        html body .stApp .trail-seg-card {
+            background: radial-gradient(circle at 50% 18%, rgba(196,143,255,.075), transparent 36%), linear-gradient(180deg, rgba(13,10,31,.985), rgba(7,6,22,.995)) !important;
+            backdrop-filter: none !important;
+            border-color: rgba(255,255,255,.50) !important;
+        }
+        html body .stApp .startrail-page .trail-seg-card::before,
+        html body .stApp .trail-seg-card::before {
+            display: none !important;
+            content: none !important;
+            opacity: 0 !important;
+        }
+
+        @media (max-width: 1200px) {
+            html body .stApp .startrail-page .trail-brand-title { font-size: 42px !important; }
+            html body .stApp .startrail-page .trail-brand-title span { font-size: 32px !important; }
+            html body .stApp .startrail-page .trail-title-icon { width: 78px !important; height: 78px !important; }
+            html body .stApp .startrail-page .trail-title-block { grid-template-columns: 92px minmax(0,1fr) !important; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     summary = load_startrail_summary_data()
     kpi = load_startrail_kpi_data()
     raw = load_startrail_raw_candidate_data()
