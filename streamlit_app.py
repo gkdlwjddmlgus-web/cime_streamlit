@@ -2334,6 +2334,103 @@ def render_startrail_dashboard():
         """,
         unsafe_allow_html=True,
     )
+    # FINAL PATCH 2026-05-12: STAR TRAIL segment strategy card vertical fit
+    # - 카드 하단 설명이 버튼 영역과 겹치거나 잘려 보이지 않도록 높이/내부 간격 보정
+    # - 아이콘/이름/수치/설명 위치를 전체적으로 위로 당기되, 설명 가독성 유지
+    st.markdown(
+        """
+        <style>
+        html body .stApp .startrail-page .trail-seg-card,
+        html body .stApp .trail-seg-card {
+            height: 252px !important;
+            min-height: 252px !important;
+            padding: 18px 15px 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+        }
+
+        html body .stApp .startrail-page .trail-seg-icon-badge,
+        html body .stApp .trail-seg-icon-badge {
+            width: 54px !important;
+            height: 54px !important;
+            min-width: 54px !important;
+            min-height: 54px !important;
+            margin: 2px auto 13px auto !important;
+            border-radius: 17px !important;
+        }
+
+        html body .stApp .startrail-page .trail-seg-emoji,
+        html body .stApp .trail-seg-emoji {
+            font-size: 28px !important;
+            line-height: 1 !important;
+        }
+
+        html body .stApp .startrail-page .trail-seg-name,
+        html body .stApp .trail-seg-name {
+            min-height: 28px !important;
+            margin: 0 0 10px 0 !important;
+            font-size: 20px !important;
+            line-height: 1.18 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+        }
+
+        html body .stApp .startrail-page .trail-seg-count,
+        html body .stApp .trail-seg-count {
+            margin: 0 0 13px 0 !important;
+            font-size: 29px !important;
+            line-height: 1.04 !important;
+            letter-spacing: -0.03em !important;
+        }
+
+        html body .stApp .startrail-page .trail-seg-desc,
+        html body .stApp .trail-seg-desc {
+            width: 100% !important;
+            max-width: 210px !important;
+            min-height: 34px !important;
+            max-height: none !important;
+            margin: 0 auto !important;
+            padding: 0 6px !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            overflow: visible !important;
+            -webkit-line-clamp: unset !important;
+            -webkit-box-orient: unset !important;
+            font-size: 12.5px !important;
+            line-height: 1.42 !important;
+            font-weight: 800 !important;
+            color: rgba(247, 235, 202, 0.82) !important;
+            word-break: keep-all !important;
+            white-space: normal !important;
+            text-align: center !important;
+        }
+
+        html body .stApp div[data-testid="column"]:has(.trail-seg-card) .stButton > button {
+            height: 44px !important;
+            min-height: 44px !important;
+            margin-top: 0 !important;
+            border-radius: 0 0 10px 10px !important;
+        }
+
+        @media (max-width: 1280px) {
+            html body .stApp .startrail-page .trail-seg-card,
+            html body .stApp .trail-seg-card {
+                height: 260px !important;
+                min-height: 260px !important;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     summary = load_startrail_summary_data()
     kpi = load_startrail_kpi_data()
     raw = load_startrail_raw_candidate_data()
