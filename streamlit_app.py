@@ -2238,6 +2238,94 @@ def render_startrail_dashboard():
             border: 1px solid rgba(117,204,255,0.30) !important;
             box-shadow: 0 18px 42px rgba(0,0,0,.54), 0 0 24px rgba(117,204,255,.14), inset 0 1px 0 rgba(255,255,255,.08) !important;
         }
+
+        /* REQUEST PATCH 2026-05-12: STAR TRAIL segment card fit + opaque panels */
+        html body .stApp .startrail-page .trail-seg-card,
+        html body .stApp .trail-seg-card {
+            min-height: 224px !important;
+            height: 224px !important;
+            padding: 16px 16px 16px !important;
+            overflow: visible !important;
+            background:
+                radial-gradient(circle at 50% 16%, rgba(255,212,93,0.08), transparent 34%),
+                linear-gradient(180deg, rgba(13, 10, 32, 0.98), rgba(9, 7, 25, 0.99)) !important;
+            border-color: rgba(255,255,255,0.50) !important;
+            box-shadow: 0 0 20px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+        }
+        html body .stApp .startrail-page .trail-seg-card::before,
+        html body .stApp .trail-seg-card::before,
+        html body .stApp .startrail-page .trail-seg-card.active::before,
+        html body .stApp .trail-seg-card.active::before,
+        html body .stApp .startrail-page .trail-seg-card.active-성단::before,
+        html body .stApp .trail-seg-card.active-성단::before,
+        html body .stApp .startrail-page .trail-seg-card.active-프로토스타::before,
+        html body .stApp .trail-seg-card.active-프로토스타::before,
+        html body .stApp .startrail-page .trail-seg-card.active-위성::before,
+        html body .stApp .trail-seg-card.active-위성::before,
+        html body .stApp .startrail-page .trail-seg-card.active-슈퍼노바::before,
+        html body .stApp .trail-seg-card.active-슈퍼노바::before,
+        html body .stApp .startrail-page .trail-seg-card.active-코멧::before,
+        html body .stApp .trail-seg-card.active-코멧::before {
+            display: none !important;
+            content: none !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        html body .stApp .startrail-page .trail-seg-icon-badge,
+        html body .stApp .trail-seg-icon-badge {
+            margin: 8px auto 14px auto !important;
+            width: 60px !important;
+            height: 60px !important;
+            min-width: 60px !important;
+            min-height: 60px !important;
+            background: rgba(44, 42, 78, 0.92) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 12px rgba(130,150,255,0.10) !important;
+        }
+        html body .stApp .startrail-page .trail-seg-name,
+        html body .stApp .trail-seg-name {
+            margin-top: 0 !important;
+            margin-bottom: 14px !important;
+            line-height: 1.15 !important;
+        }
+        html body .stApp .startrail-page .trail-seg-count,
+        html body .stApp .trail-seg-count {
+            margin: 0 0 8px 0 !important;
+            line-height: 1.05 !important;
+        }
+        html body .stApp .startrail-page .trail-seg-desc,
+        html body .stApp .trail-seg-desc {
+            max-height: 34px !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 6px !important;
+            overflow: hidden !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            line-height: 1.28 !important;
+            font-size: 12px !important;
+            word-break: keep-all !important;
+        }
+        html body .stApp .startrail-page .trail-kpi-card,
+        html body .stApp .startrail-page .trail-info-card,
+        html body .stApp .startrail-page .trail-rank-card,
+        html body .stApp .startrail-page .trail-side-card,
+        html body .stApp .startrail-page .trail-chart-card,
+        html body .stApp .startrail-page .trail-table,
+        html body .stApp .startrail-page .trail-table-team-style,
+        html body .stApp .startrail-page div[data-testid="stPlotlyChart"] {
+            background: linear-gradient(180deg, rgba(14, 10, 33, 0.98), rgba(8, 7, 24, 0.99)) !important;
+            backdrop-filter: none !important;
+        }
+        html body .stApp .startrail-page .trail-filter-row {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 10px !important;
+            align-items: end !important;
+        }
+
         @media (max-width: 980px) {
             .startrail-page .trail-date-pill { position: static !important; display: inline-flex !important; margin-top: 18px !important; }
             .startrail-page .trail-info-card { margin-top: 24px !important; }
@@ -2443,7 +2531,7 @@ def render_startrail_dashboard():
             "tooltip_title": "소속 없이도 방송 성과가 검증된<br>개인형 후보군",
             "tooltip_criteria": "도네이션, 채팅화력, 평균 시청자, 개인 활동 여부",
             "tooltip_point": "검증된 개인 방송 화력을 바탕으로 안정적인 콘텐츠와 수익성을 확보합니다.",
-            "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군",
+            "desc": "",
         },
         "슈퍼노바": {
             "icon": "💥",
@@ -2459,7 +2547,7 @@ def render_startrail_dashboard():
             "tooltip_title": "방송 외부 채널에서 인지도가 높은<br>발견형 후보군",
             "tooltip_criteria": "유튜브 구독자, X 팔로워, 외부 유입지수, 플랫폼 대비 외부 체급",
             "tooltip_point": "외부 팬덤을 CIME으로 연결해 새로운 이용자 유입을 만듭니다.",
-            "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군",
+            "desc": "",
         },
     }
 
@@ -2494,7 +2582,7 @@ def render_startrail_dashboard():
                     </span>
                 </div>
                 <div class="trail-seg-count">{info["count"]}</div>
-                <div class="trail-seg-desc">{html_lib.escape(info["desc"])}</div>
+                {f'<div class="trail-seg-desc">{html_lib.escape(info["desc"])}</div>' if str(info.get("desc", "")).strip() else ''}
             </div>
             ''', unsafe_allow_html=True)
             if st.button("선택", key=f"startrail_seg_btn_{seg}", use_container_width=True):
@@ -2525,7 +2613,8 @@ def render_startrail_dashboard():
     left_area, right_area = st.columns([2.35, 0.85], gap="large")
 
     with left_area:
-        top_title_col, top_filter_col = st.columns([1.72, 0.72], gap="large")
+        # 코멧/슈퍼노바는 플랫폼 필터와 세그먼트 필터를 좌우 2열로 배치한다.
+        top_title_col, top_filter_col = st.columns([1.36, 1.08], gap="large")
         with top_title_col:
             st.markdown(
                 f'<div class="startrail-page"><div class="trail-section-title">🏆 {html_lib.escape(current_seg)} TOP 5</div></div>',
@@ -2533,27 +2622,33 @@ def render_startrail_dashboard():
             )
         with top_filter_col:
             if current_seg == "코멧":
-                platform_filter = st.selectbox(
-                    "플랫폼 필터",
-                    ["전체", "SOOP", "CHZZK"],
-                    key="startrail_platform_filter_comet",
-                )
-                segment_detail_filter = st.selectbox(
-                    "세그먼트 필터",
-                    ["전체", "X 강세형", "유튜브 강세형", "하이브리드"],
-                    key="startrail_segment_detail_filter",
-                )
+                filter_col_1, filter_col_2 = st.columns(2, gap="small")
+                with filter_col_1:
+                    platform_filter = st.selectbox(
+                        "플랫폼 필터",
+                        ["전체", "SOOP", "CHZZK"],
+                        key="startrail_platform_filter_comet",
+                    )
+                with filter_col_2:
+                    segment_detail_filter = st.selectbox(
+                        "세그먼트 필터",
+                        ["전체", "X 강세형", "유튜브 강세형", "하이브리드"],
+                        key="startrail_segment_detail_filter",
+                    )
             elif current_seg == "슈퍼노바":
-                platform_filter = st.selectbox(
-                    "플랫폼 필터",
-                    ["전체", "SOOP", "CHZZK"],
-                    key="startrail_platform_filter_supernova",
-                )
-                segment_detail_filter = st.selectbox(
-                    "세그먼트 필터",
-                    ["전체", "개인", "그룹"],
-                    key="startrail_supernova_segment_filter",
-                )
+                filter_col_1, filter_col_2 = st.columns(2, gap="small")
+                with filter_col_1:
+                    platform_filter = st.selectbox(
+                        "플랫폼 필터",
+                        ["전체", "SOOP", "CHZZK"],
+                        key="startrail_platform_filter_supernova",
+                    )
+                with filter_col_2:
+                    segment_detail_filter = st.selectbox(
+                        "세그먼트 필터",
+                        ["전체", "개인", "그룹"],
+                        key="startrail_supernova_segment_filter",
+                    )
             elif current_seg != "성단":
                 platform_filter = st.selectbox(
                     "플랫폼 필터",
