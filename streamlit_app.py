@@ -3729,10 +3729,10 @@ st.markdown(
         --cime-toggle-top: 22px;
         --cime-toggle-open-left: 18px;
         --cime-toggle-close-right-gap: 18px;
-        --cime-toggle-bg: rgba(7, 22, 38, 0.96);
-        --cime-toggle-border: rgba(118, 242, 226, 0.72);
-        --cime-toggle-glow: rgba(95, 255, 232, 0.42);
-        --cime-toggle-icon: #FFFFFF;
+        --cime-toggle-bg: rgba(24, 14, 46, 0.96);
+        --cime-toggle-border: rgba(184, 132, 255, 0.78);
+        --cime-toggle-glow: rgba(166, 92, 255, 0.46);
+        --cime-toggle-icon: #F8F1FF;
     }
 
     html body .stApp header,
@@ -3832,7 +3832,8 @@ st.markdown(
         border: 1px solid var(--cime-toggle-border) !important;
         outline: none !important;
         background:
-            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.24), transparent 42%),
+            radial-gradient(circle at 34% 28%, rgba(205, 176, 255, 0.30), transparent 42%),
+            radial-gradient(circle at 70% 75%, rgba(123, 69, 255, 0.22), transparent 50%),
             var(--cime-toggle-bg) !important;
         box-shadow:
             0 0 20px var(--cime-toggle-glow),
@@ -3853,10 +3854,10 @@ st.markdown(
     html body .stApp button[aria-label="Close sidebar"]:hover,
     html body .stApp button[aria-label="사이드바 열기"]:hover,
     html body .stApp button[aria-label="사이드바 닫기"]:hover {
-        border-color: rgba(147, 255, 244, 0.90) !important;
+        border-color: rgba(218, 195, 255, 0.94) !important;
         box-shadow:
-            0 0 26px rgba(95, 255, 232, 0.52),
-            inset 0 1px 0 rgba(255,255,255,0.20) !important;
+            0 0 28px rgba(166, 92, 255, 0.58),
+            inset 0 1px 0 rgba(255,255,255,0.22) !important;
     }
 
     /* Streamlit 기본 Material Symbol은 숨김. 자체 아이콘만 사용 */
@@ -3910,7 +3911,7 @@ st.markdown(
             linear-gradient(var(--cime-toggle-icon), var(--cime-toggle-icon)) 0 5px / 18px 3px no-repeat,
             linear-gradient(var(--cime-toggle-icon), var(--cime-toggle-icon)) 0 10px / 18px 3px no-repeat !important;
         border-radius: 2px !important;
-        filter: drop-shadow(0 0 6px rgba(255,255,255,0.80)) drop-shadow(0 0 12px rgba(95,255,232,0.58)) !important;
+        filter: drop-shadow(0 0 6px rgba(255,255,255,0.86)) drop-shadow(0 0 12px rgba(184,132,255,0.64)) !important;
         pointer-events: none !important;
         z-index: 4 !important;
     }
