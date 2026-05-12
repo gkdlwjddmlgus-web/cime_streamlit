@@ -2201,6 +2201,43 @@ def render_startrail_dashboard():
         .startrail-page .trail-seg-card.active-코멧::before {
             background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent) !important;
         }
+
+        /* FINAL STAR TRAIL segment icons and titles */
+        html body .stApp .startrail-page .trail-seg-card .trail-seg-icon-badge,
+        html body .stApp .trail-seg-card .trail-seg-icon-badge {
+            width: 58px !important; height: 58px !important; min-width: 58px !important; min-height: 58px !important;
+            border-radius: 18px !important; margin: 28px auto 17px auto !important;
+            background: rgba(42, 40, 74, 0.72) !important;
+            border: 1px solid rgba(165,176,255,0.30) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 14px rgba(130,150,255,0.11) !important;
+            filter: none !important;
+        }
+        html body .stApp .startrail-page .trail-seg-card .trail-seg-emoji,
+        html body .stApp .trail-seg-card .trail-seg-emoji {
+            display:block !important; font-size:29px !important; line-height:1 !important;
+            filter:none !important; text-shadow:none !important; transform:none !important;
+        }
+        html body .stApp .trail-seg-card.active-성단 .trail-seg-icon-badge { background: rgba(255,212,93,.10) !important; border-color: rgba(255,212,93,.32) !important; }
+        html body .stApp .trail-seg-card.active-프로토스타 .trail-seg-icon-badge { background: rgba(152,255,171,.10) !important; border-color: rgba(152,255,171,.30) !important; }
+        html body .stApp .trail-seg-card.active-위성 .trail-seg-icon-badge { background: rgba(143,184,255,.10) !important; border-color: rgba(143,184,255,.32) !important; }
+        html body .stApp .trail-seg-card.active-슈퍼노바 .trail-seg-icon-badge { background: rgba(255,122,200,.10) !important; border-color: rgba(255,122,200,.30) !important; }
+        html body .stApp .trail-seg-card.active-코멧 .trail-seg-icon-badge { background: rgba(255,158,94,.10) !important; border-color: rgba(255,158,94,.30) !important; }
+        .startrail-page .trail-section-title,
+        .startrail-page .trail-bottom-title,
+        .startrail-page .trail-side-title,
+        .startrail-page .trail-chart-title,
+        .startrail-page .trail-table-title {
+            color: #ffffff !important;
+            text-shadow: 0 0 14px rgba(255,255,255,0.20) !important;
+        }
+        .startrail-page .trail-tooltip-text.trail-tooltip-rich,
+        .trail-tooltip-text.trail-tooltip-rich {
+            width: 330px !important; max-width: min(330px, 84vw) !important;
+            padding: 16px 18px !important; border-radius: 18px !important;
+            background: radial-gradient(circle at 16% 18%, rgba(117,204,255,.12), transparent 35%), linear-gradient(145deg, rgba(18,29,42,0.98), rgba(16,13,42,0.98)) !important;
+            border: 1px solid rgba(117,204,255,0.30) !important;
+            box-shadow: 0 18px 42px rgba(0,0,0,.54), 0 0 24px rgba(117,204,255,.14), inset 0 1px 0 rgba(255,255,255,.08) !important;
+        }
         @media (max-width: 980px) {
             .startrail-page .trail-date-pill { position: static !important; display: inline-flex !important; margin-top: 18px !important; }
             .startrail-page .trail-info-card { margin-top: 24px !important; }
@@ -3761,14 +3798,14 @@ st.markdown(
 
     .starseed-board .starseed-title-block {
         display: grid !important;
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 0 !important;
-        min-height: 150px !important;
+        grid-template-columns: 86px minmax(0, 1fr) !important;
+        gap: 20px !important;
+        min-height: 96px !important;
         align-items: center !important;
     }
 
     .starseed-board .board-title-icon {
-        display: none !important;
+        display: flex !important;
     }
 
     .starseed-board .starseed-glow-title {
@@ -3851,6 +3888,24 @@ st.markdown(
 
 
 
+
+st.markdown(
+    """
+    <style>
+    .starseed-board .starseed-criteria-card { margin-top: 52px !important; }
+    .starseed-board .starseed-brand-title {
+        display:flex !important; align-items:baseline !important; gap:10px !important;
+        color:#FFF8FF !important; font-size:39px !important; line-height:1.03 !important;
+        font-weight:950 !important; letter-spacing:-0.055em !important; margin:0 0 7px 0 !important;
+        text-shadow:0 1px 0 rgba(255,255,255,.10) !important; white-space:nowrap !important;
+    }
+    .starseed-board .starseed-brand-title span { color:var(--seed-green) !important; font-size:31px !important; font-weight:950 !important; letter-spacing:-.035em !important; }
+    .starseed-board .starseed-brand-subtitle { margin:0 !important; font-size:14.2px !important; font-weight:720 !important; line-height:1.45 !important; color:#D8D0E7 !important; white-space:nowrap !important; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 def kpi_tooltip_label(label: str, desc: str) -> str:
     safe_label = safe_html(label)
     safe_desc = html_lib.escape(desc)
@@ -3864,6 +3919,19 @@ def kpi_tooltip_label(label: str, desc: str) -> str:
         f'</div>'
     )
 
+def detail_metric_help_label(label: str, desc: str) -> str:
+    safe_label = safe_html(label)
+    safe_desc = html_lib.escape(desc)
+    return (
+        f'<div class="detail-metric-label detail-metric-label-with-help">'
+        f'<span>{safe_label}</span>'
+        f'<span class="detail-help-wrap" aria-label="{safe_desc}">'
+        f'<span class="detail-help-icon">?</span>'
+        f'<span class="detail-help-text">{safe_desc}</span>'
+        f'</span>'
+        f'</div>'
+    )
+
 kpi_tooltips = {
     "전체 분석 후보": "수집/전처리 후 대시보드에 올라온 전체 후보 수입니다.",
     "1차 선별 후보": "shortlist 또는 주요 액션버킷 기준으로 사람이 실제 검토할 수 있는 후보군입니다.",
@@ -3871,13 +3939,81 @@ kpi_tooltips = {
     "즉시 검토 후보": "우선 컨택 또는 수기 검증을 빠르게 진행할 만한 후보 수입니다.",
 }
 
+
+st.markdown(
+    """
+    <style>
+    .starseed-board { position: relative !important; }
+    .starseed-date-pill {
+        position: absolute !important; top: 4px !important; right: 0 !important; z-index: 60 !important;
+        display: inline-flex !important; align-items: center !important; gap: 8px !important;
+        height: 34px !important; padding: 0 14px !important; border-radius: 999px !important;
+        background: rgba(8, 26, 43, 0.82) !important;
+        border: 1px solid rgba(131, 246, 160, 0.26) !important;
+        color: #E8FFF0 !important; font-size: 12px !important; font-weight: 900 !important;
+        box-shadow: 0 0 14px rgba(131,246,160,0.10), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+        white-space: nowrap !important;
+    }
+    .starseed-board .starseed-hero-modern {
+        padding-top: 32px !important;
+        grid-template-columns: minmax(0, 1fr) 560px !important;
+        column-gap: 44px !important;
+        align-items: center !important;
+    }
+    .starseed-board .starseed-title-block {
+        grid-template-columns: 86px minmax(0, 1fr) !important;
+        gap: 20px !important; min-height: 96px !important;
+    }
+    .starseed-board .board-title-icon { display:flex !important; }
+    .starseed-board .starseed-criteria-card { margin-top: 52px !important; }
+    .starseed-board .starseed-brand-title {
+        display:flex !important; align-items:baseline !important; gap:10px !important;
+        color:#FFF8FF !important; font-size:39px !important; line-height:1.03 !important;
+        font-weight:950 !important; letter-spacing:-0.055em !important; margin:0 0 7px 0 !important;
+        text-shadow:0 1px 0 rgba(255,255,255,.10) !important; white-space:nowrap !important;
+    }
+    .starseed-board .starseed-brand-title span {
+        color:var(--seed-green) !important; font-size:31px !important; font-weight:950 !important; letter-spacing:-.035em !important;
+    }
+    .starseed-board .starseed-brand-subtitle {
+        margin:0 !important; font-size:14.2px !important; font-weight:720 !important; line-height:1.45 !important;
+        color:#D8D0E7 !important; white-space:nowrap !important; letter-spacing:-.035em !important;
+    }
+    .board-kpi-note { display:none !important; }
+    .board-kpi-card .board-kpi-icon {
+        color:#fff !important; font-size:22px !important;
+        background: radial-gradient(circle at 34% 24%, rgba(255,255,255,.28), rgba(48,190,102,.78) 50%, rgba(12,78,56,.92) 100%) !important;
+        box-shadow: 0 0 10px rgba(80,255,146,.16) !important;
+    }
+    .detail-metric-label-with-help { display:flex !important; align-items:center !important; gap:6px !important; overflow:visible !important; }
+    .detail-help-wrap { position:relative !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; overflow:visible !important; z-index:20 !important; }
+    .detail-help-icon { width:15px !important; height:15px !important; min-width:15px !important; border-radius:999px !important; border:1px solid rgba(131,246,160,.50) !important; background:rgba(8,24,28,.86) !important; color:#DFFFF0 !important; font-size:9px !important; font-weight:950 !important; line-height:13px !important; text-align:center !important; cursor:help !important; }
+    .detail-help-text { visibility:hidden !important; opacity:0 !important; pointer-events:none !important; position:absolute !important; left:50% !important; bottom:145% !important; transform:translateX(-50%) translateY(6px) !important; width:230px !important; max-width:70vw !important; padding:10px 12px !important; border-radius:12px !important; border:1px solid rgba(131,246,160,.30) !important; background:rgba(7,20,28,.98) !important; color:#DFFFF0 !important; font-size:11px !important; font-weight:700 !important; line-height:1.5 !important; text-align:left !important; white-space:normal !important; word-break:keep-all !important; box-shadow:0 10px 28px rgba(0,0,0,.45) !important; z-index:99999 !important; }
+    .detail-help-wrap:hover .detail-help-text { visibility:visible !important; opacity:1 !important; transform:translateX(-50%) translateY(0) !important; }
+    .priority-table th, .priority-table td { font-size: 11px !important; padding-left: 6px !important; padding-right: 6px !important; }
+    .priority-table td.name { font-weight:760 !important; letter-spacing:-.02em !important; }
+    .priority-table .tag-pill { font-weight:780 !important; max-width:132px !important; min-width:62px !important; }
+    @media (max-width: 1200px) {
+        .starseed-date-pill { position: static !important; margin: 0 0 16px 0 !important; }
+        .starseed-board .starseed-hero-modern { grid-template-columns: 1fr !important; }
+        .starseed-board .starseed-criteria-card { margin-top: 18px !important; }
+        .starseed-board .starseed-brand-subtitle { white-space:normal !important; }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 html(f"""
 <div class="starseed-board">
+    <div class="starseed-date-pill">📅 {html_lib.escape(tracking_base_label if tracking_base_label != "-" else MIN_TRACKING_DATE_LABEL)} 대비 {html_lib.escape(tracking_target_label)}</div>
     <div class="board-hero board-hero-compact starseed-hero-modern">
         <div class="board-head-left starseed-title-block">
+            <div class="board-title-icon">{SEED_ICON_HTML}</div>
             <div>
-                <div class="board-title board-title-ko starseed-glow-title">STAR SEED</div>
-                <div class="board-subtitle starseed-glow-subtitle">유튜브 기반 성장 잠재력과 라이브 전환 가능성을 분석해, 차세대 후보군을 발굴합니다</div>
+                <div class="board-title board-title-ko starseed-brand-title">스타시드 <span>Star Seed</span></div>
+                <div class="board-title-accent-line"></div>
+                <div class="board-subtitle starseed-brand-subtitle">유튜브 기반 성장 잠재력과 라이브 전환 가능성을 분석해, 차세대 후보군을 발굴합니다</div>
             </div>
         </div>
         <div class="board-info-card starseed-criteria-card">
@@ -3889,10 +4025,10 @@ html(f"""
         </div>
     </div>
     <div class="board-kpi-grid">
-        <div class="board-kpi-card"><div class="board-kpi-icon">👥</div><div>{kpi_tooltip_label("전체 분석 후보", kpi_tooltips["전체 분석 후보"])}<div class="board-kpi-value">{fmt_num(target_all_kpi['total'], 0, '명')}</div>{delta_badge(delta_total, 0, '명')}<span class="board-kpi-note">{compare_note}</span></div></div>
-        <div class="board-kpi-card"><div class="board-kpi-icon">▾</div><div>{kpi_tooltip_label("1차 선별 후보", kpi_tooltips["1차 선별 후보"])}<div class="board-kpi-value">{fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{delta_badge(delta_shortlist, 0, '명')}<span class="board-kpi-note">{compare_note}</span></div></div>
-        <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div>{kpi_tooltip_label("평균 영입 점수", kpi_tooltips["평균 영입 점수"])}<div class="board-kpi-value">{fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{delta_badge(delta_avg_score, 1, '점')}<span class="board-kpi-note">{compare_note}</span></div></div>
-        <div class="board-kpi-card"><div class="board-kpi-icon">◎</div><div>{kpi_tooltip_label("즉시 검토 후보", kpi_tooltips["즉시 검토 후보"])}<div class="board-kpi-value">{fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{delta_badge(delta_high_priority, 0, '명')}<span class="board-kpi-note">{compare_note}</span></div></div>
+        <div class="board-kpi-card"><div class="board-kpi-icon">👥</div><div>{kpi_tooltip_label("전체 분석 후보", kpi_tooltips["전체 분석 후보"])}<div class="board-kpi-value">{fmt_num(target_all_kpi['total'], 0, '명')}</div>{delta_badge(delta_total, 0, '명')}</div></div>
+        <div class="board-kpi-card"><div class="board-kpi-icon">▾</div><div>{kpi_tooltip_label("1차 선별 후보", kpi_tooltips["1차 선별 후보"])}<div class="board-kpi-value">{fmt_num(target_all_kpi['shortlist'], 0, '명')}</div>{delta_badge(delta_shortlist, 0, '명')}</div></div>
+        <div class="board-kpi-card"><div class="board-kpi-icon">★</div><div>{kpi_tooltip_label("평균 영입 점수", kpi_tooltips["평균 영입 점수"])}<div class="board-kpi-value">{fmt_num(target_filtered_kpi['avg_score'], 1, '점')}</div>{delta_badge(delta_avg_score, 1, '점')}</div></div>
+        <div class="board-kpi-card"><div class="board-kpi-icon">◎</div><div>{kpi_tooltip_label("즉시 검토 후보", kpi_tooltips["즉시 검토 후보"])}<div class="board-kpi-value">{fmt_num(target_filtered_kpi['high_priority'], 0, '명')}</div>{delta_badge(delta_high_priority, 0, '명')}</div></div>
     </div>
 </div>
 """)
@@ -3924,7 +4060,7 @@ for i, (_, row) in enumerate(priority_df.iterrows()):
     action = row.get(action_col, "-") if action_col else "-"
     score = row.get("_score_display", np.nan)
     priority_rows.append(
-        f'<tr><td style="width:9%;">{i + 1}</td><td class="name" style="width:30%;">{channel_link(short_text(name, 18), row)}</td><td style="width:24%;">{tag(segment)}</td><td style="width:17%;">{action_tag(action)}</td><td class="priority-score" style="width:12%;">{fmt_num(score, 1, "")}</td></tr>'
+        f'<tr><td style="width:7%;">{i + 1}</td><td class="name" style="width:28%;">{channel_link(short_text(name, 18), row)}</td><td style="width:31%;">{tag(segment)}</td><td style="width:20%;">{action_tag(action)}</td><td class="priority-score" style="width:14%;">{fmt_num(score, 1, "")}</td></tr>'
     )
 
 recent_priority_rows = []
@@ -4008,9 +4144,9 @@ with right_col:
                     <div class="detail-name-row"><div class="detail-name-main">{channel_link(sel_name, selected_row)}</div>{action_tag(sel_action)}</div>
                     <div class="detail-metric-grid">
                         <div class="detail-metric-box"><div class="detail-metric-label">영입 점수</div><div class="detail-metric-value">{fmt_num(sel_score, 1, '점')}</div></div>
-                        <div class="detail-metric-box"><div class="detail-metric-label">성장성</div><div class="detail-metric-value">{fmt_num(sel_growth, 3, '')}</div></div>
+                        <div class="detail-metric-box">{detail_metric_help_label('성장성', '최근 반응과 성장 흐름을 점수화한 값입니다. 높을수록 차세대 후보로 육성할 가능성이 큽니다.')}<div class="detail-metric-value">{fmt_num(sel_growth, 3, '')}</div></div>
                         <div class="detail-metric-box"><div class="detail-metric-label">구독자수</div><div class="detail-metric-value">{fmt_num(sel_subs, 0, '')}</div></div>
-                        <div class="detail-metric-box"><div class="detail-metric-label">팬밀도</div><div class="detail-metric-value">{fmt_num(sel_fan, 3, '')}</div></div>
+                        <div class="detail-metric-box">{detail_metric_help_label('팬밀도', '조회수 대비 좋아요·댓글 등 팬 반응의 밀도를 나타냅니다. 높을수록 작지만 결집력 있는 팬덤일 가능성이 큽니다.')}<div class="detail-metric-value">{fmt_num(sel_fan, 3, '')}</div></div>
                     </div>
                 </div>
                 <div class="reason-panel detail-reason-bottom"><div class="reason-title">왜 추천되었나요?</div>{reason_html}</div>
