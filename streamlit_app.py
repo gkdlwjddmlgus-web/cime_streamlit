@@ -3683,6 +3683,12 @@ st.markdown(
     html body .stApp .starseed-board .starseed-date-pill {
         top: 0 !important;
         right: 0 !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 18px !important;
+        gap: 9px !important;
+        font-size: 14px !important;
+        line-height: 42px !important;
     }
     html body .stApp .starseed-board .starseed-criteria-card,
     html body .stApp .starseed-board .board-info-card {
@@ -3807,6 +3813,47 @@ st.markdown(
         html body .stApp .block-container:has(.startrail-page) {
             padding-top: 0 !important;
             margin-top: -2.2rem !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# =========================================================
+# FINAL PATCH - STAR SEED date pill size sync
+# - 스타시드 우측 상단 기간 pill 크기를 스타트레일 기간 pill과 동일하게 맞춤
+# =========================================================
+st.markdown(
+    """
+    <style>
+    html body .stApp .starseed-board .starseed-date-pill,
+    html body .stApp .starseed-date-pill {
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 18px !important;
+        gap: 9px !important;
+        font-size: 14px !important;
+        font-weight: 900 !important;
+        line-height: 42px !important;
+        border-radius: 999px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+    html body .stApp .starseed-board .starseed-date-pill {
+        top: 0 !important;
+        right: 0 !important;
+    }
+    @media (max-width: 1200px) {
+        html body .stApp .starseed-board .starseed-date-pill,
+        html body .stApp .starseed-date-pill {
+            height: 42px !important;
+            min-height: 42px !important;
+            padding: 0 18px !important;
+            font-size: 14px !important;
+            line-height: 42px !important;
         }
     }
     </style>
@@ -4759,13 +4806,14 @@ st.markdown(
     <style>
     .starseed-board { position: relative !important; }
     .starseed-date-pill {
-        position: absolute !important; top: 4px !important; right: 0 !important; z-index: 60 !important;
-        display: inline-flex !important; align-items: center !important; gap: 8px !important;
-        height: 34px !important; padding: 0 14px !important; border-radius: 999px !important;
+        position: absolute !important; top: 0 !important; right: 0 !important; z-index: 60 !important;
+        display: inline-flex !important; align-items: center !important; gap: 9px !important;
+        height: 42px !important; min-height: 42px !important; padding: 0 18px !important; border-radius: 999px !important;
         background: rgba(8, 26, 43, 0.82) !important;
-        border: 1px solid rgba(131, 246, 160, 0.26) !important;
-        color: #E8FFF0 !important; font-size: 12px !important; font-weight: 900 !important;
-        box-shadow: 0 0 14px rgba(131,246,160,0.10), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(131, 246, 160, 0.30) !important;
+        color: #E8FFF0 !important; font-size: 14px !important; font-weight: 900 !important;
+        line-height: 42px !important;
+        box-shadow: 0 0 18px rgba(131,246,160,0.12), inset 0 1px 0 rgba(255,255,255,0.05) !important;
         white-space: nowrap !important;
     }
     .starseed-board .starseed-hero-modern {
@@ -4879,6 +4927,12 @@ st.markdown(
     html body .stApp .starseed-board .starseed-date-pill {
         top: 0 !important;
         right: 0 !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 18px !important;
+        gap: 9px !important;
+        font-size: 14px !important;
+        line-height: 42px !important;
     }
     </style>
     """,
@@ -5219,6 +5273,12 @@ st.markdown(
     .starseed-board .starseed-date-pill {
         top: 0 !important;
         right: 0 !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 18px !important;
+        gap: 9px !important;
+        font-size: 14px !important;
+        line-height: 42px !important;
     }
 
     /* 3) STAR TRAIL 상단 브랜드 영역 전체 확대 */
@@ -5333,6 +5393,33 @@ st.markdown(
         .startrail-page .trail-brand-title span {
             font-size: 30px !important;
         }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
+# POST-RENDER SAFETY PATCH - STAR SEED date pill size sync
+# =========================================================
+st.markdown(
+    """
+    <style>
+    html body .stApp .starseed-board .starseed-date-pill,
+    html body .stApp .starseed-date-pill {
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 18px !important;
+        gap: 9px !important;
+        font-size: 14px !important;
+        font-weight: 900 !important;
+        line-height: 42px !important;
+        border-radius: 999px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
     }
     </style>
     """,
