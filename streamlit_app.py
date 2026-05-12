@@ -3665,7 +3665,7 @@ st.markdown(
     html body .stApp .block-container:has(.starseed-board),
     html body .stApp .block-container:has(.startrail-page) {
         padding-top: 0 !important;
-        margin-top: -4.6rem !important;
+        margin-top: -6.4rem !important;
     }
     html body .stApp .starseed-board,
     html body .stApp .startrail-page {
@@ -3804,7 +3804,8 @@ st.markdown(
     @media (max-width: 1200px) {
         html body .stApp .block-container:has(.starseed-board),
         html body .stApp .block-container:has(.startrail-page) {
-            margin-top: -2.2rem !important;
+            padding-top: 0 !important;
+            margin-top: -5.8rem !important;
         }
     }
     </style>
