@@ -2392,11 +2392,15 @@ def render_startrail_dashboard():
     st.markdown(f'''
     <div class="startrail-page">
         <div class="startrail-hero">
-            <div class="trail-hero-top">
-                <div>
-                    <div class="trail-title">STAR TRAIL</div>
-                    <div class="trail-subtitle">기존 플랫폼의 데이터 궤적을 따라 CIME 영입 후보군을 찾습니다</div>
-                    <div class="trail-date-pill">📅 2025.01.01 ~ 2026.03.31</div>
+            <div class="trail-date-pill">📅 2025.01.01 ~ 2026.03.31</div>
+            <div class="trail-hero-top startrail-hero-modern">
+                <div class="trail-title-block">
+                    <div class="trail-title-icon">{TRAIL_ICON_HTML}</div>
+                    <div>
+                        <div class="trail-brand-title">스타트레일 <span>Star Trail</span></div>
+                        <div class="trail-title-accent-line"></div>
+                        <div class="trail-subtitle">기존 플랫폼의 데이터 궤적을 따라 CIME 영입 후보군을 찾습니다</div>
+                    </div>
                 </div>
                 <div class="trail-info-card">
                     <div class="trail-info-icon">✦</div>
@@ -2999,6 +3003,207 @@ def render_startrail_dashboard():
                     fig.update_xaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     fig.update_yaxes(automargin=True, gridcolor="rgba(255,255,255,0.12)")
                     st.plotly_chart(fig, use_container_width=True)
+
+
+
+# =========================================================
+# FINAL PATCH 2026-05-12
+# - STAR TRAIL 상단 타이틀을 STAR SEED 형식으로 정렬
+# - STAR SEED 기간 pill 문구 고정
+# - STAR TRAIL 세그먼트 카드 하단 설명/상단 라인 제거
+# - STAR SEED 우선순위 테이블 5행 기준 가독성 보정
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* STAR TRAIL hero: STAR SEED와 유사한 국문+영문 브랜드형 타이틀 */
+    .startrail-page .startrail-hero-modern {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 560px !important;
+        column-gap: 44px !important;
+        align-items: center !important;
+        margin-bottom: 34px !important;
+    }
+    .startrail-page .trail-title-block {
+        display: grid !important;
+        grid-template-columns: 86px minmax(0, 1fr) !important;
+        gap: 20px !important;
+        min-height: 96px !important;
+        align-items: center !important;
+    }
+    .startrail-page .trail-title-icon {
+        width: 72px !important;
+        height: 72px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: radial-gradient(circle at 45% 30%, rgba(255,212,93,.16), transparent 56%), rgba(20,18,36,.88) !important;
+        border: 2px solid rgba(255,248,225,.78) !important;
+        box-shadow: 0 0 12px rgba(255,212,93,.14), inset 0 1px 0 rgba(255,255,255,.08) !important;
+        overflow: hidden !important;
+    }
+    .startrail-page .trail-title-icon .trail-spark-icon {
+        transform: scale(1.02) !important;
+        transform-origin: center center !important;
+    }
+    .startrail-page .trail-brand-title {
+        display: flex !important;
+        align-items: baseline !important;
+        gap: 10px !important;
+        color: #FFF8FF !important;
+        font-size: 39px !important;
+        line-height: 1.03 !important;
+        font-weight: 950 !important;
+        letter-spacing: -0.055em !important;
+        margin: 0 0 7px 0 !important;
+        text-shadow: 0 1px 0 rgba(255,255,255,.10), 0 0 14px rgba(255,212,93,.12) !important;
+        white-space: nowrap !important;
+    }
+    .startrail-page .trail-brand-title span {
+        color: #FFD45D !important;
+        font-size: 31px !important;
+        font-weight: 950 !important;
+        letter-spacing: -0.035em !important;
+        text-shadow: 0 0 4px rgba(255,212,93,.12) !important;
+    }
+    .startrail-page .trail-title-accent-line {
+        width: 235px !important;
+        height: 2px !important;
+        margin: 0 0 9px 2px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(90deg, rgba(255,212,93,.84) 0%, rgba(255,212,93,.46) 42%, rgba(255,212,93,.12) 78%, rgba(255,212,93,0) 100%) !important;
+    }
+    .startrail-page .trail-title-block .trail-subtitle {
+        margin: 0 !important;
+        font-size: 14.2px !important;
+        font-weight: 720 !important;
+        line-height: 1.45 !important;
+        letter-spacing: -0.035em !important;
+        color: #D8D0E7 !important;
+        white-space: nowrap !important;
+    }
+    .startrail-page .trail-info-card {
+        margin-top: 52px !important;
+    }
+    .startrail-page .trail-date-pill {
+        top: 4px !important;
+        right: 0 !important;
+    }
+
+    /* STAR TRAIL segment cards: 상단 선과 하단 설명 제거 */
+    html body .stApp .startrail-page .trail-seg-card::before,
+    html body .stApp .startrail-page .trail-seg-card.active::before,
+    html body .stApp .startrail-page .trail-seg-card.active-성단::before,
+    html body .stApp .startrail-page .trail-seg-card.active-프로토스타::before,
+    html body .stApp .startrail-page .trail-seg-card.active-위성::before,
+    html body .stApp .startrail-page .trail-seg-card.active-슈퍼노바::before,
+    html body .stApp .startrail-page .trail-seg-card.active-코멧::before {
+        display: none !important;
+        content: none !important;
+        opacity: 0 !important;
+        height: 0 !important;
+    }
+    html body .stApp .startrail-page .trail-seg-desc {
+        display: none !important;
+    }
+    html body .stApp .startrail-page .trail-seg-card {
+        min-height: 218px !important;
+        height: 218px !important;
+        padding: 28px 18px 20px !important;
+    }
+    html body .stApp .startrail-page .trail-seg-icon-badge {
+        margin: 14px auto 20px auto !important;
+        width: 68px !important;
+        height: 68px !important;
+        min-width: 68px !important;
+        min-height: 68px !important;
+        border-radius: 18px !important;
+    }
+    html body .stApp .startrail-page .trail-seg-count {
+        margin-bottom: 0 !important;
+    }
+
+    /* STAR SEED table: 5행 기준으로 테이블 전체 크기는 유지하고 글자 크기 확대 */
+    .priority-table-panel {
+        min-height: 250px !important;
+        padding: 14px 16px !important;
+        display: flex !important;
+        align-items: stretch !important;
+    }
+    .priority-table {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 222px !important;
+        table-layout: fixed !important;
+        font-size: 13px !important;
+    }
+    .priority-table th {
+        font-size: 13px !important;
+        padding: 10px 8px !important;
+        height: 44px !important;
+        line-height: 1.15 !important;
+    }
+    .priority-table td {
+        font-size: 13.5px !important;
+        padding: 10px 8px !important;
+        height: 35px !important;
+        line-height: 1.15 !important;
+        font-weight: 850 !important;
+    }
+    .priority-table td.rank,
+    .priority-table th:nth-child(1) {
+        width: 5% !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+    .priority-table td.name,
+    .priority-table th:nth-child(2) {
+        width: 25% !important;
+    }
+    .priority-table td.content,
+    .priority-table th:nth-child(3) {
+        width: 42% !important;
+    }
+    .priority-table td.stage,
+    .priority-table th:nth-child(4) {
+        width: 20% !important;
+    }
+    .priority-table .priority-score,
+    .priority-table th:nth-child(5) {
+        width: 8% !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+    .priority-table .tag-pill {
+        font-size: 12.5px !important;
+        max-width: 190px !important;
+        min-width: 84px !important;
+        padding: 5px 12px !important;
+        font-weight: 850 !important;
+    }
+    .priority-table .action-pill {
+        font-size: 12.5px !important;
+        padding: 5px 12px !important;
+        font-weight: 850 !important;
+    }
+    @media (max-width: 1200px) {
+        .startrail-page .startrail-hero-modern {
+            grid-template-columns: 1fr !important;
+            row-gap: 18px !important;
+        }
+        .startrail-page .trail-title-block .trail-subtitle {
+            white-space: normal !important;
+        }
+        .startrail-page .trail-info-card {
+            margin-top: 18px !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # =========================================================
 # 페이지 라우팅
@@ -4006,7 +4211,7 @@ st.markdown(
 
 html(f"""
 <div class="starseed-board">
-    <div class="starseed-date-pill">📅 {html_lib.escape(tracking_base_label if tracking_base_label != "-" else MIN_TRACKING_DATE_LABEL)} 대비 {html_lib.escape(tracking_target_label)}</div>
+    <div class="starseed-date-pill">📅 2026.05.01 ~ 2026.05.09</div>
     <div class="board-hero board-hero-compact starseed-hero-modern">
         <div class="board-head-left starseed-title-block">
             <div class="board-title-icon">{SEED_ICON_HTML}</div>
@@ -4052,7 +4257,7 @@ for i, (_, row) in enumerate(top_candidates.iterrows()):
 html(f'<div class="board-panel"><div class="board-panel-title">✩ 우선 검토 추천 후보 TOP 5</div><div class="top5-grid">{"".join(mini_cards)}</div></div>')
 
 # 우선순위 / 상세
-priority_df = filtered.head(8).copy()
+priority_df = filtered.head(5).copy()
 priority_rows = []
 for i, (_, row) in enumerate(priority_df.iterrows()):
     name = row.get(channel_name_col, "-") if channel_name_col else "-"
@@ -4060,12 +4265,12 @@ for i, (_, row) in enumerate(priority_df.iterrows()):
     action = row.get(action_col, "-") if action_col else "-"
     score = row.get("_score_display", np.nan)
     priority_rows.append(
-        f'<tr><td style="width:7%;">{i + 1}</td><td class="name" style="width:28%;">{channel_link(short_text(name, 18), row)}</td><td style="width:31%;">{tag(segment)}</td><td style="width:20%;">{action_tag(action)}</td><td class="priority-score" style="width:14%;">{fmt_num(score, 1, "")}</td></tr>'
+        f'<tr><td class="rank" style="width:5%;">{i + 1}</td><td class="name" style="width:25%;">{channel_link(short_text(name, 18), row)}</td><td class="content" style="width:42%;">{tag(segment)}</td><td class="stage" style="width:20%;">{action_tag(action)}</td><td class="priority-score" style="width:8%;">{fmt_num(score, 1, "")}</td></tr>'
     )
 
 recent_priority_rows = []
 if not mini_tracking_df.empty:
-    for _, r in mini_tracking_df.head(8).iterrows():
+    for _, r in mini_tracking_df.head(5).iterrows():
         recent_priority_rows.append(
             f'<tr><td class="name" style="width:28%;">{safe_html(short_text(r.get("채널명", "-"), 18))}</td><td style="width:13%;">{fmt_num(r.get("이전순위", np.nan), 0, "")}</td><td style="width:13%;">{fmt_num(r.get("현재순위", np.nan), 0, "")}</td><td style="width:17%; color:#ff838d; font-weight:950;">▲ {fmt_num(abs(float(r.get("순위변동", 0) or 0)), 0, "")}</td><td class="priority-score" style="width:13%;">{fmt_num(r.get("현재점수", np.nan), 1, "")}</td><td style="width:16%;">{action_tag(r.get("현재단계", "-"))}</td></tr>'
         )
