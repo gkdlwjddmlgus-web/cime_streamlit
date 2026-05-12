@@ -159,115 +159,6 @@ def inject_button_theme_by_page():
 inject_button_theme_by_page()
 
 # =========================================================
-# 사이드바 열기/닫기 토글 디자인 통일
-# - 접힌 상태의 open 토글과 열린 상태의 close 토글 모두 같은 원형 버튼 톤으로 유지
-# =========================================================
-st.markdown(
-    """
-    <style>
-    /* 접힌 상태에서 보이는 사이드바 열기 토글 컨테이너 */
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"] {
-        position: fixed !important;
-        top: 22px !important;
-        left: 18px !important;
-        width: 42px !important;
-        height: 42px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        z-index: 1000000 !important;
-    }
-
-    /* 접힌 상태 열기 버튼 자체 */
-    [data-testid="collapsedControl"] button,
-    [data-testid="stSidebarCollapsedControl"] button {
-        width: 42px !important;
-        height: 42px !important;
-        min-width: 42px !important;
-        min-height: 42px !important;
-        border-radius: 999px !important;
-        border: 1px solid rgba(152, 255, 171, 0.48) !important;
-        background:
-            radial-gradient(circle at 35% 25%, rgba(152,255,171,0.18), transparent 42%),
-            rgba(7, 18, 34, 0.92) !important;
-        box-shadow:
-            0 0 16px rgba(95, 255, 160, 0.18),
-            inset 0 1px 0 rgba(255,255,255,0.10) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: hidden !important;
-        color: transparent !important;
-    }
-
-    /* 기존 >> / svg 아이콘은 접힌 상태에서만 숨김 */
-    [data-testid="collapsedControl"] button svg,
-    [data-testid="collapsedControl"] button img,
-    [data-testid="collapsedControl"] button span,
-    [data-testid="stSidebarCollapsedControl"] button svg,
-    [data-testid="stSidebarCollapsedControl"] button img,
-    [data-testid="stSidebarCollapsedControl"] button span {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-    }
-
-    /* 접힌 상태 열기 토글을 닫기 토글과 같은 톤의 »» 모양으로 표시 */
-    [data-testid="collapsedControl"] button::before,
-    [data-testid="stSidebarCollapsedControl"] button::before {
-        content: "»»";
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 100% !important;
-        height: 100% !important;
-        color: #DFFFF0 !important;
-        font-size: 23px !important;
-        font-weight: 950 !important;
-        line-height: 1 !important;
-        letter-spacing: -6px !important;
-        text-shadow: 0 0 10px rgba(118,242,226,0.40) !important;
-        transform: translateX(-2px) translateY(-1px);
-    }
-
-    [data-testid="collapsedControl"] button:hover,
-    [data-testid="stSidebarCollapsedControl"] button:hover {
-        border-color: rgba(152, 255, 171, 0.72) !important;
-        background:
-            radial-gradient(circle at 35% 25%, rgba(152,255,171,0.25), transparent 42%),
-            rgba(9, 32, 42, 0.96) !important;
-        box-shadow:
-            0 0 20px rgba(95, 255, 160, 0.26),
-            inset 0 1px 0 rgba(255,255,255,0.14) !important;
-    }
-
-    /* 열린 상태의 닫기 토글도 같은 원형 패널 유지 */
-    section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
-    section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
-    section[data-testid="stSidebar"] button[title="Close sidebar"],
-    section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
-    section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        border-radius: 999px !important;
-        border: 1px solid rgba(118,242,226,.42) !important;
-        background: rgba(7,22,38,.86) !important;
-        box-shadow: 0 0 14px rgba(95,255,232,.16) !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-# =========================================================
 # Streamlit 우측 액션 버튼 최소 숨김
 # - toolbar 컨테이너는 숨기지 않음
 # - sidebar toggle 안정성 우선
@@ -515,9 +406,7 @@ st.markdown(
         section[data-testid="stSidebar"] { background: linear-gradient(180deg, rgba(7,8,24,.99), rgba(4,6,18,.99)) !important; border-right: 1px solid var(--seed-purple-line) !important; box-shadow: 10px 0 32px rgba(0,0,0,.28) !important; z-index: 999996 !important; }
         section[data-testid="stSidebar"] > div:first-child { padding-top: 4.1rem !important; }
         @media (min-width: 900px) { section[data-testid="stSidebar"][aria-expanded="true"] { flex: 0 0 var(--cime-sidebar-width) !important; width: var(--cime-sidebar-width) !important; min-width: var(--cime-sidebar-width) !important; max-width: var(--cime-sidebar-width) !important; overflow: hidden auto !important; } }
-        [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] { position: fixed !important; top: var(--cime-sidebar-toggle-top) !important; left: var(--cime-sidebar-toggle-left) !important; width: var(--cime-sidebar-toggle-size) !important; height: var(--cime-sidebar-toggle-size) !important; display: flex !important; align-items: center !important; justify-content: center !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; overflow: visible !important; z-index: 1000000 !important; }
-        section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"], section[data-testid="stSidebar"] button[aria-label="Close sidebar"], section[data-testid="stSidebar"] button[title="Close sidebar"], section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"], section[data-testid="stSidebar"] button[title="사이드바 닫기"] { position: fixed !important; top: var(--cime-sidebar-toggle-top) !important; left: calc(var(--cime-sidebar-width) - var(--cime-sidebar-toggle-size) - 12px) !important; width: var(--cime-sidebar-toggle-size) !important; height: var(--cime-sidebar-toggle-size) !important; min-width: var(--cime-sidebar-toggle-size) !important; min-height: var(--cime-sidebar-toggle-size) !important; display: flex !important; align-items: center !important; justify-content: center !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; z-index: 1000001 !important; margin: 0 !important; }
-        [data-testid="collapsedControl"] button, [data-testid="stSidebarCollapsedControl"] button, section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button, section[data-testid="stSidebar"] button[aria-label="Close sidebar"], section[data-testid="stSidebar"] button[title="Close sidebar"], section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"], section[data-testid="stSidebar"] button[title="사이드바 닫기"] { width: var(--cime-sidebar-toggle-size) !important; height: var(--cime-sidebar-toggle-size) !important; border-radius: 999px !important; border: 1px solid rgba(118,242,226,.42) !important; background: rgba(7,22,38,.86) !important; box-shadow: 0 0 14px rgba(95,255,232,.16) !important; }
+        /* sidebar toggle style is injected once at the end of the file. */
         .star-layer { position: fixed; left: 300px; top: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; overflow: hidden; opacity: .72; }
         .twinkle-star { position: absolute; border-radius: 50%; background: white; pointer-events: none; z-index: 0; box-shadow: 0 0 6px rgba(255,255,255,.55), 0 0 12px rgba(198,168,255,.28); animation-name: twinkle; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
         .twinkle-star:nth-child(3n) { background: #C8A8FF; } .twinkle-star:nth-child(5n) { background: #FF9DF5; }
@@ -5430,125 +5319,119 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 # =========================================================
-# POST-RENDER SAFETY PATCH - unified sidebar toggle
-# - 접힌 사이드바 상태에서 보이는 열기 토글을 닫기 토글과 같은 원형 버튼 스타일로 통일
-# - 기존 기본 "»»" 텍스트가 배경 없이 노출되는 문제를 최종 CSS에서 재보정
+# FINAL SIDEBAR TOGGLE PATCH
+# - 홈/스타트레일/스타시드 전 페이지의 사이드바 열기·닫기 토글 디자인 통일
+# - 기존 중복 토글 CSS는 제거하고 여기 한 곳에서만 최종 제어
 # =========================================================
 st.markdown(
     """
     <style>
     :root {
         --cime-sidebar-width: 300px;
-        --cime-sidebar-toggle-top: 22px;
-        --cime-sidebar-toggle-size: 42px;
-        --cime-sidebar-toggle-left: 18px;
+        --cime-toggle-size: 42px;
+        --cime-toggle-top: 22px;
+        --cime-toggle-open-left: 18px;
+        --cime-toggle-close-right-gap: 18px;
+        --cime-toggle-bg: rgba(7, 22, 38, 0.92);
+        --cime-toggle-border: rgba(118, 242, 226, 0.52);
+        --cime-toggle-glow: rgba(95, 255, 232, 0.24);
+        --cime-toggle-icon: #EFFFFF;
     }
 
-    /* 접힌 상태에서 보이는 sidebar open control 위치와 크기 고정 */
+    /* Streamlit header/toolbar는 유지하되 토글보다 아래 레이어로 둔다 */
+    html body .stApp header,
+    html body .stApp [data-testid="stHeader"],
+    html body .stApp [data-testid="stToolbar"] {
+        overflow: visible !important;
+        z-index: 999900 !important;
+        background: transparent !important;
+    }
+
+    /* 접힌 상태: 사이드바 열기 토글 위치 */
     html body .stApp [data-testid="collapsedControl"],
     html body .stApp [data-testid="stSidebarCollapsedControl"] {
         position: fixed !important;
-        top: var(--cime-sidebar-toggle-top) !important;
-        left: var(--cime-sidebar-toggle-left) !important;
-        width: var(--cime-sidebar-toggle-size) !important;
-        height: var(--cime-sidebar-toggle-size) !important;
-        min-width: var(--cime-sidebar-toggle-size) !important;
-        min-height: var(--cime-sidebar-toggle-size) !important;
-        border-radius: 999px !important;
-        border: 1px solid rgba(118, 242, 226, 0.46) !important;
-        background:
-            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.18), transparent 42%),
-            rgba(7, 22, 38, 0.90) !important;
-        box-shadow:
-            0 0 15px rgba(95, 255, 232, 0.20),
-            inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+        top: var(--cime-toggle-top) !important;
+        left: var(--cime-toggle-open-left) !important;
+        width: var(--cime-toggle-size) !important;
+        height: var(--cime-toggle-size) !important;
+        min-width: var(--cime-toggle-size) !important;
+        min-height: var(--cime-toggle-size) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        overflow: hidden !important;
         z-index: 1000002 !important;
+        overflow: visible !important;
         margin: 0 !important;
         padding: 0 !important;
-        font-size: 0 !important;
-        line-height: 0 !important;
-        color: transparent !important;
-        text-indent: -9999px !important;
     }
 
-    /* 버튼 자체를 열린 사이드바의 닫기 토글과 같은 원형 패널로 처리 */
+    /* 열린 상태: 사이드바 닫기 토글 위치 */
     html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
     html body .stApp section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
     html body .stApp section[data-testid="stSidebar"] button[title="Close sidebar"],
     html body .stApp section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
     html body .stApp section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
         position: fixed !important;
-        top: var(--cime-sidebar-toggle-top) !important;
-        left: calc(var(--cime-sidebar-width) - var(--cime-sidebar-toggle-size) - 18px) !important;
-        width: var(--cime-sidebar-toggle-size) !important;
-        height: var(--cime-sidebar-toggle-size) !important;
-        min-width: var(--cime-sidebar-toggle-size) !important;
-        min-height: var(--cime-sidebar-toggle-size) !important;
-        border-radius: 999px !important;
-        border: 1px solid rgba(118, 242, 226, 0.46) !important;
-        background:
-            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.18), transparent 42%),
-            rgba(7, 22, 38, 0.90) !important;
-        box-shadow:
-            0 0 15px rgba(95, 255, 232, 0.20),
-            inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+        top: var(--cime-toggle-top) !important;
+        left: calc(var(--cime-sidebar-width) - var(--cime-toggle-size) - var(--cime-toggle-close-right-gap)) !important;
+        width: var(--cime-toggle-size) !important;
+        height: var(--cime-toggle-size) !important;
+        min-width: var(--cime-toggle-size) !important;
+        min-height: var(--cime-toggle-size) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        overflow: hidden !important;
         z-index: 1000003 !important;
+        overflow: visible !important;
         margin: 0 !important;
         padding: 0 !important;
-        font-size: 0 !important;
-        line-height: 0 !important;
-        color: transparent !important;
-        text-indent: -9999px !important;
     }
 
+    /* 열기/닫기 버튼 공통 원형 디자인 */
     html body .stApp [data-testid="collapsedControl"] button,
     html body .stApp [data-testid="stSidebarCollapsedControl"] button,
     html body .stApp button[aria-label="Open sidebar"],
     html body .stApp button[title="Open sidebar"],
-    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button,
     html body .stApp button[aria-label="사이드바 열기"],
-    html body .stApp button[title="사이드바 열기"] {
-        position: relative !important;
-        width: var(--cime-sidebar-toggle-size) !important;
-        height: var(--cime-sidebar-toggle-size) !important;
-        min-width: var(--cime-sidebar-toggle-size) !important;
-        min-height: var(--cime-sidebar-toggle-size) !important;
-        max-width: var(--cime-sidebar-toggle-size) !important;
-        max-height: var(--cime-sidebar-toggle-size) !important;
+    html body .stApp button[title="사이드바 열기"],
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button,
+    html body .stApp section[data-testid="stSidebar"] button[aria-label="Close sidebar"],
+    html body .stApp section[data-testid="stSidebar"] button[title="Close sidebar"],
+    html body .stApp section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"],
+    html body .stApp section[data-testid="stSidebar"] button[title="사이드바 닫기"] {
+        width: var(--cime-toggle-size) !important;
+        height: var(--cime-toggle-size) !important;
+        min-width: var(--cime-toggle-size) !important;
+        min-height: var(--cime-toggle-size) !important;
+        max-width: var(--cime-toggle-size) !important;
+        max-height: var(--cime-toggle-size) !important;
         border-radius: 999px !important;
-        border: 1px solid rgba(118, 242, 226, 0.46) !important;
+        border: 1px solid var(--cime-toggle-border) !important;
         background:
-            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.18), transparent 42%),
-            rgba(7, 22, 38, 0.90) !important;
+            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.20), transparent 42%),
+            var(--cime-toggle-bg) !important;
         box-shadow:
-            0 0 15px rgba(95, 255, 232, 0.20),
-            inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+            0 0 18px var(--cime-toggle-glow),
+            inset 0 1px 0 rgba(255,255,255,0.12) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         padding: 0 !important;
         margin: 0 !important;
-        overflow: hidden !important;
+        color: transparent !important;
         font-size: 0 !important;
         line-height: 0 !important;
-        color: transparent !important;
         text-indent: -9999px !important;
+        overflow: hidden !important;
         transform: none !important;
     }
 
@@ -5557,11 +5440,14 @@ st.markdown(
     html body .stApp [data-testid="stSidebarCollapsedControl"] button > *,
     html body .stApp button[aria-label="Open sidebar"] > *,
     html body .stApp button[title="Open sidebar"] > *,
+    html body .stApp button[aria-label="사이드바 열기"] > *,
+    html body .stApp button[title="사이드바 열기"] > *,
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] > *,
     html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button > *,
     html body .stApp section[data-testid="stSidebar"] button[aria-label="Close sidebar"] > *,
     html body .stApp section[data-testid="stSidebar"] button[title="Close sidebar"] > *,
-    html body .stApp button[aria-label="사이드바 열기"] > *,
-    html body .stApp button[title="사이드바 열기"] > * {
+    html body .stApp section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"] > *,
+    html body .stApp section[data-testid="stSidebar"] button[title="사이드바 닫기"] > * {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
@@ -5570,9 +5456,7 @@ st.markdown(
         pointer-events: none !important;
     }
 
-    /* 접힌 상태는 열기 기능이므로 닫기 토글과 같은 톤의 »» 아이콘 표시 */
-    html body .stApp [data-testid="collapsedControl"]::before,
-    html body .stApp [data-testid="stSidebarCollapsedControl"]::before,
+    /* 접힌 상태: 열기 표시 >> */
     html body .stApp [data-testid="collapsedControl"] button::before,
     html body .stApp [data-testid="stSidebarCollapsedControl"] button::before,
     html body .stApp button[aria-label="Open sidebar"]::before,
@@ -5585,39 +5469,38 @@ st.markdown(
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        color: #BFEFFF !important;
-        font-size: 23px !important;
+        color: var(--cime-toggle-icon) !important;
+        font-size: 25px !important;
         font-weight: 950 !important;
         line-height: 1 !important;
-        letter-spacing: -6px !important;
+        letter-spacing: -7px !important;
         text-indent: 0 !important;
-        text-shadow: 0 0 10px rgba(118, 242, 226, 0.40) !important;
+        text-shadow: 0 0 12px rgba(210, 255, 255, 0.70), 0 0 18px rgba(118, 242, 226, 0.34) !important;
         transform: translateX(-2px) translateY(-1px) !important;
         pointer-events: none !important;
     }
 
-    html body .stApp [data-testid="collapsedControl"]:has(button)::before,
-    html body .stApp [data-testid="stSidebarCollapsedControl"]:has(button)::before {
-        content: none !important;
-    }
-
+    /* 열린 상태: 닫기 표시 << */
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"]::before,
     html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button::before,
     html body .stApp section[data-testid="stSidebar"] button[aria-label="Close sidebar"]::before,
-    html body .stApp section[data-testid="stSidebar"] button[title="Close sidebar"]::before {
+    html body .stApp section[data-testid="stSidebar"] button[title="Close sidebar"]::before,
+    html body .stApp section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"]::before,
+    html body .stApp section[data-testid="stSidebar"] button[title="사이드바 닫기"]::before {
         content: "««" !important;
         position: absolute !important;
         inset: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        color: #BFEFFF !important;
-        font-size: 23px !important;
+        color: var(--cime-toggle-icon) !important;
+        font-size: 25px !important;
         font-weight: 950 !important;
         line-height: 1 !important;
-        letter-spacing: -6px !important;
+        letter-spacing: -7px !important;
         text-indent: 0 !important;
-        text-shadow: 0 0 10px rgba(118, 242, 226, 0.40) !important;
-        transform: translateX(1px) translateY(-1px) !important;
+        text-shadow: 0 0 12px rgba(210, 255, 255, 0.70), 0 0 18px rgba(118, 242, 226, 0.34) !important;
+        transform: translateX(2px) translateY(-1px) !important;
         pointer-events: none !important;
     }
 
@@ -5625,21 +5508,24 @@ st.markdown(
     html body .stApp [data-testid="stSidebarCollapsedControl"] button:hover,
     html body .stApp button[aria-label="Open sidebar"]:hover,
     html body .stApp button[title="Open sidebar"]:hover,
+    html body .stApp button[aria-label="사이드바 열기"]:hover,
+    html body .stApp button[title="사이드바 열기"]:hover,
     html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"]:hover,
     html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button:hover,
     html body .stApp section[data-testid="stSidebar"] button[aria-label="Close sidebar"]:hover,
     html body .stApp section[data-testid="stSidebar"] button[title="Close sidebar"]:hover,
-    html body .stApp button[aria-label="사이드바 열기"]:hover,
-    html body .stApp button[title="사이드바 열기"]:hover {
-        border-color: rgba(118, 242, 226, 0.76) !important;
+    html body .stApp section[data-testid="stSidebar"] button[aria-label="사이드바 닫기"]:hover,
+    html body .stApp section[data-testid="stSidebar"] button[title="사이드바 닫기"]:hover {
+        border-color: rgba(118, 242, 226, 0.82) !important;
         background:
-            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.26), transparent 42%),
-            rgba(9, 30, 44, 0.96) !important;
+            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.30), transparent 42%),
+            rgba(9, 30, 44, 0.98) !important;
         box-shadow:
-            0 0 20px rgba(95, 255, 232, 0.30),
-            inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+            0 0 24px rgba(95, 255, 232, 0.36),
+            inset 0 1px 0 rgba(255,255,255,0.16) !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
