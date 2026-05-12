@@ -225,25 +225,6 @@ st.markdown(
         pointer-events: none !important;
     }
 
-    /* sidebar open/close 토글은 반드시 유지하되, 내부 svg/span까지 되살리지는 않음 */
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"],
-    button[aria-label="Open sidebar"],
-    button[aria-label="Close sidebar"],
-    button[aria-label="사이드바 열기"],
-    button[aria-label="사이드바 닫기"],
-    button[title="Open sidebar"],
-    button[title="Close sidebar"],
-    button[title="사이드바 열기"],
-    button[title="사이드바 닫기"] {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        overflow: visible !important;
-        z-index: 1000000 !important;
-    }
     </style>
     """,
     unsafe_allow_html=True,
