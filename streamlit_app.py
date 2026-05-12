@@ -2434,14 +2434,15 @@ def render_startrail_dashboard():
 
 
     # STABLE FINAL STARTRAIL PATCH 2026-05-12
-    # - 기존 CSS 중복으로 인한 상단 타이틀/패널 투명도 덮어쓰기 방지
+    # - 기존 CSS 중복으로 인한 패널 투명도 덮어쓰기 방지
+    # - 상단 시작점은 STAR SEED와 같은 -4.6rem 기준으로 통일
     # - 스타트레일 중하단 카드/테이블/그래프/상세박스를 불투명 패널로 통일
     st.markdown(
         """
         <style>
         html body .stApp .block-container:has(.startrail-page) {
             padding-top: 0 !important;
-            margin-top: -3.15rem !important;
+            margin-top: -4.6rem !important;
             max-width: 1560px !important;
         }
         html body .stApp .startrail-page .startrail-hero-modern,
@@ -3661,11 +3662,11 @@ st.markdown(
 st.markdown(
     """
     <style>
-    /* 1) 홈 화면과 유사한 상단 시작점으로 STAR SEED / STAR TRAIL 정렬 */
+    /* 1) STAR SEED와 동일한 상단 시작점으로 STAR TRAIL까지 정렬 */
     html body .stApp .block-container:has(.starseed-board),
     html body .stApp .block-container:has(.startrail-page) {
         padding-top: 0 !important;
-        margin-top: -8.4rem !important;
+        margin-top: -4.6rem !important;
     }
     html body .stApp .starseed-board,
     html body .stApp .startrail-page {
@@ -3805,47 +3806,7 @@ st.markdown(
         html body .stApp .block-container:has(.starseed-board),
         html body .stApp .block-container:has(.startrail-page) {
             padding-top: 0 !important;
-            margin-top: -5.8rem !important;
-        }
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-
-# =========================================================
-# EFFECTIVE PATCH 2026-05-12 PM2
-# - 스타트레일 상단 여백을 스타시드 수준으로 추가 축소
-# - 라우팅 전 주입하여 st.stop 이전에 반드시 적용
-# =========================================================
-st.markdown(
-    """
-    <style>
-    /* STAR TRAIL 전용 상단 여백 보정: STAR SEED와 시각적 시작점을 맞춤 */
-    html body .stApp .block-container:has(.startrail-page) {
-        padding-top: 0 !important;
-        margin-top: -8.4rem !important;
-        max-width: 1560px !important;
-    }
-    html body .stApp .startrail-page {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-    html body .stApp .startrail-page .startrail-hero,
-    html body .stApp .startrail-page .trail-hero-top,
-    html body .stApp .startrail-page .startrail-hero-modern {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-    html body .stApp .startrail-page .trail-date-pill {
-        top: 0 !important;
-    }
-
-    @media (max-width: 1200px) {
-        html body .stApp .block-container:has(.startrail-page) {
-            margin-top: -6.0rem !important;
+            margin-top: -2.2rem !important;
         }
     }
     </style>
@@ -5200,7 +5161,7 @@ st.markdown(
     .block-container:has(.starseed-board),
     .block-container:has(.startrail-page) {
         padding-top: 0 !important;
-        margin-top: -8.4rem !important;
+        margin-top: -4.6rem !important;
     }
     .starseed-board {
         margin-top: 0 !important;
