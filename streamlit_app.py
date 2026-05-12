@@ -3649,6 +3649,169 @@ st.markdown(
 )
 
 
+
+
+# =========================================================
+# PRE-ROUTING FINAL PATCH 2026-05-12
+# - 홈 화면 기준 상단 여백으로 스타시드/스타트레일 정렬
+# - 스타시드 날짜 pill ↔ 설명 카드 간격을 스타트레일과 통일
+# - 스타트레일 TOP 카드/테이블/그래프/상세 패널 불투명 처리
+#   ※ 페이지 라우팅 전에 주입해서 화면이 먼저 뜬 뒤 덮어씌워지는 현상을 줄인다.
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* 1) 홈 화면과 유사한 상단 시작점으로 STAR SEED / STAR TRAIL 정렬 */
+    html body .stApp .block-container:has(.starseed-board),
+    html body .stApp .block-container:has(.startrail-page) {
+        padding-top: 0 !important;
+        margin-top: -4.6rem !important;
+    }
+    html body .stApp .starseed-board,
+    html body .stApp .startrail-page {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    html body .stApp .startrail-page .startrail-hero,
+    html body .stApp .startrail-hero {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* 2) STAR SEED 우측 상단 기간 pill과 설명 카드 간격을 STAR TRAIL과 맞춤 */
+    html body .stApp .starseed-board .starseed-date-pill {
+        top: 0 !important;
+        right: 0 !important;
+    }
+    html body .stApp .starseed-board .starseed-criteria-card,
+    html body .stApp .starseed-board .board-info-card {
+        margin-top: 44px !important;
+    }
+    html body .stApp .startrail-page .trail-date-pill {
+        top: 0 !important;
+        right: 0 !important;
+    }
+    html body .stApp .startrail-page .trail-info-card {
+        margin-top: 44px !important;
+    }
+
+    /* 3) STAR TRAIL 타이틀/KPI 색상: 골드가 아닌 흰색 계열로 통일 */
+    html body .stApp .startrail-page .trail-section-title,
+    html body .stApp .startrail-page .trail-section-title *,
+    html body .stApp .startrail-page .trail-bottom-title,
+    html body .stApp .startrail-page .trail-bottom-title *,
+    html body .stApp .startrail-page .trail-side-title,
+    html body .stApp .startrail-page .trail-side-title *,
+    html body .stApp .startrail-page .trail-chart-title,
+    html body .stApp .startrail-page .trail-chart-title *,
+    html body .stApp .startrail-page .trail-table-title,
+    html body .stApp .startrail-page .trail-table-title *,
+    html body .stApp .trail-section-title,
+    html body .stApp .trail-bottom-title,
+    html body .stApp .trail-side-title,
+    html body .stApp .trail-chart-title,
+    html body .stApp .trail-table-title,
+    html body .stApp .trail-kpi-card,
+    html body .stApp .trail-kpi-card *,
+    html body .stApp .trail-kpi-label,
+    html body .stApp .trail-kpi-value {
+        color: #FFF9FF !important;
+        text-shadow: 0 0 14px rgba(255,255,255,0.15) !important;
+    }
+
+    /* 4) STAR TRAIL 중하단 카드/테이블/그래프/상세 패널 불투명화
+       일부 영역은 startrail-page wrapper 밖에서 렌더링되므로 class 자체에도 전역 적용한다. */
+    html body .stApp .trail-kpi-card,
+    html body .stApp .trail-info-card,
+    html body .stApp .trail-seg-card,
+    html body .stApp .trail-rank-card,
+    html body .stApp .trail-side-card,
+    html body .stApp .trail-chart-card,
+    html body .stApp .trail-table,
+    html body .stApp .trail-table-team-style,
+    html body .stApp .trail-radar-card,
+    html body .stApp .trail-detail-panel,
+    html body .stApp .trail-detail-card,
+    html body .stApp .trail-detail-button-title,
+    html body .stApp .trail-main-grid div[data-testid="stPlotlyChart"],
+    html body .stApp .startrail-page div[data-testid="stPlotlyChart"] {
+        background:
+            radial-gradient(circle at 50% 8%, rgba(196,143,255,.055), transparent 35%),
+            linear-gradient(180deg, rgba(13,10,31,.995), rgba(7,6,22,.998)) !important;
+        background-color: rgba(7,6,22,.998) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border-color: rgba(255,255,255,.34) !important;
+        box-shadow: 0 0 22px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.055) !important;
+    }
+
+    html body .stApp .trail-rank-card,
+    html body .stApp .trail-side-card,
+    html body .stApp .trail-chart-card,
+    html body .stApp .trail-radar-card {
+        border: 1px solid rgba(255,255,255,.38) !important;
+    }
+
+    html body .stApp .trail-table,
+    html body .stApp .trail-table-team-style {
+        border-collapse: collapse !important;
+        background: rgba(7,6,22,.998) !important;
+        background-color: rgba(7,6,22,.998) !important;
+        overflow: hidden !important;
+    }
+    html body .stApp .trail-table th,
+    html body .stApp .trail-table-team-style th {
+        background: rgba(31,30,51,.995) !important;
+        color: #FFF9FF !important;
+        border-color: rgba(255,255,255,.12) !important;
+    }
+    html body .stApp .trail-table td,
+    html body .stApp .trail-table-team-style td {
+        background: rgba(8,8,26,.992) !important;
+        color: #FFF9FF !important;
+        border-color: rgba(255,255,255,.08) !important;
+    }
+
+    html body .stApp .trail-main-grid div[data-testid="stPlotlyChart"] > div,
+    html body .stApp .trail-main-grid div[data-testid="stPlotlyChart"] .js-plotly-plot,
+    html body .stApp .trail-main-grid div[data-testid="stPlotlyChart"] .plot-container,
+    html body .stApp .trail-main-grid div[data-testid="stPlotlyChart"] .svg-container,
+    html body .stApp .startrail-page div[data-testid="stPlotlyChart"] > div,
+    html body .stApp .startrail-page div[data-testid="stPlotlyChart"] .js-plotly-plot,
+    html body .stApp .startrail-page div[data-testid="stPlotlyChart"] .plot-container,
+    html body .stApp .startrail-page div[data-testid="stPlotlyChart"] .svg-container {
+        background: rgba(7,6,22,.998) !important;
+        background-color: rgba(7,6,22,.998) !important;
+        border-radius: 20px !important;
+    }
+
+    /* 5) 기존 상단 금색 선 제거 유지 */
+    html body .stApp .trail-seg-card::before,
+    html body .stApp .trail-seg-card.active::before,
+    html body .stApp .trail-seg-card.active-성단::before,
+    html body .stApp .trail-seg-card.active-프로토스타::before,
+    html body .stApp .trail-seg-card.active-위성::before,
+    html body .stApp .trail-seg-card.active-슈퍼노바::before,
+    html body .stApp .trail-seg-card.active-코멧::before {
+        display: none !important;
+        content: none !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    @media (max-width: 1200px) {
+        html body .stApp .block-container:has(.starseed-board),
+        html body .stApp .block-container:has(.startrail-page) {
+            margin-top: -2.2rem !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # =========================================================
 # 페이지 라우팅
 # =========================================================
@@ -4541,7 +4704,7 @@ st.markdown(
 st.markdown(
     """
     <style>
-    .starseed-board .starseed-criteria-card { margin-top: 52px !important; }
+    .starseed-board .starseed-criteria-card { margin-top: 44px !important; }
     .starseed-board .starseed-brand-title {
         display:flex !important; align-items:baseline !important; gap:10px !important;
         color:#FFF8FF !important; font-size:39px !important; line-height:1.03 !important;
@@ -4614,7 +4777,7 @@ st.markdown(
         gap: 20px !important; min-height: 96px !important;
     }
     .starseed-board .board-title-icon { display:flex !important; }
-    .starseed-board .starseed-criteria-card { margin-top: 52px !important; }
+    .starseed-board .starseed-criteria-card { margin-top: 44px !important; }
     .starseed-board .starseed-brand-title {
         display:flex !important; align-items:baseline !important; gap:10px !important;
         color:#FFF8FF !important; font-size:39px !important; line-height:1.03 !important;
