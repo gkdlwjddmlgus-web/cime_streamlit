@@ -3737,7 +3737,7 @@ st.markdown(
 # 전역 Sidebar Toggle 통합 패치
 # - 반드시 페이지 라우팅/st.stop() 이전에 실행되어야 함
 # - 홈/스타트레일/스타시드 모두 동일한 open/close 토글 디자인 적용
-# - Streamlit 기본 button 기능은 유지하고, 표시만 동일한 원형 버튼으로 통일
+# - Streamlit 기본 button 기능은 유지하고, 표시만 동일한 원형 햄버거 버튼으로 통일
 # =========================================================
 st.markdown(
     """
@@ -3890,51 +3890,41 @@ st.markdown(
         line-height: 0 !important;
     }
 
-    /* 접힌 상태: 열기 아이콘 */
+    /* 열기/닫기 공통: 기본 ≫/≪ 아이콘을 제거하고 원형 햄버거 아이콘으로 통일 */
     html body .stApp [data-testid="collapsedControl"] > button::before,
     html body .stApp [data-testid="stSidebarCollapsedControl"] > button::before,
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] > button::before,
     html body .stApp button[aria-label="Open sidebar"]::before,
-    html body .stApp button[aria-label="사이드바 열기"]::before {
-        content: "≫" !important;
+    html body .stApp button[aria-label="Close sidebar"]::before,
+    html body .stApp button[aria-label="사이드바 열기"]::before,
+    html body .stApp button[aria-label="사이드바 닫기"]::before {
+        content: "" !important;
         position: absolute !important;
-        inset: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: var(--cime-toggle-icon) !important;
-        font-size: 24px !important;
-        font-weight: 950 !important;
-        line-height: 1 !important;
-        letter-spacing: -8px !important;
-        text-indent: -6px !important;
-        text-shadow:
-            0 0 8px rgba(255,255,255,0.88),
-            0 0 16px rgba(95,255,232,0.58) !important;
+        left: 50% !important;
+        top: 50% !important;
+        width: 18px !important;
+        height: 13px !important;
+        transform: translate(-50%, -50%) !important;
+        background:
+            linear-gradient(var(--cime-toggle-icon), var(--cime-toggle-icon)) 0 0 / 18px 3px no-repeat,
+            linear-gradient(var(--cime-toggle-icon), var(--cime-toggle-icon)) 0 5px / 18px 3px no-repeat,
+            linear-gradient(var(--cime-toggle-icon), var(--cime-toggle-icon)) 0 10px / 18px 3px no-repeat !important;
+        border-radius: 2px !important;
+        filter: drop-shadow(0 0 6px rgba(255,255,255,0.80)) drop-shadow(0 0 12px rgba(95,255,232,0.58)) !important;
         pointer-events: none !important;
         z-index: 4 !important;
     }
 
-    /* 열린 상태: 닫기 아이콘 */
-    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] > button::before,
-    html body .stApp button[aria-label="Close sidebar"]::before,
-    html body .stApp button[aria-label="사이드바 닫기"]::before {
-        content: "≪" !important;
-        position: absolute !important;
-        inset: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: var(--cime-toggle-icon) !important;
-        font-size: 24px !important;
-        font-weight: 950 !important;
-        line-height: 1 !important;
-        letter-spacing: -8px !important;
-        text-indent: -6px !important;
-        text-shadow:
-            0 0 8px rgba(255,255,255,0.88),
-            0 0 16px rgba(95,255,232,0.58) !important;
-        pointer-events: none !important;
-        z-index: 4 !important;
+    /* 혹시 남는 Streamlit 기본 열기/닫기 텍스트(두 번째 사진 형태)는 완전히 투명 처리 */
+    html body .stApp [data-testid="collapsedControl"] > button::after,
+    html body .stApp [data-testid="stSidebarCollapsedControl"] > button::after,
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] > button::after,
+    html body .stApp button[aria-label="Open sidebar"]::after,
+    html body .stApp button[aria-label="Close sidebar"]::after,
+    html body .stApp button[aria-label="사이드바 열기"]::after,
+    html body .stApp button[aria-label="사이드바 닫기"]::after {
+        content: none !important;
+        display: none !important;
     }
     </style>
     """,
