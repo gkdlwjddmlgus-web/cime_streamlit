@@ -2534,7 +2534,7 @@ def render_startrail_dashboard():
                     st.warning(f"히트맵 컬럼이 부족합니다: {missing}")
                 else:
                     fig = px.imshow(filtered_df.sort_values("영입우선_점수", ascending=False).head(15).set_index("소속")[heatmap_cols], text_auto=".0f", aspect="auto", color_continuous_scale="YlGnBu", zmin=0, zmax=100, labels=dict(color="점수"))
-                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=70, t=40, b=70), height=460)
+                    fig.update_layout(paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=75, r=70, t=60, b=105), height=620)
                     st.plotly_chart(fig, use_container_width=True)
             elif current_seg == "코멧":
                 comet_all_df = raw.copy()
@@ -2567,7 +2567,7 @@ def render_startrail_dashboard():
                             fig.add_trace(go.Scatter(x=temp["최고_팔로워"], y=temp["통합_외부화력"], mode="markers", name=route, marker=dict(size=14, color=color, line=dict(color="white", width=1.4)), text=text_values, hovertemplate=f"<b>%{{text}}</b><br>유입경로: {route}<br>최고 팔로워: %{{x:,.0f}}<br>통합 외부화력: %{{y:,.0f}}<extra></extra>"))
                     if not plot_comet_df.empty and plot_comet_df["최고_팔로워"].mean() > 0:
                         fig.add_vline(x=plot_comet_df["최고_팔로워"].mean(), line_dash="dot", line_width=2, line_color="#c9d1d9", opacity=0.75)
-                    fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=70, r=100, t=60, b=70), height=460, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
+                    fig.update_layout(title=dict(text="외부 팬덤 vs 방송 체급", x=0.06, xanchor="left"), xaxis_title="방송 체급", yaxis_title="통합 외부 화력", xaxis_type="log", yaxis_type="log", paper_bgcolor=STARTRAIL_TRANSPARENT, plot_bgcolor=STARTRAIL_TRANSPARENT, font_color="white", margin=dict(l=75, r=112, t=70, b=90), height=620, legend=dict(title="코멧 유입경로", bgcolor=STARTRAIL_TRANSPARENT, x=1.02, y=0.98, xanchor="left", yanchor="top"))
                     fig.update_xaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     fig.update_yaxes(gridcolor="rgba(255,255,255,0.12)", automargin=True)
                     st.plotly_chart(fig, use_container_width=True)
