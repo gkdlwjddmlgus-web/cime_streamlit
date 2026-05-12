@@ -3826,7 +3826,7 @@ st.markdown(
     /* STAR TRAIL 전용 상단 여백 보정: STAR SEED와 시각적 시작점을 맞춤 */
     html body .stApp .block-container:has(.startrail-page) {
         padding-top: 0 !important;
-        margin-top: -6.9rem !important;
+        margin-top: -8.4rem !important;
         max-width: 1560px !important;
     }
     html body .stApp .startrail-page {
@@ -3845,7 +3845,7 @@ st.markdown(
 
     @media (max-width: 1200px) {
         html body .stApp .block-container:has(.startrail-page) {
-            margin-top: -3.8rem !important;
+            margin-top: -6.0rem !important;
         }
     }
     </style>
