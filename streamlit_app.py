@@ -5456,16 +5456,28 @@ st.markdown(
         height: var(--cime-sidebar-toggle-size) !important;
         min-width: var(--cime-sidebar-toggle-size) !important;
         min-height: var(--cime-sidebar-toggle-size) !important;
+        border-radius: 999px !important;
+        border: 1px solid rgba(118, 242, 226, 0.46) !important;
+        background:
+            radial-gradient(circle at 34% 28%, rgba(118, 242, 226, 0.18), transparent 42%),
+            rgba(7, 22, 38, 0.90) !important;
+        box-shadow:
+            0 0 15px rgba(95, 255, 232, 0.20),
+            inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        overflow: visible !important;
+        overflow: hidden !important;
         z-index: 1000002 !important;
         margin: 0 !important;
         padding: 0 !important;
+        font-size: 0 !important;
+        line-height: 0 !important;
+        color: transparent !important;
+        text-indent: -9999px !important;
     }
 
     /* 버튼 자체를 열린 사이드바의 닫기 토글과 같은 원형 패널로 처리 */
@@ -5495,10 +5507,14 @@ st.markdown(
         visibility: visible !important;
         opacity: 1 !important;
         pointer-events: auto !important;
-        overflow: visible !important;
+        overflow: hidden !important;
         z-index: 1000003 !important;
         margin: 0 !important;
         padding: 0 !important;
+        font-size: 0 !important;
+        line-height: 0 !important;
+        color: transparent !important;
+        text-indent: -9999px !important;
     }
 
     html body .stApp [data-testid="collapsedControl"] button,
@@ -5555,6 +5571,8 @@ st.markdown(
     }
 
     /* 접힌 상태는 열기 기능이므로 닫기 토글과 같은 톤의 »» 아이콘 표시 */
+    html body .stApp [data-testid="collapsedControl"]::before,
+    html body .stApp [data-testid="stSidebarCollapsedControl"]::before,
     html body .stApp [data-testid="collapsedControl"] button::before,
     html body .stApp [data-testid="stSidebarCollapsedControl"] button::before,
     html body .stApp button[aria-label="Open sidebar"]::before,
@@ -5578,7 +5596,11 @@ st.markdown(
         pointer-events: none !important;
     }
 
-    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"]::before,
+    html body .stApp [data-testid="collapsedControl"]:has(button)::before,
+    html body .stApp [data-testid="stSidebarCollapsedControl"]:has(button)::before {
+        content: none !important;
+    }
+
     html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button::before,
     html body .stApp section[data-testid="stSidebar"] button[aria-label="Close sidebar"]::before,
     html body .stApp section[data-testid="stSidebar"] button[title="Close sidebar"]::before {
