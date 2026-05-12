@@ -4464,7 +4464,7 @@ recent_priority_rows = []
 if not mini_tracking_df.empty:
     for _, r in mini_tracking_df.head(5).iterrows():
         recent_priority_rows.append(
-            f'<tr><td class="name" style="width:28%;">{safe_html(short_text(r.get("채널명", "-"), 18))}</td><td style="width:13%;">{fmt_num(r.get("이전순위", np.nan), 0, "")}</td><td style="width:13%;">{fmt_num(r.get("현재순위", np.nan), 0, "")}</td><td style="width:17%; color:#ff838d; font-weight:950;">▲ {fmt_num(abs(float(r.get("순위변동", 0) or 0)), 0, "")}</td><td class="priority-score" style="width:13%;">{fmt_num(r.get("현재점수", np.nan), 1, "")}</td><td style="width:16%;">{action_tag(r.get("현재단계", "-"))}</td></tr>'
+            f'<tr><td class="name recent-candidate">{safe_html(str(r.get("채널명", "-")))}</td><td class="recent-numeric">{fmt_num(r.get("이전순위", np.nan), 0, "")}</td><td class="recent-numeric">{fmt_num(r.get("현재순위", np.nan), 0, "")}</td><td class="recent-numeric recent-rise">▲ {fmt_num(abs(float(r.get("순위변동", 0) or 0)), 0, "")}</td><td class="priority-score recent-numeric">{fmt_num(r.get("현재점수", np.nan), 1, "")}</td><td class="recent-stage">{action_tag(r.get("현재단계", "-"))}</td></tr>'
         )
 
 candidate_select_df = filtered.copy()
@@ -4504,7 +4504,7 @@ with left_col:
         html(f'<div class="board-panel priority-table-panel"><table class="priority-table"><thead><tr><th>순위</th><th>스트리머명</th><th>주요 콘텐츠군</th><th>검토단계</th><th>점수</th></tr></thead><tbody>{"".join(priority_rows)}</tbody></table></div>')
     else:
         if recent_priority_rows:
-            html(f'<div class="board-panel priority-table-panel"><table class="priority-table"><thead><tr><th>후보</th><th>이전</th><th>현재</th><th>상승</th><th>점수</th><th>단계</th></tr></thead><tbody>{"".join(recent_priority_rows)}</tbody></table></div>')
+            html(f'<div class="board-panel priority-table-panel recent-table-panel"><table class="priority-table recent-priority-table"><colgroup><col class="recent-col-candidate"><col class="recent-col-prev"><col class="recent-col-current"><col class="recent-col-rise"><col class="recent-col-score"><col class="recent-col-stage"></colgroup><thead><tr><th>후보</th><th>이전</th><th>현재</th><th>상승</th><th>점수</th><th>단계</th></tr></thead><tbody>{"".join(recent_priority_rows)}</tbody></table></div>')
         else:
             html('<div class="board-panel priority-table-panel"><div class="board-info-text">비교 가능한 최근 순위 상승 후보 데이터가 없습니다.</div></div>')
 
@@ -4663,3 +4663,194 @@ with graph_right:
 # - KPI 해석은 각 KPI 카드의 ? 툴팁으로 이동
 # - 영입 점수 설명은 KPI 카드 바로 아래로 이동
 # =========================================================
+
+
+# =========================================================
+# FINAL PATCH 2026-05-12 PM
+# - 스타시드/스타트레일 상단 여백 축소 및 타이틀 블록 확대
+# - 최근 순위 상승 후보 테이블 전용 컬럼 폭/가독성 분리
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* 1) STAR SEED / STAR TRAIL 상단 여백 축소 */
+    .block-container:has(.starseed-board),
+    .block-container:has(.startrail-page) {
+        padding-top: 0 !important;
+        margin-top: -4.6rem !important;
+    }
+    .starseed-board {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    .startrail-page .startrail-hero {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    /* 2) STAR SEED 상단 브랜드 영역 전체 확대 */
+    .starseed-board .starseed-hero-modern {
+        align-items: center !important;
+        margin-top: 0 !important;
+        margin-bottom: 14px !important;
+    }
+    .starseed-board .board-head-left,
+    .starseed-board .starseed-title-block {
+        grid-template-columns: 96px minmax(0, 1fr) !important;
+        gap: 23px !important;
+        min-height: 104px !important;
+        align-items: center !important;
+    }
+    .starseed-board .board-title-icon {
+        width: 82px !important;
+        height: 82px !important;
+        border-radius: 14px !important;
+    }
+    .starseed-board .board-title-icon .seed-search-icon {
+        transform: scale(1.14) !important;
+        transform-origin: center center !important;
+    }
+    .starseed-board .board-title,
+    .starseed-board .board-title-ko,
+    .starseed-board .starseed-brand-title {
+        font-size: 45px !important;
+        line-height: 1.02 !important;
+        margin-bottom: 8px !important;
+    }
+    .starseed-board .board-title span,
+    .starseed-board .starseed-brand-title span {
+        font-size: 36px !important;
+    }
+    .starseed-board .board-title-accent-line {
+        width: 270px !important;
+        height: 2px !important;
+        margin-bottom: 10px !important;
+    }
+    .starseed-board .board-subtitle,
+    .starseed-board .starseed-brand-subtitle {
+        font-size: 15.8px !important;
+        line-height: 1.45 !important;
+        font-weight: 760 !important;
+    }
+    .starseed-board .starseed-date-pill {
+        top: 0 !important;
+        right: 0 !important;
+    }
+
+    /* 3) STAR TRAIL 상단 브랜드 영역 전체 확대 */
+    .startrail-page .startrail-hero-modern {
+        align-items: center !important;
+        margin-top: 0 !important;
+        margin-bottom: 30px !important;
+    }
+    .startrail-page .trail-title-block {
+        grid-template-columns: 96px minmax(0, 1fr) !important;
+        gap: 23px !important;
+        min-height: 104px !important;
+        align-items: center !important;
+    }
+    .startrail-page .trail-title-icon {
+        width: 82px !important;
+        height: 82px !important;
+        border-radius: 14px !important;
+    }
+    .startrail-page .trail-title-icon .trail-spark-icon {
+        transform: scale(1.14) !important;
+        transform-origin: center center !important;
+    }
+    .startrail-page .trail-brand-title {
+        font-size: 45px !important;
+        line-height: 1.02 !important;
+        margin-bottom: 8px !important;
+    }
+    .startrail-page .trail-brand-title span {
+        font-size: 36px !important;
+    }
+    .startrail-page .trail-title-accent-line {
+        width: 270px !important;
+        height: 2px !important;
+        margin-bottom: 10px !important;
+    }
+    .startrail-page .trail-title-block .trail-subtitle {
+        font-size: 15.8px !important;
+        line-height: 1.45 !important;
+        font-weight: 760 !important;
+    }
+    .startrail-page .trail-date-pill {
+        top: 0 !important;
+        right: 0 !important;
+    }
+    .startrail-page .trail-info-card {
+        margin-top: 44px !important;
+    }
+
+    /* 4) 최근 순위 상승 후보 테이블 전용 레이아웃 */
+    .recent-table-panel {
+        min-height: 228px !important;
+        overflow: hidden !important;
+    }
+    .recent-priority-table {
+        table-layout: fixed !important;
+        width: 100% !important;
+        font-size: 12px !important;
+    }
+    .recent-priority-table col.recent-col-candidate { width: 34% !important; }
+    .recent-priority-table col.recent-col-prev,
+    .recent-priority-table col.recent-col-current,
+    .recent-priority-table col.recent-col-rise,
+    .recent-priority-table col.recent-col-score { width: 12% !important; }
+    .recent-priority-table col.recent-col-stage { width: 18% !important; }
+    .recent-priority-table th,
+    .recent-priority-table td {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    .recent-priority-table td.recent-candidate,
+    .recent-priority-table th:first-child {
+        text-align: left !important;
+        font-weight: 900 !important;
+        padding-left: 12px !important;
+    }
+    .recent-priority-table td.recent-numeric,
+    .recent-priority-table .priority-score {
+        font-weight: 950 !important;
+        letter-spacing: -0.01em !important;
+    }
+    .recent-priority-table td.recent-rise {
+        color: #ff838d !important;
+        font-weight: 950 !important;
+    }
+    .recent-priority-table td.recent-stage .action-pill,
+    .recent-priority-table td.recent-stage .tag-pill {
+        max-width: 86px !important;
+        min-width: 58px !important;
+        font-size: 10.5px !important;
+        padding: 3px 8px !important;
+    }
+
+    @media (max-width: 1200px) {
+        .block-container:has(.starseed-board),
+        .block-container:has(.startrail-page) {
+            margin-top: -2.2rem !important;
+        }
+        .starseed-board .board-title,
+        .starseed-board .board-title-ko,
+        .starseed-board .starseed-brand-title,
+        .startrail-page .trail-brand-title {
+            font-size: 38px !important;
+        }
+        .starseed-board .board-title span,
+        .starseed-board .starseed-brand-title span,
+        .startrail-page .trail-brand-title span {
+            font-size: 30px !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
