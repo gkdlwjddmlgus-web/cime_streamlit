@@ -3226,7 +3226,7 @@ def render_startrail_dashboard():
                         st.rerun()
 
         with graph_col:
-            graph_title = "🌌 성단 TOP15 히트맵" if current_seg == "성단" else "🌌 코멧 타겟팅 맵" if current_seg == "코멧" else f"🌌 {html_lib.escape(current_seg)} 세그먼트 분석 분포"
+            graph_title = "🌌 성단 TOP15 히트맵" if current_seg == "성단" else "🌌 코멧 타겟팅 맵" if current_seg == "코멧" else "🌌 위성 세그먼트 막대그래프" if current_seg == "위성" else f"🌌 {html_lib.escape(current_seg)} 세그먼트 분석 분포"
             st.markdown(f"<div class='trail-bottom-title'>{graph_title}</div>", unsafe_allow_html=True)
             if filtered_df.empty:
                 st.warning("그래프를 표시할 데이터가 없습니다.")
@@ -3805,6 +3805,46 @@ st.markdown(
         html body .stApp .block-container:has(.starseed-board),
         html body .stApp .block-container:has(.startrail-page) {
             margin-top: -2.2rem !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+
+# =========================================================
+# EFFECTIVE PATCH 2026-05-12 PM2
+# - 스타트레일 상단 여백을 스타시드 수준으로 추가 축소
+# - 라우팅 전 주입하여 st.stop 이전에 반드시 적용
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* STAR TRAIL 전용 상단 여백 보정: STAR SEED와 시각적 시작점을 맞춤 */
+    html body .stApp .block-container:has(.startrail-page) {
+        padding-top: 0 !important;
+        margin-top: -6.9rem !important;
+        max-width: 1560px !important;
+    }
+    html body .stApp .startrail-page {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    html body .stApp .startrail-page .startrail-hero,
+    html body .stApp .startrail-page .trail-hero-top,
+    html body .stApp .startrail-page .startrail-hero-modern {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    html body .stApp .startrail-page .trail-date-pill {
+        top: 0 !important;
+    }
+
+    @media (max-width: 1200px) {
+        html body .stApp .block-container:has(.startrail-page) {
+            margin-top: -3.8rem !important;
         }
     }
     </style>
