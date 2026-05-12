@@ -5200,7 +5200,7 @@ st.markdown(
     .block-container:has(.starseed-board),
     .block-container:has(.startrail-page) {
         padding-top: 0 !important;
-        margin-top: -6.4rem !important;
+        margin-top: -8.4rem !important;
     }
     .starseed-board {
         margin-top: 0 !important;
