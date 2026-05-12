@@ -1905,14 +1905,11 @@ div[data-testid="stPlotlyChart"] {
     filter: drop-shadow(0 0 13px rgba(255,212,93,.50)) !important;
 }
 .trail-info-title,
-.trail-side-title {
+.trail-section-title,
+.trail-side-title,
+.trail-bottom-title {
     color: #FFF8E4 !important;
     text-shadow: 0 0 10px rgba(255,212,93,.12) !important;
-}
-.trail-section-title,
-.trail-bottom-title {
-    color: #FFFFFF !important;
-    text-shadow: 0 0 10px rgba(255,255,255,.14) !important;
 }
 .trail-kpi-value,
 .trail-seg-count,
@@ -1995,38 +1992,6 @@ div[data-testid="stPlotlyChart"] {
     background: rgba(255,212,93,.12) !important;
     border-color: rgba(255,212,93,.46) !important;
 }
-.trail-hero-top {
-    position: relative !important;
-}
-.trail-hero-copy {
-    position: relative !important;
-    padding-top: 54px !important;
-}
-.trail-date-pill {
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    z-index: 8 !important;
-    margin: 0 !important;
-}
-.trail-seg-icon-badge {
-    width: 78px !important;
-    height: 78px !important;
-    margin: 32px auto 18px !important;
-    border-radius: 18px !important;
-    background: linear-gradient(180deg, rgba(44,50,67,.82), rgba(31,28,45,.94)) !important;
-    border: 1px solid rgba(255,212,93,.28) !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 20px rgba(255,212,93,.08) !important;
-}
-.trail-seg-emoji {
-    font-size: 34px !important;
-    filter: drop-shadow(0 0 10px rgba(255,212,93,.24)) !important;
-}
-.trail-seg-card.active-성단 .trail-seg-icon-badge { border-color: rgba(255,212,93,.36) !important; }
-.trail-seg-card.active-프로토스타 .trail-seg-icon-badge { border-color: rgba(116,224,137,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(116,224,137,.12) !important; }
-.trail-seg-card.active-위성 .trail-seg-icon-badge { border-color: rgba(143,168,255,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(143,168,255,.12) !important; }
-.trail-seg-card.active-슈퍼노바 .trail-seg-icon-badge { border-color: rgba(255,76,158,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(255,76,158,.12) !important; }
-.trail-seg-card.active-코멧 .trail-seg-icon-badge { border-color: rgba(255,132,82,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(255,132,82,.12) !important; }
 .trail-table th {
     color: #FFEFC8 !important;
     background: rgba(255,212,93,.065) !important;
@@ -2046,8 +2011,147 @@ div[data-testid="column"]:has(.trail-detail-button-title) .stButton > button {
 """, unsafe_allow_html=True)
 
 
+
+def inject_startrail_segment_tooltip_patch():
+    """스타트레일 세그먼트 카드 tooltip을 카드 밖으로 확장되는 상세 팝업형으로 보정한다."""
+    st.markdown(
+        """
+        <style>
+        .startrail-page .trail-seg-card,
+        .trail-seg-card {
+            overflow: visible !important;
+            z-index: 3 !important;
+        }
+        div[data-testid="column"]:has(.trail-seg-card) {
+            overflow: visible !important;
+            position: relative !important;
+            z-index: 20 !important;
+        }
+        div[data-testid="column"]:has(.trail-seg-card:hover),
+        .trail-seg-card:hover {
+            z-index: 9999 !important;
+        }
+        .trail-seg-name {
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            overflow: visible !important;
+            z-index: 5 !important;
+        }
+        .trail-tooltip-wrap {
+            position: relative !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: visible !important;
+            z-index: 10000 !important;
+        }
+        .trail-tooltip-icon {
+            width: 17px !important;
+            height: 17px !important;
+            min-width: 17px !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(217, 200, 255, 0.76) !important;
+            color: #D9C8FF !important;
+            background: rgba(10, 8, 28, 0.78) !important;
+            font-size: 10px !important;
+            font-weight: 950 !important;
+            line-height: 15px !important;
+            text-align: center !important;
+            cursor: help !important;
+            box-sizing: border-box !important;
+        }
+        .trail-tooltip-text.trail-tooltip-rich {
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            z-index: 100000 !important;
+            bottom: 145% !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(6px) !important;
+            width: 315px !important;
+            max-width: min(315px, 82vw) !important;
+            padding: 16px 18px !important;
+            border-radius: 18px !important;
+            background:
+                radial-gradient(circle at 16% 18%, rgba(196,143,255,.18), transparent 35%),
+                linear-gradient(145deg, rgba(18, 29, 42, 0.98), rgba(16, 13, 42, 0.98)) !important;
+            border: 1px solid rgba(117, 204, 255, 0.30) !important;
+            box-shadow:
+                0 18px 42px rgba(0, 0, 0, 0.54),
+                0 0 24px rgba(117, 204, 255, 0.14),
+                inset 0 1px 0 rgba(255,255,255,.08) !important;
+            color: #EDE7FF !important;
+            text-align: left !important;
+            font-size: 12px !important;
+            line-height: 1.55 !important;
+            white-space: normal !important;
+            word-break: keep-all !important;
+            transition: opacity .16s ease, transform .16s ease, visibility .16s ease !important;
+        }
+        .trail-tooltip-wrap:hover .trail-tooltip-text.trail-tooltip-rich {
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: translateX(-50%) translateY(0) !important;
+        }
+        .trail-tooltip-wrap.tooltip-pos-0 .trail-tooltip-text.trail-tooltip-rich {
+            left: 0 !important;
+            transform: translateX(-18%) translateY(6px) !important;
+        }
+        .trail-tooltip-wrap.tooltip-pos-0:hover .trail-tooltip-text.trail-tooltip-rich {
+            transform: translateX(-18%) translateY(0) !important;
+        }
+        .trail-tooltip-wrap.tooltip-pos-4 .trail-tooltip-text.trail-tooltip-rich {
+            left: 100% !important;
+            transform: translateX(-82%) translateY(6px) !important;
+        }
+        .trail-tooltip-wrap.tooltip-pos-4:hover .trail-tooltip-text.trail-tooltip-rich {
+            transform: translateX(-82%) translateY(0) !important;
+        }
+        .trail-tooltip-title-panel {
+            display: block !important;
+            padding: 12px 14px !important;
+            margin: 0 0 14px 0 !important;
+            border-radius: 12px !important;
+            background: rgba(255,255,255,.075) !important;
+            border: 1px solid rgba(255,255,255,.12) !important;
+            color: #FFF9FF !important;
+            text-align: center !important;
+            font-size: 14px !important;
+            font-weight: 950 !important;
+            line-height: 1.55 !important;
+        }
+        .trail-tooltip-label {
+            display: block !important;
+            margin: 12px 0 5px !important;
+            color: #F0B5FF !important;
+            font-size: 12px !important;
+            font-weight: 950 !important;
+            line-height: 1.35 !important;
+        }
+        .trail-tooltip-body {
+            display: block !important;
+            color: rgba(255,255,255,.82) !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            line-height: 1.65 !important;
+        }
+        .trail-tooltip-wrap.tooltip-seg-성단 .trail-tooltip-text.trail-tooltip-rich { border-color: rgba(255,107,138,.36) !important; box-shadow: 0 18px 42px rgba(0,0,0,.54), 0 0 24px rgba(255,107,138,.15), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+        .trail-tooltip-wrap.tooltip-seg-프로토스타 .trail-tooltip-text.trail-tooltip-rich { border-color: rgba(255,212,93,.38) !important; box-shadow: 0 18px 42px rgba(0,0,0,.54), 0 0 24px rgba(255,212,93,.15), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+        .trail-tooltip-wrap.tooltip-seg-위성 .trail-tooltip-text.trail-tooltip-rich { border-color: rgba(149,175,255,.38) !important; box-shadow: 0 18px 42px rgba(0,0,0,.54), 0 0 24px rgba(149,175,255,.15), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+        .trail-tooltip-wrap.tooltip-seg-슈퍼노바 .trail-tooltip-text.trail-tooltip-rich { border-color: rgba(255,157,245,.36) !important; box-shadow: 0 18px 42px rgba(0,0,0,.54), 0 0 24px rgba(255,157,245,.15), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+        .trail-tooltip-wrap.tooltip-seg-코멧 .trail-tooltip-text.trail-tooltip-rich { border-color: rgba(255,158,94,.36) !important; box-shadow: 0 18px 42px rgba(0,0,0,.54), 0 0 24px rgba(255,158,94,.15), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def render_startrail_dashboard():
     inject_startrail_css()
+    inject_startrail_segment_tooltip_patch()
     summary = load_startrail_summary_data()
     kpi = load_startrail_kpi_data()
     raw = load_startrail_raw_candidate_data()
@@ -2222,31 +2326,41 @@ def render_startrail_dashboard():
         "성단": {
             "icon": "👥",
             "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개",
-            "tooltip": "팬덤이 함께 이동할 가능성이 높은 그룹형 후보군입니다. 주요 판단 기준은 그룹/소속성, 팬덤 결집, 멤버 단위 이동 가능성입니다. CIME에서는 여러 스트리머와 팬덤을 함께 유입시켜 초기 트래픽을 빠르게 확보하는 타깃입니다.",
+            "tooltip_title": "팬덤이 함께 이동할 가능성이 높은<br>그룹형 후보군",
+            "tooltip_criteria": "그룹/소속성, 팬덤 결집, 멤버 단위 이동 가능성",
+            "tooltip_point": "여러 스트리머와 팬덤을 함께 유입시켜 초기 트래픽을 빠르게 확보합니다.",
             "desc": "소속 개인 수 : 455명",
         },
         "프로토스타": {
             "icon": "🌱",
             "count": f"{_num(summary.get('프로토스타 S급 후보 수')):,.0f}명",
-            "tooltip": "현재 규모는 작지만 방송 반응이 좋은 성장형 후보군입니다. 시청자 반응, 채팅, 뷰어십, 팔로워 대비 성과를 함께 봅니다. 조기 발굴과 육성 관점의 후보군입니다.",
+            "tooltip_title": "현재 규모는 작지만 방송 반응이 좋은<br>성장형 후보군",
+            "tooltip_criteria": "시청자 반응, 채팅, 뷰어십, 팔로워 대비 성과",
+            "tooltip_point": "성장 가능성이 높은 후보를 조기에 발굴해 CIME의 육성 타깃으로 활용합니다.",
             "desc": "S급 후보 수",
         },
         "위성": {
             "icon": "🛰️",
             "count": f"{_num(summary.get('위성 후보 수')):,.0f}명",
-            "tooltip": "소속 없이도 방송 성과가 검증된 개인형 후보군입니다. 도네이션, 채팅화력, 평균 시청자, 개인 활동 여부를 함께 확인합니다.",
+            "tooltip_title": "소속 없이도 방송 성과가 검증된<br>개인형 후보군",
+            "tooltip_criteria": "도네이션, 채팅화력, 평균 시청자, 개인 활동 여부",
+            "tooltip_point": "검증된 개인 방송 화력을 바탕으로 안정적인 콘텐츠와 수익성을 확보합니다.",
             "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군",
         },
         "슈퍼노바": {
             "icon": "⭐",
             "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명",
-            "tooltip": "대중성과 팬덤 규모가 큰 간판형 후보군입니다. 팔로워, 최고 시청자, 유튜브 구독자, 팬덤지수, 방송화력을 함께 봅니다. 플랫폼 주목도와 외부 유입을 높이는 후보군입니다.",
+            "tooltip_title": "대중성과 팬덤 규모가 큰<br>간판형 후보군",
+            "tooltip_criteria": "팔로워, 최고 시청자, 유튜브 구독자, 팬덤지수, 방송화력",
+            "tooltip_point": "인지도 높은 스트리머를 통해 플랫폼 주목도와 외부 유입을 높입니다.",
             "desc": "핵심 후보군 수",
         },
         "코멧": {
             "icon": "☄️",
             "count": f"{_num(summary.get('코멧 후보 수')):,.0f}명",
-            "tooltip": "방송 외부 채널에서 인지도가 높은 발견형 후보군입니다. 유튜브 구독자, X 팔로워, 외부 유입지수, 플랫폼 대비 외부 체급을 함께 봅니다.",
+            "tooltip_title": "방송 외부 채널에서 인지도가 높은<br>발견형 후보군",
+            "tooltip_criteria": "유튜브 구독자, X 팔로워, 외부 유입지수, 플랫폼 대비 외부 체급",
+            "tooltip_point": "외부 팬덤을 CIME으로 연결해 새로운 이용자 유입을 만듭니다.",
             "desc": "방송 외부 채널에서 인지도가 높은 발견형 후보군",
         },
     }
@@ -2258,15 +2372,27 @@ def render_startrail_dashboard():
             info = seg_data[seg]
             active_class = f"active active-{seg}" if st.session_state.startrail_current_seg == seg else ""
             icon_html = html_lib.escape(info.get("icon", "✦"))
-            tooltip_html = html_lib.escape(info.get("tooltip", ""))
+            tooltip_title = str(info.get("tooltip_title", "")).replace("<br>", "__BR__")
+            tooltip_title = html_lib.escape(tooltip_title).replace("__BR__", "<br>")
+            tooltip_criteria = html_lib.escape(str(info.get("tooltip_criteria", "")))
+            tooltip_point = html_lib.escape(str(info.get("tooltip_point", "")))
+            tooltip_plain = html_lib.escape(
+                f'{str(info.get("tooltip_title", "")).replace("<br>", " ")} / 주요 판단 기준: {info.get("tooltip_criteria", "")} / CIME 활용 포인트: {info.get("tooltip_point", "")}'
+            )
             st.markdown(f'''
             <div class="trail-seg-card {active_class}">
                 <div class="trail-seg-icon-badge"><span class="trail-seg-emoji">{icon_html}</span></div>
                 <div class="trail-seg-name">
                     <span>{html_lib.escape(seg)}</span>
-                    <span class="trail-tooltip-wrap" aria-label="{tooltip_html}">
+                    <span class="trail-tooltip-wrap tooltip-pos-{i} tooltip-seg-{html_lib.escape(seg)}" aria-label="{tooltip_plain}">
                         <span class="trail-tooltip-icon">?</span>
-                        <span class="trail-tooltip-text">{tooltip_html}</span>
+                        <span class="trail-tooltip-text trail-tooltip-rich">
+                            <span class="trail-tooltip-title-panel">{tooltip_title}</span>
+                            <span class="trail-tooltip-label">주요 판단 기준</span>
+                            <span class="trail-tooltip-body">{tooltip_criteria}</span>
+                            <span class="trail-tooltip-label">CIME 활용 포인트</span>
+                            <span class="trail-tooltip-body">{tooltip_point}</span>
+                        </span>
                     </span>
                 </div>
                 <div class="trail-seg-count">{info["count"]}</div>
