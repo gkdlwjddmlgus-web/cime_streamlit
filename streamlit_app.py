@@ -159,60 +159,31 @@ def inject_button_theme_by_page():
 inject_button_theme_by_page()
 
 # =========================================================
-# Streamlit 우측 액션 버튼 최소 숨김
-# - toolbar 컨테이너는 숨기지 않음
-# - sidebar toggle 안정성 우선
+# Streamlit 상단 Toolbar 제거
+# - 사용자가 DevTools에서 확인한 stAppToolbar/stToolbar 영역을 제거한다.
+# - 이 영역 안에 남던 기본 >> 토글과 Share/Fork/Deploy UI가 함께 사라진다.
+# - sidebar 자체의 stSidebarCollapseButton은 건드리지 않는다.
 # =========================================================
 st.markdown(
     """
     <style>
-    /* header 자체와 toolbar 컨테이너는 유지 */
     header,
     header[data-testid="stHeader"],
-    [data-testid="stHeader"],
-    [data-testid="stToolbar"],
-    [data-testid="stHeaderActionElements"] {
+    [data-testid="stHeader"] {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
-        pointer-events: auto !important;
+        pointer-events: none !important;
         background: transparent !important;
         overflow: visible !important;
     }
 
-    /* 명확하게 식별 가능한 우측 액션 버튼만 숨김 */
-    header button[title="Share"],
-    header button[aria-label="Share"],
-    header button[title*="Share"],
-    header button[aria-label*="Share"],
-    header a[title*="Share"],
-    header a[aria-label*="Share"],
-
-    header button[title*="GitHub"],
-    header button[aria-label*="GitHub"],
-    header a[title*="GitHub"],
-    header a[aria-label*="GitHub"],
-
-    header button[title*="Fork"],
-    header button[aria-label*="Fork"],
-    header a[title*="Fork"],
-    header a[aria-label*="Fork"],
-
-    header button[title*="Star"],
-    header button[aria-label*="Star"],
-    header a[title*="Star"],
-    header a[aria-label*="Star"],
-
-    header button[title*="Edit"],
-    header button[aria-label*="Edit"],
-    header a[title*="Edit"],
-    header a[aria-label*="Edit"],
-
-    header button[title*="Deploy"],
-    header button[aria-label*="Deploy"],
-    header a[title*="Deploy"],
-    header a[aria-label*="Deploy"],
-
+    header [data-testid="stToolbar"],
+    [data-testid="stToolbar"],
+    .stAppToolbar,
+    div[class*="stAppToolbar"],
+    div[data-testid="stHeaderActionElements"],
+    [data-testid="stHeaderActionElements"],
     [data-testid="stDeployButton"],
     [data-testid="stAppDeployButton"],
     [data-testid="stStatusWidget"],
@@ -223,8 +194,14 @@ st.markdown(
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
     }
-
     </style>
     """,
     unsafe_allow_html=True,
@@ -360,10 +337,14 @@ st.markdown(
             --cime-sidebar-width: 300px; --cime-sidebar-toggle-top: 22px; --cime-sidebar-toggle-size: 34px; --cime-sidebar-toggle-left: 16px;
             --seed-green: #83F6A0; --seed-purple-line: rgba(154, 98, 255, 0.36);
         }
-        header, header[data-testid="stHeader"], [data-testid="stHeader"], header [data-testid="stToolbar"], [data-testid="stToolbar"] {
-            display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important;
+        header, header[data-testid="stHeader"], [data-testid="stHeader"] {
+            display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: none !important;
             height: 2.4rem !important; min-height: 2.4rem !important; max-height: 2.4rem !important;
             overflow: visible !important; background: transparent !important; z-index: 999990 !important;
+        }
+        header [data-testid="stToolbar"], [data-testid="stToolbar"], .stAppToolbar, div[class*="stAppToolbar"] {
+            display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+            width: 0 !important; height: 0 !important; overflow: hidden !important;
         }
         .stApp {
             background:
@@ -3755,11 +3736,30 @@ st.markdown(
     }
 
     html body .stApp header,
-    html body .stApp [data-testid="stHeader"],
-    html body .stApp [data-testid="stToolbar"] {
+    html body .stApp [data-testid="stHeader"] {
         overflow: visible !important;
         z-index: 999900 !important;
         background: transparent !important;
+        pointer-events: none !important;
+    }
+
+    /* DevTools에서 확인한 상단 stAppToolbar 영역은 숨김 처리 */
+    html body .stApp header [data-testid="stToolbar"],
+    html body .stApp [data-testid="stToolbar"],
+    html body .stApp .stAppToolbar,
+    html body .stApp div[class*="stAppToolbar"],
+    html body .stApp [data-testid="stHeaderActionElements"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
     }
 
     /* 공통: 열기/닫기 토글 wrapper와 실제 button을 모두 동일 크기/위치로 강제 */
@@ -3925,6 +3925,43 @@ st.markdown(
     html body .stApp button[aria-label="사이드바 닫기"]::after {
         content: none !important;
         display: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
+# ULTIMATE TOOLBAR PURGE
+# - Streamlit 기본 상단 toolbar/stAppToolbar를 최종적으로 숨긴다.
+# - 스타시드에서만 보이던 별도 열기/닫기 버튼은 이 toolbar 영역에서 발생한다.
+# - sidebar 내부의 [data-testid="stSidebarCollapseButton"]은 유지한다.
+# =========================================================
+st.markdown(
+    """
+    <style>
+    html body .stApp header [data-testid="stToolbar"],
+    html body .stApp [data-testid="stToolbar"],
+    html body .stApp .stAppToolbar,
+    html body .stApp div[class*="stAppToolbar"],
+    html body .stApp [data-testid="stHeaderActionElements"],
+    html body .stApp [data-testid="stDeployButton"],
+    html body .stApp [data-testid="stAppDeployButton"],
+    html body .stApp [data-testid="stStatusWidget"],
+    html body .stApp [data-testid="stDecoration"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        transform: scale(0) !important;
     }
     </style>
     """,
