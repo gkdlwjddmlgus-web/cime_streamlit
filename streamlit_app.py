@@ -2717,4 +2717,107 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+# =========================================================
+# Sidebar 기본 상태 및 토글 버튼 복구 패치
+# - 새로고침 시 expanded 설정을 유지
+# - 닫힌 상태에서도 열기 버튼이 사라지지 않게 보정
+# =========================================================
 
+st.markdown(
+    """
+    <style>
+    /* Header는 클릭 가능하게 복구 */
+    html body .stApp header,
+    html body .stApp [data-testid="stHeader"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        height: auto !important;
+        min-height: 2.75rem !important;
+        max-height: none !important;
+        overflow: visible !important;
+        background: rgba(5, 4, 17, 0.72) !important;
+        z-index: 999900 !important;
+    }
+
+    /* 툴바/헤더 액션 영역 복구 */
+    html body .stApp [data-testid="stToolbar"],
+    html body .stApp [data-testid="stHeaderActionElements"],
+    html body .stApp .stAppToolbar,
+    html body .stApp div[class*="stAppToolbar"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    /* 사이드바 열기/닫기 버튼 컨테이너 복구 */
+    html body .stApp [data-testid="collapsedControl"],
+    html body .stApp [data-testid="stSidebarCollapsedControl"],
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        overflow: visible !important;
+        z-index: 1000000 !important;
+    }
+
+    /* 사이드바 열기/닫기 버튼 본체 복구 */
+    html body .stApp [data-testid="collapsedControl"] > button,
+    html body .stApp [data-testid="stSidebarCollapsedControl"] > button,
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] > button,
+    html body .stApp button[aria-label="Open sidebar"],
+    html body .stApp button[aria-label="Close sidebar"],
+    html body .stApp button[aria-label="사이드바 열기"],
+    html body .stApp button[aria-label="사이드바 닫기"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        color: #F8F1FF !important;
+        background: rgba(24, 14, 46, 0.92) !important;
+        border: 1px solid rgba(184, 132, 255, 0.62) !important;
+        border-radius: 999px !important;
+        box-shadow: 0 0 14px rgba(166, 92, 255, 0.28) !important;
+        text-indent: 0 !important;
+        font-size: initial !important;
+        overflow: visible !important;
+    }
+
+    /* 기본 아이콘 복구 */
+    html body .stApp [data-testid="collapsedControl"] span,
+    html body .stApp [data-testid="collapsedControl"] svg,
+    html body .stApp [data-testid="stSidebarCollapsedControl"] span,
+    html body .stApp [data-testid="stSidebarCollapsedControl"] svg,
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] span,
+    html body .stApp section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] svg,
+    html body .stApp button[aria-label="Open sidebar"] span,
+    html body .stApp button[aria-label="Open sidebar"] svg,
+    html body .stApp button[aria-label="Close sidebar"] span,
+    html body .stApp button[aria-label="Close sidebar"] svg,
+    html body .stApp button[aria-label="사이드바 열기"] span,
+    html body .stApp button[aria-label="사이드바 열기"] svg,
+    html body .stApp button[aria-label="사이드바 닫기"] span,
+    html body .stApp button[aria-label="사이드바 닫기"] svg {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: auto !important;
+        height: auto !important;
+        color: #F8F1FF !important;
+        fill: #F8F1FF !important;
+        stroke: #F8F1FF !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
