@@ -2152,6 +2152,63 @@ def inject_startrail_segment_tooltip_patch():
 def render_startrail_dashboard():
     inject_startrail_css()
     inject_startrail_segment_tooltip_patch()
+    st.markdown(
+        """
+        <style>
+        .startrail-page .trail-hero { position: relative !important; }
+        .startrail-page .trail-date-pill {
+            position: absolute !important; top: 0 !important; right: 0 !important;
+            z-index: 20 !important; margin: 0 !important;
+        }
+        .startrail-page .trail-info-card { margin-top: 76px !important; }
+        .startrail-page .trail-section-title,
+        .startrail-page .trail-section-title *,
+        .startrail-page .trail-panel-title,
+        .startrail-page .trail-chart-title,
+        .startrail-page .trail-table-title {
+            color: #ffffff !important;
+            text-shadow: 0 0 14px rgba(255,255,255,0.22) !important;
+        }
+        .startrail-page .trail-seg-icon-badge {
+            width: 62px !important; height: 62px !important; min-width: 62px !important; min-height: 62px !important;
+            border-radius: 18px !important; display: flex !important; align-items: center !important; justify-content: center !important;
+            margin: 24px auto 18px auto !important;
+            background: rgba(54, 61, 105, 0.42) !important;
+            border: 1px solid rgba(165, 176, 255, 0.35) !important;
+            box-shadow: 0 0 22px rgba(130, 150, 255, 0.15), inset 0 0 18px rgba(255,255,255,0.05) !important;
+            filter: none !important;
+        }
+        .startrail-page .trail-seg-emoji { font-size: 30px !important; line-height: 1 !important; transform: none !important; filter: none !important; }
+        .startrail-page .trail-seg-card.active-성단 .trail-seg-icon-badge { background: rgba(78,63,49,.42) !important; border-color: rgba(255,218,107,.32) !important; }
+        .startrail-page .trail-seg-card.active-프로토스타 .trail-seg-icon-badge { background: rgba(38,78,68,.42) !important; border-color: rgba(94,220,155,.34) !important; }
+        .startrail-page .trail-seg-card.active-위성 .trail-seg-icon-badge { background: rgba(56,68,118,.46) !important; border-color: rgba(144,166,255,.38) !important; }
+        .startrail-page .trail-seg-card.active-슈퍼노바 .trail-seg-icon-badge { background: rgba(82,43,82,.42) !important; border-color: rgba(255,91,184,.34) !important; }
+        .startrail-page .trail-seg-card.active-코멧 .trail-seg-icon-badge { background: rgba(82,56,48,.42) !important; border-color: rgba(255,145,85,.34) !important; }
+        .startrail-page .trail-seg-card.active,
+        .startrail-page .trail-seg-card.active-성단,
+        .startrail-page .trail-seg-card.active-프로토스타,
+        .startrail-page .trail-seg-card.active-위성,
+        .startrail-page .trail-seg-card.active-슈퍼노바,
+        .startrail-page .trail-seg-card.active-코멧 {
+            border-color: rgba(255,255,255,.62) !important;
+            box-shadow: 0 0 24px rgba(255,255,255,.08), inset 0 0 24px rgba(255,255,255,.025) !important;
+        }
+        .startrail-page .trail-seg-card.active::before,
+        .startrail-page .trail-seg-card.active-성단::before,
+        .startrail-page .trail-seg-card.active-프로토스타::before,
+        .startrail-page .trail-seg-card.active-위성::before,
+        .startrail-page .trail-seg-card.active-슈퍼노바::before,
+        .startrail-page .trail-seg-card.active-코멧::before {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent) !important;
+        }
+        @media (max-width: 980px) {
+            .startrail-page .trail-date-pill { position: static !important; display: inline-flex !important; margin-top: 18px !important; }
+            .startrail-page .trail-info-card { margin-top: 24px !important; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     summary = load_startrail_summary_data()
     kpi = load_startrail_kpi_data()
     raw = load_startrail_raw_candidate_data()
@@ -2324,7 +2381,7 @@ def render_startrail_dashboard():
 
     seg_data = {
         "성단": {
-            "icon": "👥",
+            "icon": "⭐",
             "count": f"{_num(summary.get('성단 그룹 후보 수')):,.0f}개",
             "tooltip_title": "팬덤이 함께 이동할 가능성이 높은<br>그룹형 후보군",
             "tooltip_criteria": "그룹/소속성, 팬덤 결집, 멤버 단위 이동 가능성",
@@ -2348,7 +2405,7 @@ def render_startrail_dashboard():
             "desc": "소속 없이도 방송 성과가 검증된 개인형 후보군",
         },
         "슈퍼노바": {
-            "icon": "⭐",
+            "icon": "💥",
             "count": f"{_num(summary.get('슈퍼노바 핵심 후보 수')):,.0f}명",
             "tooltip_title": "대중성과 팬덤 규모가 큰<br>간판형 후보군",
             "tooltip_criteria": "팔로워, 최고 시청자, 유튜브 구독자, 팬덤지수, 방송화력",
