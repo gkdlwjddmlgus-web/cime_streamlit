@@ -1905,11 +1905,14 @@ div[data-testid="stPlotlyChart"] {
     filter: drop-shadow(0 0 13px rgba(255,212,93,.50)) !important;
 }
 .trail-info-title,
-.trail-section-title,
-.trail-side-title,
-.trail-bottom-title {
+.trail-side-title {
     color: #FFF8E4 !important;
     text-shadow: 0 0 10px rgba(255,212,93,.12) !important;
+}
+.trail-section-title,
+.trail-bottom-title {
+    color: #FFFFFF !important;
+    text-shadow: 0 0 10px rgba(255,255,255,.14) !important;
 }
 .trail-kpi-value,
 .trail-seg-count,
@@ -1992,6 +1995,38 @@ div[data-testid="stPlotlyChart"] {
     background: rgba(255,212,93,.12) !important;
     border-color: rgba(255,212,93,.46) !important;
 }
+.trail-hero-top {
+    position: relative !important;
+}
+.trail-hero-copy {
+    position: relative !important;
+    padding-top: 54px !important;
+}
+.trail-date-pill {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    z-index: 8 !important;
+    margin: 0 !important;
+}
+.trail-seg-icon-badge {
+    width: 78px !important;
+    height: 78px !important;
+    margin: 32px auto 18px !important;
+    border-radius: 18px !important;
+    background: linear-gradient(180deg, rgba(44,50,67,.82), rgba(31,28,45,.94)) !important;
+    border: 1px solid rgba(255,212,93,.28) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 20px rgba(255,212,93,.08) !important;
+}
+.trail-seg-emoji {
+    font-size: 34px !important;
+    filter: drop-shadow(0 0 10px rgba(255,212,93,.24)) !important;
+}
+.trail-seg-card.active-성단 .trail-seg-icon-badge { border-color: rgba(255,212,93,.36) !important; }
+.trail-seg-card.active-프로토스타 .trail-seg-icon-badge { border-color: rgba(116,224,137,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(116,224,137,.12) !important; }
+.trail-seg-card.active-위성 .trail-seg-icon-badge { border-color: rgba(143,168,255,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(143,168,255,.12) !important; }
+.trail-seg-card.active-슈퍼노바 .trail-seg-icon-badge { border-color: rgba(255,76,158,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(255,76,158,.12) !important; }
+.trail-seg-card.active-코멧 .trail-seg-icon-badge { border-color: rgba(255,132,82,.46) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(255,132,82,.12) !important; }
 .trail-table th {
     color: #FFEFC8 !important;
     background: rgba(255,212,93,.065) !important;
