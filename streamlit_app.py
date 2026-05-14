@@ -33,8 +33,8 @@ import base64
 # =========================================================
 
 st.set_page_config(
-    page_title="STAR SEED | CIME STREAM PLANET",
-    page_icon="🌱",
+    page_title="CIME STREAM PLANET",
+    page_icon="🌠",
     layout="wide",
     initial_sidebar_state="expanded",
 )
